@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<!--
+	Galactic Outlaw - an HTML5 game 
+	Copyright (C) 2013 Jonas "sanojian" Olmstead 
+	
+	Artwork - Oryx (http://oryxdesignlab.com/)
+	Music - Deceased Superior Technician (http://www.nosoapradio.us/)
+	
+	Thanks for buzzjs and craftyjs!
+-->
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<title>Two Friends, One Dungeon</title>
+	<script type="text/javascript" src="./includes/crafty.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script type="text/javascript" src="./dungeonGen.js"></script>
+	<script type="text/javascript" src="./gameDefines.js"></script>
+	<script type="text/javascript" src="./includes/buzz.min.js"></script>
+	<link href='//fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'>
+	<style>
+		body, html { margin:0; padding: 0; overflow:hidden; font-family:Arial; font-size:20px }
+		#cr-stage { border:2px solid black; margin:5px auto; color:white }
+		
+		.miniMapSquare {
+			width: 3px; 
+			height: 3px;
+			display: block;
+		}
+		.keyText {
+			position: absolute;
+			font-weight: normal;
+			font-size: 18px;
+			text-align: center;
+			color: #B2DCEF;
+		}
+		img.spellImage {
+			position: absolute;
+			visibility: hidden;
+		}
+	</style>
+	
+	<script language="javascript">
+"use strict";
+
+
+var RENDERING_MODE = 'DOM';//'Canvas';
+var GAME_FONT = '"Press Start 2P", cursive';
+var TILE_WIDTH = 16*3;
+var TILE_HEIGHT = 24*3;
+var VIEW_WIDTH = 28*TILE_WIDTH;
+var VIEW_HEIGHT = 10*TILE_HEIGHT;
+
+var g_game = {
+	slashEffects: {
+		objArray: [],
+		cursor: 0,
+		getNextEffect: function() {
+			g_game.slashEffects.cursor = (g_game.slashEffects.cursor + 1) % g_game.slashEffects.objArray.length;
+			return g_game.slashEffects.objArray[g_game.slashEffects.cursor];
+		}
+	},
+	sounds: {},
+	music: {},
+	curLevel: 0
+};
+
+window.addEventListener("load", function(event) {
+
+	VIEW_WIDTH = $(document).width();
+	VIEW_HEIGHT = $(document).height();
+	Crafty.init(VIEW_WIDTH, VIEW_HEIGHT);
+	
+	g_game.wizardControls = getParameterByName('wizardControls').toUpperCase() || 'WASD1234';
+	if (getParameterByName('resetChars')) {
+		localStorage.saveGame = '';
+		localStorage.curLevel = 0;
+	}
+	
+	doCraftyInitialization();
+});
+
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+function layoutGUI() {
+	$('#divGUI').show();
+	var pos = $('#cr-stage').offset();
+	$('#imgwizardBox').css({ top: pos.top,// + $('#cr-stage').height() - $('#imgwizardBox').height(), 
+							left: pos.left });
+	$('#divwizardControls').css({ top: pos.top + $('#imgwizardBox').height() + 24*3,
+							left: pos.left + $('#imgwizardBox').width()/2 - 48*3/2, width: 48*3, height: 48*3 });
+	$('div.keyText').css('font-family', GAME_FONT);
+	$('#divKeyUp').css({ left: $('#divwizardControls').width()/2-3*3, top: 12*3 });
+	$('#divKeyLeft').css({ left: 12*3, top: $('#divwizardControls').height()/2-3*3 });
+	$('#divKeyRight').css({ left: 30*3, top: $('#divwizardControls').height()/2-3*3 });
+	$('#divKeyDown').css({ left: $('#divwizardControls').width()/2-3*3, top: 30*3 });
+	$('#divwizardSpells').css({ top: pos.top + $('#imgwizardBox').height() + 3*3,
+							left: pos.left + $('#imgwizardBox').width()/2 - 64*3/2, width: 64*3, height: 16*3 });
+	$('#divwizardSpellControls').css({ top: $('#divwizardSpells').offset().top + 14*3, left: $('#divwizardSpells').offset().left
+							, width: $('#divwizardSpells').width() });
+	$('#divKeySpell1').css({ left: (16/2-2)*3 });						
+	$('#divKeySpell2').css({ left: (3*16/2-2)*3 });						
+	$('#divKeySpell3').css({ left: (5*16/2-2)*3 });						
+	$('#divKeySpell4').css({ left: (7*16/2-2)*3 });						
+	$('#imgSpell_Fireball').css('left', 16*3);
+	$('#imgSpell_Sleep').css('left', 32*3);
+	$('#imgSpell_Lightening').css('left', 48*3);
+	$('#imgfighterBox').css({ top: pos.top,// + $('#cr-stage').height() - $('#imgfighterBox').height(), 
+							left: pos.left + $('#cr-stage').width() - $('#imgfighterBox').width() });
+	$('#divfighterControls').css({ top: pos.top + $('#imgfighterBox').height() + 24*3,
+							left: pos.left + $('#cr-stage').width() - $('#imgfighterBox').width()/2 - 48*3/2, width: 48*3, height: 48*3 });
+	$('#divOverlay').css({ width: $('#cr-stage').width(), height: $('#cr-stage').height(), left: pos.left+2, top: pos.top+2 });
+
+	$('#canvasMiniMap').css({ width: 64*3, height: 64*3, left: pos.left+3, top: pos.top + $('#cr-stage').height() - 64*3 - 6 });
+
+}
+
+function centerOnPlayers() {
+	try {
+		var newX = Math.floor((g_game.fighter.locX + g_game.wizard.locX+1)/2);
+		var newY = Math.floor((g_game.fighter.locY + g_game.wizard.locY+1)/2);
+		Crafty.viewport.x = VIEW_WIDTH/2 - newX * TILE_WIDTH;
+		Crafty.viewport.y = VIEW_HEIGHT/2 - newY * TILE_HEIGHT;
+		//Crafty.viewport.pan('x', Crafty.viewport.x - (VIEW_WIDTH/2 - newX * TILE_WIDTH), 10);
+		//Crafty.viewport.pan('y', Crafty.viewport.y - (VIEW_HEIGHT/2 - newY * TILE_HEIGHT), 10);
+		updateMiniMap();
+	} catch(ex) {}
+}
+
+function fadeOutControls() {
+	$('div.playerControls').stop().css('opacity', 1);
+	$('div.playerControls').animate({ opacity: 0 }, 2000);
+}
+
+function getTextForLoot(level) {
+	if (level == 5) {
+		return 'Epic!';
+	}
+	else if (level == 4) {
+		return 'Legendary';
+	}
+	else if (level == 3) {
+		return 'Enchanted';
+	}
+	else if (level == 2) {
+		return 'Enforced';
+	}
+	return 'Sturdy';
+
+}
+
+function getXPforLevel(level) {
+	var amt = 0;
+	var i = level;
+	while (i > 0) {
+		amt += i;
+		i--;
+	}
+	
+	return amt;
+}
+
+function savePlayers() {
+	var saveGame = {
+		fighter: {
+			xp: g_game.fighter.xp,
+			equipment: g_game.fighter.equipment
+		},
+		wizard: {
+			xp: g_game.wizard.xp,
+			equipment: g_game.wizard.equipment
+		}
+	}
+
+	localStorage.curLevel = parseInt(g_game.curLevel, 10);
+	localStorage.saveGame = JSON.stringify(saveGame);
+}
+
+function restorePlayers() {
+	if (localStorage.saveGame) {
+		var saveGame = $.parseJSON(localStorage.saveGame);
+		g_game.fighter.xp = saveGame.fighter.xp;
+		g_game.fighter.equipment = saveGame.fighter.equipment;
+		g_game.fighter.addXP(0);
+		g_game.fighter.calcStats();
+		g_game.fighter.dressInEquipment();
+		g_game.fighter.health = g_game.fighter.maxHealth;
+
+		g_game.wizard.xp = saveGame.wizard.xp;
+		g_game.wizard.equipment = saveGame.wizard.equipment;
+		g_game.wizard.addXP(0);
+		g_game.wizard.calcStats();
+		g_game.wizard.dressInEquipment();
+		g_game.wizard.health = g_game.wizard.maxHealth;
+		g_game.wizard.mana = g_game.wizard.maxMana;
+	}
+}
+
+function updateMiniMap() {
+		var drawingCanvas = document.getElementById('canvasMiniMap');
+		var context = drawingCanvas.getContext('2d');
+		
+		for (var y=0;y<Dungeon.map_size;y++) {
+			for (var x=0;x<Dungeon.map_size;x++) {
+				context.fillStyle = '#000';
+				if (g_game.mapReveal[y][x]) {
+					var tile = Dungeon.map[x][y];
+					if (tile == 1) {
+						context.fillStyle = '#005784';
+					}
+					else if (tile == 2) {
+						context.fillStyle = '#31A2F2';
+					}
+				}
+				context.fillRect(x*6,y*3,6,3);
+			}
+		}
+		if (g_game.mapReveal[g_game.entrance.y/TILE_HEIGHT][g_game.entrance.x/TILE_WIDTH]) {
+			context.fillStyle = '#44891A';
+			context.fillRect((g_game.entrance.x/TILE_WIDTH)*6-1,(g_game.entrance.y/TILE_HEIGHT)*3-1,8,4);
+		}
+		if (g_game.mapReveal[g_game.exit.y/TILE_HEIGHT][g_game.exit.x/TILE_WIDTH]) {
+			context.fillStyle = '#BE2633';
+			context.fillRect((g_game.exit.x/TILE_WIDTH)*6-1,(g_game.exit.y/TILE_HEIGHT)*3-1,8,4);
+		}
+		
+		context.fillStyle = '#fff';
+		context.fillRect(g_game.fighter.locX*6,g_game.fighter.locY*3,6,3);
+		context.fillRect(g_game.wizard.locX*6,g_game.wizard.locY*3,6,3);
+
+}
+
+function doCraftyInitialization() {
+
+	Crafty.c('Mob', {
+		locX: 0,
+		locY: 0,
+		health: 10,
+		maxHealth: 10,
+		mana: 4,
+		maxMana: 4,
+		offense: 6,
+		defense: 6,
+		level: 1,
+
+		Mob: function(x, y, type) {
+			this.requires('2D, ' + RENDERING_MODE + ', Collision, Delay, LitObject, ' + type.toLowerCase())
+				.attr( { x: x * TILE_WIDTH, y: y * TILE_HEIGHT, z: 100 } )
+				.collision()
+				.LitObject()
+			
+			this.locX = x;
+			this.locY = y;
+			
+			return this;
+		},
+		moveMob: function(movement) {
+			this.locX += movement.x;
+			this.locY += movement.y;
+			this.attr({ x: this.locX * TILE_WIDTH, y: this.locY * TILE_HEIGHT });
+			var walls = this.hit('solid');
+			if (walls) {
+				this.moveMob({ x: 0- movement.x, y: 0 - movement.y});
+			}
+			else {
+				var mobs = this.hit('Mob');
+				if (mobs) {
+					this.attackMob(mobs[0].obj, movement);
+					this.moveMob({ x: 0- movement.x, y: 0 - movement.y});
+				}
+			}
+		},
+		takeDamage: function(amt, from) {
+
+			this.sleeping = false;
+			Crafty.e('FloatingText')
+				.FloatingText(this.locX, this.locY, amt, '#BE2633');
+			
+			this.health = Math.max(0, this.health - amt);
+			if (this.health <= 0) {
+				from.addXP(getXPforLevel(this.level));
+				// loot
+				if (Math.random() < 0.2) {
+					var item = Math.floor(Math.random() * 9);
+					var i = 0;
+					for (var key in GAME.EQUIPMENT) {
+						if (i == item) {
+							Crafty.e('Treasure').Treasure(this.locX, this.locY, key, this.level);
+						}
+						i++;
+					}
+				}
+				
+				// flying bones
+				for (var i=0;i<2 + Math.floor(Math.random()*3);i++) {
+					Crafty.e('2D, ' + RENDERING_MODE + ', ' + (i==0 ? 'skull' : 'bone'))
+						.attr({ x: this.x + TILE_WIDTH/4 + TILE_WIDTH*Math.random(), y: this.y + TILE_HEIGHT/4 + Math.random()*TILE_HEIGHT/2, z: this.z+1 })
+						.bind('EnterFrame', function() {
+							this.frameCount = this.frameCount ? this.frameCount + 1 : 1;
+							this.dx = this.dx ? this.dx : 2 - Math.random() * 4;
+							this.dy = this.dy ? this.dy : -3 - Math.random() * 4;
+							this.dy += 0.3;
+							this.duration = this.duration ? this.duration : 15 + 30 * Math.random();
+							this.attr({ x: this.x + this.dx, y: this.y + this.dy });
+							if (this.frameCount > this.duration) {
+								this.destroy();
+							}
+						});
+				}
+				
+				this.doDestroy();
+			}
+		},
+		calcDamageTo: function(mob) {
+			var dmg = 1 + Math.floor(Math.random() * this.offense);
+			var reduction = Math.random()*mob.defense/(30 * mob.level);
+			dmg = Math.floor(dmg - dmg*reduction);
+			return Math.max(1, dmg);
+		},
+		sleep: function() {
+			this.sleeping = true;
+				
+			this.delay(function() {
+				this.sleeping = false;
+			}, 4000);
+		}
+	});
+
+	Crafty.c('FloatingText', {
+	
+		FloatingText: function(x, y, txt, color, speed) {
+			this.requires('2D, ' + RENDERING_MODE + ', Text, Tween')
+				.attr({ w: 320, h: 20, x: x*TILE_WIDTH + TILE_WIDTH/2, y: y*TILE_HEIGHT, z: 200 })
+				.textColor(color, 1)
+				.text(txt)
+				.textFont({ size: "12pt", weight: 'bold', family: GAME_FONT })
+				//.css({ 'font-size': '16pt', 'font-weight': 'bold', 'font-family': GAME_FONT })
+				.tween({ y: y*TILE_HEIGHT - 48 }, speed || 25)
+				.bind('TweenEnd', function() {
+					this.destroy();
+				});
+			return this;
+		}
+	
+	});
+	
+	Crafty.c('Creature', {
+	
+		Creature: function(x, y, props) {
+			this.requires('Mob')
+				.bind('EnterFrame', function(frameObj) {
+					// regen
+					if (frameObj.frame % 19 == 0) {
+						this.mana = Math.min(this.maxMana, this.mana + 1);
+					}
+					else if (frameObj.frame % 51 == 0) {
+						this.health = Math.min(this.maxHealth, this.health + 1);
+					}
+					// decide move
+					if ((frameObj.frame + this.fuzzer) % 50 == 0) {
+						if (this.sleeping) {
+							Crafty.e('FloatingText')
+								.FloatingText(this.locX- 0.5, this.locY, 'zzz', '#31A2F2');
+						}
+						else {
+							var players = Crafty('Player');
+							var chase = undefined;
+							var closestDist = 10000;
+							for (var i=0;i<players.length;i++) {
+								var dx = Math.abs(Crafty(players[i]).locX - this.locX);
+								var dy = Math.abs(Crafty(players[i]).locY - this.locY);
+								var dist = dx + dy;
+								if (dx <= 10 && dy <= 10 && dist < closestDist) {
+									chase = Crafty(players[i]);
+									closestDist = dist;
+								}
+							}
+							if (chase) {
+								// go after player
+								var dx = chase.locX - this.locX;
+								var dy = chase.locY - this.locY;
+								var movement = { x: (dx ? Math.abs(dx)/dx : 0), y: (dy ? Math.abs(dy)/dy : 0) };
+								var dist = Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
+								if (props.type == 'caster' && this.mana >= GAME.SPELLS[props.spell].mana && (dist <= Math.abs(dx) || dist <= Math.abs(dy))) {
+									// cast spell
+									Crafty.e(props.spell)
+										[props.spell](this.locX, this.locY, movement, this, 'Player');
+									this.mana -= GAME.SPELLS[props.spell].mana;
+									g_game.sounds[GAME.SPELLS[props.spell].sound].play();
+								}
+								else {
+									this.moveMob(movement);
+								}
+							}
+						}
+					}
+				}).Mob(x, y, props.sprite)
+		
+			this.level = props.level;
+			this.maxHealth = this.health = props.health;
+			this.maxMana = this.mana = props.mana;
+			this.offense = props.offense;
+			this.defense = props.defense;
+			this.fuzzer = Math.floor(Math.random() * 50);
+			
+			return this;
+		},
+		addXP: function(amt) {
+			return;
+		},
+		attackMob: function(mob, movement) {
+			if (mob.has('Player')) {
+				mob.takeDamage(this.calcDamageTo(mob), this);
+				g_game.slashEffects.getNextEffect().showSlash(mob.x, mob.y, movement);
+				g_game.sounds.hurt1.play();
+			}
+		},
+		doDestroy: function() {
+			if (this.iAmBoss) {
+				g_game.exit.removeComponent('exit_closed').addComponent('exit');
+			}
+			this.destroy();
+		}
+	});
+ 	
+	Crafty.c('Player', {
+		level: 1,
+		xp: 0,
+		
+		Player: function(x, y, type, controls) {
+			this.requires('Keyboard, Mob')
+				.bind('KeyDown', function(evt) {
+					var movement = {x: 0, y: 0};
+					if (evt.key == controls.charCodeAt(1)) {
+						movement.x = -1;
+					}
+					else if (evt.key == controls.charCodeAt(3)) {
+						movement.x = 1;
+					}
+					else if (evt.key == controls.charCodeAt(0)) {
+						movement.y = -1;
+					}
+					else if (evt.key == controls.charCodeAt(2)) {
+						movement.y = 1;
+					}
+					else {
+						var validKey = false;
+						for (var i=0;i<g_game.wizard.playerControls.length;i++) {
+							if (evt.key == g_game.wizard.playerControls.charCodeAt(i)) {
+								validKey = true;
+							}
+						}
+						for (var i=0;i<g_game.fighter.playerControls.length;i++) {
+							if (evt.key == g_game.fighter.playerControls.charCodeAt(i)) {
+								validKey = true;
+							}
+						}
+						if (!validKey) {
+							fadeOutControls();
+						}
+						return;
+					}
+					this.performMove(movement);
+				}).bind('Move', function() {
+					for (var y=Math.max(0, this.locY-8);y<Math.min(Dungeon.map_size, this.locY+8);y++) {
+						for (var x=Math.max(0, this.locX-8);x<Math.min(Dungeon.map_size, this.locX+8);x++) {
+							if (x >= 0 && x < Dungeon.map_size && y >= 0 && y < Dungeon.map_size 
+								&& Math.sqrt(Math.pow(this.locX - x, 2) + Math.pow(this.locY - y, 2)) < 6) {
+								
+								g_game.mapReveal[y][x] = true;
+							}
+						}
+					}
+
+					centerOnPlayers();
+				}).bind('EnterFrame', function(frameObj) {
+					if (frameObj.frame % 19 == 0) {
+						this.mana = Math.min(this.maxMana, this.mana + 1);
+						if (type == 'wizard') {
+							this.checkSpellMana();
+						}
+						this.showHealth(type);
+					}
+					else if (frameObj.frame % 51 == 0) {
+						this.health = Math.min(this.maxHealth, this.health + 1);
+						this.showHealth(type);
+					}
+				
+				}).Mob(x, y, type)
+				
+				this.playerType = type;
+				this.maxHealth = GAME.CHARLEVELS[this.playerType][0].health;
+				this.maxMana = GAME.CHARLEVELS[this.playerType][0].mana;
+
+				var lightSource = Crafty.e('LightSource').LightSource(this.x + TILE_WIDTH/2, this.y + TILE_HEIGHT/2, 12*TILE_WIDTH);
+				this.attach(lightSource);
+				
+				this.playerControls = controls;
+				
+				// meters
+				this.posCharBox = $('#img' + type + 'Box').offset();
+				this.$healthBar = $('#div' + type + 'Health');
+				this.$manaBar = $('#div' + type + 'Mana');
+				this.$xpBar = $('#div' + type + 'XP');
+				this.$txtLevel = $('#div' + type + 'LevelText');
+				this.$txtLevel.css({ left: this.posCharBox.left + 28*3, top: this.posCharBox.top + 40*3, 'font-family': GAME_FONT, 'font-size': '10pt' });
+				this.$txtOffense = $('#div' + type + 'AttackText');
+				this.$txtOffense.css({ left: this.posCharBox.left + 45*3, top: this.posCharBox.top + 18*3, 'font-family': GAME_FONT, 'font-size': '10pt' });
+				this.$txtDefense = $('#div' + type + 'DefenseText');
+				this.$txtDefense.css({ left: this.posCharBox.left + 66*3, top: this.posCharBox.top + 18*3, 'font-family': GAME_FONT, 'font-size': '10pt' });
+				this.$txtHealth = $('#div' + type + 'HealthText');
+				this.$txtHealth.css({ left: this.posCharBox.left + 50*3, top: this.posCharBox.top + 42*3, 'font-family': GAME_FONT, 'font-size': '10pt' });
+
+				if (type == 'wizard') {
+					this.$spellProgress = $('#divwizardSpellProgress');
+					this.$txtMana = $('#div' + type + 'ManaText');
+					this.$txtMana.css({ left: this.posCharBox.left + 58*3, top: this.posCharBox.top + 29*3, 'font-family': GAME_FONT, 'font-size': '10pt' });
+				}
+				
+				for (var key in this.equipment) {
+					if (key) {
+						this[key] = Crafty.e('2D, ' + RENDERING_MODE + ', ' + key + '_' + this.equipment[key])
+							.attr({ x: this.x, y: this.y, z: this.z + 10 });
+						this.attach(this[key]);
+					}
+				}
+				
+			return this;
+		},
+		showHealth: function() {
+			var height = Math.floor(30 * this.health/this.maxHealth);
+			this.$healthBar.css({ height: height, left: this.posCharBox.left + 39*3, top: this.posCharBox.top + 32*3 + 30 - height });
+			height = this.maxMana == 0 ? '0' : Math.floor(42 * this.mana/this.maxMana);
+			this.$manaBar.css({ height: height, left: this.posCharBox.left + 67*3, top: this.posCharBox.top + 31*3 + 42 - height });
+
+			var divisor = 0;
+			for (var i=0;i<this.level;i++) {
+				divisor += Math.pow(2, 2+i);
+			}
+			var subtract = 0;
+			for (var i=0;i<this.level-1;i++) {
+				subtract += Math.pow(2, 2+i);
+			}
+			var width = Math.floor(60 * (this.xp - subtract)/(divisor - subtract));
+			this.$xpBar.css({ width: width, left: this.posCharBox.left + 3*3, top: this.posCharBox.top + 40*3 });
+			this.$txtLevel.text(this.level);
+			this.$txtOffense.text(this.offense);
+			this.$txtDefense.text(this.defense);
+			this.$txtHealth.text(this.health);
+			if (this.$txtMana) {
+				this.$txtMana.text(this.mana);
+			}
+		
+		},
+		addXP: function(amt) {
+			this.xp += amt;
+			var level = 1;
+			if (this.xp >= 4 + 8 + 16 + 32 + 64 + 128 + 256 + 512 + 1024 + 2048)
+				level = 11;
+			else if (this.xp >= 4 + 8 + 16 + 32 + 64 + 128 + 256 + 512 + 1024)
+				level = 10;
+			else if (this.xp >= 4 + 8 + 16 + 32 + 64 + 128 + 256 + 512)
+				level = 9;
+			else if (this.xp >= 4 + 8 + 16 + 32 + 64 + 128 + 256)
+				level = 8;
+			else if (this.xp >= 4 + 8 + 16 + 32 + 64 + 128)
+				level = 7;
+			else if (this.xp >= 4 + 8 + 16 + 32 + 64)
+				level = 6;
+			else if (this.xp >= 4 + 8 + 16 + 32)
+				level = 5;
+			else if (this.xp >= 4 + 8 + 16)
+				level = 4;
+			else if (this.xp >= 4 + 8)
+				level = 3;
+			else if (this.xp >= 4)
+				level = 2;
+			
+			if (this.level != level) {
+				// ding!
+				this.maxHealth = GAME.CHARLEVELS[this.playerType][Math.min(GAME.CHARLEVELS[this.playerType].length-1,level-1)].health;
+				this.maxMana = GAME.CHARLEVELS[this.playerType][Math.min(GAME.CHARLEVELS[this.playerType].length-1,level-1)].mana;
+			}
+			this.level = level;
+			this.showHealth();
+		},
+		searchForTreasure: function() {
+			var treasures = this.hit('Treasure');
+			if (treasures) {
+				for (var i=0;i<treasures.length;i++) {
+					var treasure = treasures[0].obj;
+					if (GAME.EQUIPMENT[treasure.treasureType].classes.indexOf(this.class) != -1 && treasure.treasureLevel > this.equipment[treasure.treasureType]) {
+						this[treasure.treasureType].sprite(GAME.EQUIPMENT[treasure.treasureType].slot*TILE_WIDTH, treasure.treasureLevel*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+						this.equipment[treasure.treasureType] = treasure.treasureLevel;
+						treasure.destroy();
+						g_game.sounds.pickup.play();
+						Crafty.e('FloatingText').FloatingText(this.locX-1, this.locY
+							//'A+' + GAME.EQUIPMENT[treasure.treasureType].offense[treasure.treasureLevel]
+							//+ '  D+' + GAME.EQUIPMENT[treasure.treasureType].defense[treasure.treasureLevel]
+							, getTextForLoot(treasure.treasureLevel)
+							, '#A3CE27');
+
+						this.calcStats();
+					}
+				}
+			}
+		},
+		dressInEquipment: function() {
+			for (var key in this.equipment) {
+				this[key].sprite(GAME.EQUIPMENT[key].slot*TILE_WIDTH, this.equipment[key]*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+			}
+		},
+		lookForExit: function() {
+			var exits = this.hit('exit');
+			if (exits) {
+				g_game.curLevel = Math.min(GAME.DUNGEONLEVELS.length-1, parseInt(g_game.curLevel, 10) + 1);
+				savePlayers();
+				Crafty.scene("splash");
+				return
+			}
+			var exits = this.hit('entrance');
+			if (exits) {
+				g_game.curLevel = Math.max(0, parseInt(g_game.curLevel, 10) - 1);
+				savePlayers();
+				Crafty.scene("splash");
+				return
+			}
+		},
+		calcStats: function() {
+			var offense = 0;
+			var defense = 0;
+			for (var key in this.equipment) {
+				if (key) {
+					offense += GAME.EQUIPMENT[key].offense[this.equipment[key]];
+					defense += GAME.EQUIPMENT[key].defense[this.equipment[key]];
+				}
+			}
+			this.offense = offense;
+			this.defense = defense;
+			
+			this.showHealth();
+		},
+		attackMob: function(mob, movement) {
+			if (mob.has('Creature')) {
+				mob.takeDamage(this.calcDamageTo(mob), this);
+				g_game.slashEffects.getNextEffect().showSlash(mob.x, mob.y, movement);
+				g_game.sounds['swing' + Math.ceil(Math.random()*3)].play();
+			}
+		},
+		doDestroy: function() {
+			g_game.wizard.destroy();
+			g_game.fighter.destroy();
+			setTimeout(function() {
+				Crafty.scene("death");
+			}, 3000);
+		}
+		/*syncSprites: function() {
+			for (var key in this.equipment) {
+				if (key) {
+					this[key].attr({ x: this.x, y: this.y});
+				}
+			}
+		}*/
+	});
+	
+	Crafty.c('Wizard', {
+		bCasting: false,
+	
+		Wizard: function(x, y, controls) {
+			this.requires('Player')
+				.bind('KeyDown', function(evt) {
+					if (evt.key == Crafty.keys['1'] && this.mana >= GAME.SPELLS.Missle.mana) {
+						this.bCasting = true;
+						this.mana -= GAME.SPELLS.Missle.mana;
+						this.spell = 'Missle';
+						this.showHealth('wizard');
+						Crafty.e('FloatingText')
+							.FloatingText(this.locX-1, this.locY,	'Ort Por', '#31A2F2', 50);
+
+					}
+					else if (evt.key == Crafty.keys['2'] && this.mana >= GAME.SPELLS.Fireball.mana) {
+						this.bCasting = true;
+						this.mana -= GAME.SPELLS.Fireball.mana;
+						this.spell = 'Fireball';
+						this.showHealth('wizard');
+						Crafty.e('FloatingText')
+							.FloatingText(this.locX-1, this.locY,	'Vas Flam', '#31A2F2', 50);
+					}
+					else if (evt.key == Crafty.keys['3'] && this.mana >= GAME.SPELLS.Sleep.mana) {
+						this.bCasting = true;
+						this.mana -= GAME.SPELLS.Sleep.mana;
+						this.spell = 'Sleep';
+						this.showHealth('wizard');
+						Crafty.e('FloatingText')
+							.FloatingText(this.locX-1, this.locY,	'Kal Zu', '#31A2F2', 50);
+					}
+					else if (evt.key == Crafty.keys['4'] && this.mana >= GAME.SPELLS.Lightening.mana) {
+						this.bCasting = true;
+						this.mana -= GAME.SPELLS.Lightening.mana;
+						this.spell = 'Lightening';
+						this.showHealth('wizard');
+						Crafty.e('FloatingText')
+							.FloatingText(this.locX-1, this.locY,	'Grav Ex', '#31A2F2', 50);
+					}
+				})
+
+			this.class = 'wizard';
+
+			this.equipment = {
+				robe: 0,
+				hat: 0,
+				staff: 0
+			}
+			
+			this.Player(x, y, 'wizard', controls);
+			this.calcStats();
+			
+			
+			return this;
+		},
+		checkSpellMana: function() {
+			for (var key in GAME.SPELLS) {
+				$('#imgSpell_' + key).css({ visibility: (this.mana >= GAME.SPELLS[key].mana) ? 'visible' : 'hidden' });
+			}
+		},
+		performMove: function(movement) {
+			if (this.bCasting) {
+				Crafty.e(this.spell)
+					[this.spell](this.locX, this.locY, movement, this, 'Creature');
+				this.bCasting = false;
+			
+			}
+			else {
+				this.moveMob(movement);
+				this.searchForTreasure();
+				this.lookForExit();
+			}
+		}
+	});
+
+	Crafty.c('Treasure', {
+		Treasure: function(x, y, type, level) {
+			this.requires('2D, ' + RENDERING_MODE + ', Collision, LitObject, icon_' + type + '_' + level)
+				.attr({ x: x * TILE_WIDTH, y: y * TILE_HEIGHT, z: 90 })
+				.collision()
+				.LitObject();
+		
+			this.treasureType = type;
+			this.treasureLevel = level;
+		
+			return this;
+		}
+	});
+		
+	Crafty.c('Fighter', {
+	
+		Fighter: function(x, y, controls) {
+			this.requires('Player');
+
+			this.equipment = {
+				shirt: 0,
+				pants: 0,
+				boots: 0,
+				helm: 0,
+				shield: 0,
+				sword: 0
+			}
+			
+			this.class = 'fighter';
+			
+			this.Player(x, y, 'fighter', controls);
+			this.calcStats();
+			
+			return this;
+		},
+		performMove: function(movement) {
+			this.moveMob(movement);
+			this.searchForTreasure();
+			this.lookForExit();
+		}
+	});
+
+	Crafty.c('Spell', {
+		calcSpellDamage: function(props, caster) {
+			var damage = props.damage + Math.ceil(Math.random() * props.damage * this.caster.offense/4);
+			return damage;
+		}
+	});
+	
+	Crafty.c('Arrow', {
+		speed: GAME.SPELLS.Arrow.speed*3,
+		range: GAME.SPELLS.Arrow.range*3,
+	
+		Arrow: function(x, y, direction, caster, target) {
+			this.requires('2D, ' + RENDERING_MODE + ', Collision, Spell, arrow')
+				.attr({ x: x*TILE_WIDTH, y: y*TILE_HEIGHT, z: 100})
+				.bind('EnterFrame', function(frameObj) {
+					this.attr({ x: this.x + direction.x*this.speed, y: this.y + direction.y*this.speed });
+					this.range -= this.speed;
+					if (this.range <= 0) {
+						this.destroy();
+					}
+					else if (this.hit('solid')) {
+						this.destroy();
+					}
+					else if (this.hit(target)) {
+						var creatures = this.hit(target);
+						for (var i=0;i<creatures.length;i++) {
+							var xp = creatures[i].obj.takeDamage(this.damage, this.caster);
+						}
+						this.destroy();
+					}
+				}).collision()
+				
+			this.caster = caster;
+			this.damage = this.calcSpellDamage(GAME.SPELLS.Arrow, caster);
+			if (direction.x > 0) {
+				this.sprite(8*TILE_WIDTH, 9*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+			}
+			else if (direction.x < 0) {
+				this.sprite(7*TILE_WIDTH, 9*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+			}
+			else if (direction.y > 0) {
+				this.sprite(6*TILE_WIDTH, 9*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+			}
+				
+			return this;
+		}
+	});
+
+	Crafty.c('Sleep', {
+		speed: GAME.SPELLS.Sleep.speed*3,
+		range: GAME.SPELLS.Sleep.range*3,
+		exploded: false,
+	
+		Sleep: function(x, y, direction, caster, target) {
+			this.requires('2D, ' + RENDERING_MODE + ', Collision, Spell, sleep, SpriteAnimation, Delay')
+				.attr({ x: x*TILE_WIDTH, y: y*TILE_HEIGHT, z: 200})
+				.animate('explode', [[1*TILE_WIDTH, 8*TILE_HEIGHT], [2*TILE_WIDTH, 8*TILE_HEIGHT], [3*TILE_WIDTH, 8*TILE_HEIGHT], [4*TILE_WIDTH, 8*TILE_HEIGHT]])
+				.bind('EnterFrame', function(frameObj) {
+					if (this.exploded) {
+						return;
+					}
+					this.attr({ x: this.x + direction.x*this.speed, y: this.y + direction.y*this.speed });
+					this.range -= this.speed;
+					if (this.range <= 0) {
+						this.explode();
+					}
+					else if (this.hit('solid')) {
+						this.explode();
+					}
+					else if (this.hit(target)) {
+						this.explode();
+					}
+				}).collision()
+				
+			this.caster = caster;
+			this.target = target;
+
+			return this;
+		},
+		explode: function() {
+			this.exploded = true;
+			this.attr({ x: this.x - this.x % TILE_WIDTH, y: this.y - this.y % TILE_HEIGHT });
+			this.stop().animate('explode', 10, 0);
+			this.delay(function() {
+				for (var y=0-GAME.SPELLS.Sleep.aoe;y<=GAME.SPELLS.Sleep.aoe;y++) {
+					for (var x=0-GAME.SPELLS.Sleep.aoe;x<=GAME.SPELLS.Sleep.aoe;x++) {
+						if (Math.abs(x) + Math.abs(y) <= GAME.SPELLS.Sleep.aoe) {
+							Crafty.e('SleepSmoke').SleepSmoke(this.x + x*TILE_WIDTH, this.y + y*TILE_HEIGHT, this.target);
+						}
+					}
+				}
+				this.destroy();
+			}, 1000 * 15/50);
+			
+		}
+	});
+
+	Crafty.c('SleepSmoke', {
+		duration: 50,
+		
+		SleepSmoke: function(x, y, target) {
+			this.requires('2D, ' + RENDERING_MODE + ', Collision, smoke')
+				.attr({ x: x, y: y, z: 200 })
+				this.bind('EnterFrame', function(frameObj) {
+					if (frameObj.frame % 10 == 0) {
+						this.duration -= 10;
+						if (this.duration <= 0) {
+							this.destroy();
+							return;
+						}
+						this.alpha = this.alpha - 0.1;
+						var targets = this.hit(target);
+						if (targets) {
+							for (var i=0;i<targets.length;i++) {
+								targets[i].obj.sleep();
+							}
+						}
+					}
+				}).collision();
+			this.alpha = 0.6;
+			return this;
+		}
+		
+	});
+
+	Crafty.c('Lightening', {
+		speed: GAME.SPELLS.Lightening.speed*3,
+		range: GAME.SPELLS.Lightening.range*3,
+	
+		Lightening: function(x, y, direction, caster, target) {
+			this.requires('2D, ' + RENDERING_MODE + ', Collision, Spell, lightening')
+				.attr({ x: x*TILE_WIDTH, y: y*TILE_HEIGHT, z: 100})
+				.bind('EnterFrame', function(frameObj) {
+					this.attr({ x: this.x + direction.x*this.speed, y: this.y + direction.y*this.speed });
+					this.sprite(Math.floor(Math.random()*4)*TILE_WIDTH, 9*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+					this.range -= this.speed;
+					if (this.range <= 0) {
+						this.destroy();
+					}
+					else if (this.hit('solid')) {
+						this.destroy();
+					}
+					else if (this.hit(target)) {
+						var creatures = this.hit(target);
+						for (var i=0;i<creatures.length;i++) {
+							//var xp = creatures[i].obj.takeDamage(this.damage, this.caster);
+							this.explode(creatures[i].obj.x, creatures[i].obj.y, target);
+							g_game.sounds.lightening_strike.play();
+						}
+						this.destroy();
+					}
+				}).collision()
+				
+			this.caster = caster;
+			this.damage = this.calcSpellDamage(GAME.SPELLS.Lightening, caster);
+			g_game.sounds.lightening.play();
+				
+			var lightSource = Crafty.e('LightSource').LightSource(this.x + TILE_WIDTH/2, this.y + TILE_HEIGHT/2, 4*TILE_WIDTH);
+			this.attach(lightSource);
+
+			return this;
+		},
+		explode: function(x, y, target) {
+			this.exploded = true;
+			this.attr({ x: this.x - this.x % TILE_WIDTH, y: this.y - this.y % TILE_HEIGHT });
+			Crafty.e('Electricity').Electricity(this.x, this.y, target, this.damage, this.caster);
+		}
+	});
+
+	Crafty.c('Electricity', {
+		duration: 30,
+		
+		Electricity: function(x, y, target, damage, caster) {
+			this.requires('2D, ' + RENDERING_MODE + ', Collision, lightening')
+				.attr({ x: x, y: y, z: 200 })
+				this.bind('EnterFrame', function(frameObj) {
+					this.sprite(Math.floor(Math.random()*4)*TILE_WIDTH, 9*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+					if (frameObj.frame % 10 == 0) {
+						this.duration -= 10;
+						if (this.duration <= 0) {
+							this.destroy();
+							return;
+						}
+					}
+				}).collision();
+				
+			var lightSource = Crafty.e('LightSource').LightSource(this.x + TILE_WIDTH/2, this.y + TILE_HEIGHT/2, 4*TILE_WIDTH);
+			this.attach(lightSource);
+
+			// find all adjoining creatures
+			var aoe = Crafty.e('2D, ' + RENDERING_MODE + ', elec_aoe, Collision')
+				.attr({ alpha: 0, x: this.x - TILE_WIDTH, y: this.y - TILE_HEIGHT })
+				.collision();
+			var creatures = aoe.hit(target);
+			var electrifiedCreatures = [];
+			for (var i=0;i<creatures.length;i++) {
+				if (!creatures[i].obj.electrified) {
+					creatures[i].obj.takeDamage(damage, caster);
+					creatures[i].obj.electrified = true;
+					electrifiedCreatures.push(creatures[i].obj);
+					Crafty.e('Electricity').Electricity(creatures[i].obj.x, creatures[i].obj.y, target, damage, caster);
+				}
+			}
+			for (var i=0;i<electrifiedCreatures.length;i++) {
+				electrifiedCreatures[i].electrified = false;
+			}
+
+			return this;
+		}
+		
+	});
+	
+	Crafty.c('Missle', {
+		speed: GAME.SPELLS.Missle.speed*3,
+		range: GAME.SPELLS.Missle.range*3,
+	
+		Missle: function(x, y, direction, caster, target) {
+			this.requires('2D, ' + RENDERING_MODE + ', Collision, Spell, magic_missle')
+				.attr({ x: x*TILE_WIDTH, y: y*TILE_HEIGHT, z: 100})
+				.bind('EnterFrame', function(frameObj) {
+					this.attr({ x: this.x + direction.x*this.speed, y: this.y + direction.y*this.speed });
+					this.range -= this.speed;
+					if (this.range <= 0) {
+						this.destroy();
+					}
+					else if (this.hit('solid')) {
+						this.destroy();
+						g_game.sounds.missle_hit.play();
+					}
+					else if (this.hit(target)) {
+						var creatures = this.hit(target);
+						for (var i=0;i<creatures.length;i++) {
+							var xp = creatures[i].obj.takeDamage(this.damage, this.caster);
+						}
+						g_game.sounds.missle_hit.play();
+						this.destroy();
+					}
+				}).collision()
+				
+			this.caster = caster;
+			this.damage = this.calcSpellDamage(GAME.SPELLS.Missle, caster);
+			g_game.sounds.missle.play();
+				
+			var lightSource = Crafty.e('LightSource').LightSource(this.x + TILE_WIDTH/2, this.y + TILE_HEIGHT/2, 4*TILE_WIDTH);
+			this.attach(lightSource);
+
+			return this;
+		}
+	});
+
+	Crafty.c('Fireball', {
+		speed: GAME.SPELLS.Fireball.speed*3,
+		range: GAME.SPELLS.Fireball.range*3,
+	
+		Fireball: function(x, y, direction, caster, target) {
+			this.requires('2D, ' + RENDERING_MODE + ', Collision, fireball, Spell, SpriteAnimation')
+				.attr({ x: x*TILE_WIDTH, y: y*TILE_HEIGHT, z: 100})
+				.animate('burn', [[10*TILE_WIDTH, 8*TILE_HEIGHT], [11*TILE_WIDTH, 8*TILE_HEIGHT]])
+				.bind('EnterFrame', function(frameObj) {
+					this.attr({ x: this.x + direction.x*this.speed, y: this.y + direction.y*this.speed });
+					this.range -= this.speed;
+					if (this.range <= 0) {
+						this.destroy();
+					}
+					else if (this.hit('solid')) {
+						this.destroy();
+					}
+					else if ((frameObj.frame % 4 == 0) && this.hit(target)) {
+						var creatures = this.hit(target);
+						for (var i=0;i<creatures.length;i++) {
+							creatures[i].obj.takeDamage(this.damage, this.caster);
+						}
+					}
+				}).collision()
+				
+			this.caster = caster;
+			this.damage = this.calcSpellDamage(GAME.SPELLS.Fireball, caster);
+			this.stop().animate('burn', 10, -1);
+			g_game.sounds.fireball.play();
+			
+			var lightSource = Crafty.e('LightSource').LightSource(this.x + TILE_WIDTH/2, this.y + TILE_HEIGHT/2, 12*TILE_WIDTH);
+			this.attach(lightSource);
+			
+			return this;
+		}
+	});
+
+	Crafty.c('SlashEffect', {
+	
+		SlashEffect: function() {
+			this.requires('2D, ' + RENDERING_MODE + ', slash_effect, SpriteAnimation')
+				.animate('slashE', [[0*TILE_WIDTH, 0], [1*TILE_WIDTH, 0], [2*TILE_WIDTH, 0]])
+				.animate('slashW', [[0*TILE_WIDTH, TILE_HEIGHT], [1*TILE_WIDTH, TILE_HEIGHT], [2*TILE_WIDTH, TILE_HEIGHT]])
+				.attr({ z: 200 })
+				
+			this.visible = false;
+			
+			return this;
+		},
+		showSlash: function(x, y, direction) {
+			var reel = 'slashW';
+			if (direction.x > 0 || direction.y > 0) {
+				reel = 'slashE';
+			}
+			this.attr({ x: x, y: y }).stop().bind('AnimationEnd', function() {
+					this.visible = false;
+			});
+;
+			
+			this.visible = true;
+			this.animate(reel, 3, 0);
+		}
+	});
+	
+	Crafty.c('LightSource', {
+	
+		LightSource: function(cx, cy, d) {
+			this.requires('2D, ' + RENDERING_MODE + ', Collision')
+				.attr( { x: cx - d/2, y: cy - d/2, w: d, h: d } )
+				.collision()
+				.bind('EnterFrame', function(frameObj) {
+					if (frameObj.frame % 11 == 0) {
+						this.lightUp(frameObj.frame);
+					}
+				})
+				
+			this.radius = d;
+			return this;
+		},
+		lightUp: function(frame) {
+			var d = this.radius;
+			var litObjs = this.hit('LitObject');
+			for (var i=0;i<litObjs.length;i++) {
+				var dist = Math.sqrt(Math.pow(this.x + d/2 - litObjs[i].obj.x - TILE_WIDTH/2, 2) 
+							+ Math.pow(this.y + d/2 - litObjs[i].obj.y - TILE_HEIGHT/2, 2));
+				litObjs[i].obj.light(0.2 + ((d/2) - dist)/(d/2), frame);
+			}
+		}
+	});
+		
+	Crafty.c('LitObject', {
+
+		LitObject: function() {
+			this.requires('Collision')
+				.collision()
+				.bind('EnterFrame', function(frameObj) {
+					if (frameObj.frame % 13 == 0) {
+						if (this.unlit) {
+							this.alpha = 0.0;
+						}
+						this.unlit = true;
+					}
+				})
+				
+			this.alpha = 0.0;
+			this.currentLightingFrame = 0;
+			
+			return this;
+		},
+		light: function(amt, frame) {
+			if (this.currentLightingFrame == frame) {
+				this.alpha += amt;
+			}
+			else {
+				this.alpha = amt;
+				this.currentLightingFrame = frame;
+			}
+			this.unlit = false;
+		}
+	});
+	
+	Crafty.scene("main", function () {
+		Crafty.background("#000");		
+
+		
+		for (var i=0;i<10;i++) {
+			g_game.slashEffects.objArray.push(Crafty.e('SlashEffect').SlashEffect());
+		}
+
+		//Crafty.e('Treasure').Treasure(4, 3, 'pants', 1);
+		//Crafty.e('Treasure').Treasure(4, 4, 'helm', 4);
+		//Crafty.e('Treasure').Treasure(5, 5, 'staff', 3);
+
+		Dungeon.Clear();
+		Dungeon.Generate();
+		
+		/*if (g_game.mapReveal) {
+			for (var y=0;y<g_game.mapReveal.length;y++) {
+				for (var x=0;x<g_game.mapReveal[y].length;x++) {
+					g_game.mapReveal[y][x] = false;
+				}
+			}
+		}
+		else {
+		}*/
+		g_game.mapReveal = [];
+		
+		var bEntrancePlaced = false;
+		for (var y=0;y<Dungeon.map_size;y++) {
+			g_game.mapReveal[y] = [];
+			for (var x=0;x<Dungeon.map_size;x++) {
+				g_game.mapReveal[y][x] = false;
+				var tile = Dungeon.map[x][y];
+ 				if (tile == 2) {
+					var sprite = GAME.DUNGEONLEVELS[g_game.curLevel].graphics.wall;
+					if (Dungeon.map[x][y+1] && Dungeon.map[x][y+1] == 2) {
+						sprite = GAME.DUNGEONLEVELS[g_game.curLevel].graphics.ceiling;
+					}
+					if (!bEntrancePlaced && sprite == GAME.DUNGEONLEVELS[g_game.curLevel].graphics.wall) {
+						g_game.entrance = Crafty.e('2D, ' + RENDERING_MODE + ', Collision, LitObject, entrance')
+							.attr({ x: x*TILE_WIDTH, y: y*TILE_HEIGHT, z: 130 })
+							.LitObject()
+							.collision();
+						g_game.entrance.bIamEntrance = true;
+						bEntrancePlaced = true;
+					}
+					else {
+						Crafty.e('2D, ' + RENDERING_MODE + ', Collision, LitObject, solid, ' + sprite)
+							.attr({ x: x*TILE_WIDTH, y: y*TILE_HEIGHT, z: 100})
+							.LitObject()
+							.collision();
+					}
+				}
+				else if (tile == 1) {
+					if (!bEntrancePlaced) {
+						Crafty.e('2D, ' + RENDERING_MODE + ', stairs, Collision, LitObject')
+							.attr({ x: x*TILE_WIDTH, y: y*TILE_HEIGHT, z: 100})
+							.LitObject()
+							.collision();
+						bEntrancePlaced = true;
+					}
+					else {
+						// floor
+						Crafty.e('2D, ' + RENDERING_MODE + ', ' + GAME.DUNGEONLEVELS[g_game.curLevel].graphics.floor + ', Collision, LitObject')
+							.attr({ x: x*TILE_WIDTH, y: y*TILE_HEIGHT, z: 1})
+							.LitObject()
+							.collision();
+					}
+				}
+			}
+		}
+
+		layoutGUI();
+		var bFighterPlaced = false;
+		var bWizardPlaced = false;
+		for (var y=0;y<Dungeon.map_size;y++) {
+			for (var x=0;x<Dungeon.map_size;x++) {
+				if (Dungeon.map[x][y] == 1) {
+					if (!bWizardPlaced) {
+						g_game.wizard = Crafty.e('Wizard')
+							.Wizard(x, y, g_game.wizardControls);
+						bWizardPlaced = true;
+					}
+					else if (!bFighterPlaced) {
+						g_game.fighter = Crafty.e('Fighter')
+							.Fighter(x, y, String.fromCharCode(38) + String.fromCharCode(37) + String.fromCharCode(40) + String.fromCharCode(39));
+						bFighterPlaced = true;
+						// for testing
+						/*g_game.exit = Crafty.e('2D, ' + RENDERING_MODE + ', exit, Collision, LitObject')
+							.attr({ x: (x+1)*TILE_WIDTH, y: y*TILE_HEIGHT, z: 90})
+							.collision()
+							.LitObject();*/
+					}
+				}
+			}
+		}
+		
+		restorePlayers();
+		
+		var bBossPlaced = false;
+		var bExitPlaced = false;
+		var dungeonLevel = GAME.DUNGEONLEVELS[g_game.curLevel];
+		for (var y=Dungeon.map_size-1;y>=0;y--) {
+			for (var x=Dungeon.map_size-1;x>=0;x--) {
+				if (!(y<10 && x<10)) {		// not in first room, please
+					if (Dungeon.map[x][y] == 1 && Math.random() < dungeonLevel.spawnRate) {
+						var rand = Math.random() * 10;
+						var bMobPlaced = false;
+						var chanceTotal = 0;
+						for (var i=0;!bMobPlaced && i<dungeonLevel.mobs.length;i++) {
+							var mob = dungeonLevel.mobs[i];
+							if (rand < mob.prob + chanceTotal) {
+								if (!bExitPlaced) {
+									g_game.exit = Crafty.e('2D, ' + RENDERING_MODE + ', exit_closed, Collision, LitObject')
+										.attr({ x: x*TILE_WIDTH, y: y*TILE_HEIGHT, z: 90})
+										.collision()
+										.LitObject();
+									bExitPlaced = true;
+									bMobPlaced = true;
+								}
+								else if (!(i==0 && bBossPlaced)) {
+									var placedMob = Crafty.e('Creature').Creature(x, y, mob);
+									bMobPlaced = true;
+									if (i==0) {
+										bBossPlaced = true;
+										placedMob.iAmBoss = true;
+									}
+								}
+							}
+							chanceTotal += mob.prob;
+						}
+					}
+				}
+			}
+		}
+		for (var i=0;i<dungeonLevel.mobs.length;i++) {
+			console.log(Crafty(dungeonLevel.mobs[i].sprite).length + ' ' + dungeonLevel.mobs[i].sprite + ' created...');
+		}
+		
+		// draw minimap
+		var pos = $('#cr-stage').offset();
+		$('#canvasMiniMap').css({ width: Dungeon.map_size*3, height: Dungeon.map_size*3, left: pos.left+6*3, top: pos.top + $('#cr-stage').height() - Dungeon.map_size*3 - 3*3 });
+		
+		centerOnPlayers();
+		fadeOutControls();
+	
+	});
+
+	Crafty.scene("loading", function () {
+		Crafty.background("#000");
+		//try {
+		Crafty.e('2D, ' + RENDERING_MODE + ', Text').attr({ w: 800, h: 20, x: VIEW_WIDTH/2 - 400, y: VIEW_HEIGHT/2-160, z: 1000 })
+			.text("Loading...")
+			.textColor('#fff', 1)
+			.textFont({ size: "16pt", weight: 'bold', family: GAME_FONT })
+			//.css({ "text-align": "center", "font-family": GAME_FONT, "font-size": "44px" });
+		//} catch (ex) {;}
+		
+		Crafty.load(['./images/equipment_fighter.png','./images/equip_icons_fighter.png'
+			,'./images/equipment_wizard.png', './images/equip_icons_wizard.png', './images/oryx_roguelike_16x24.png'
+			,'./audio/sfx/swing1.wav', './audio/sfx/swing2.wav','./audio/sfx/swing3.wav'
+			,'./audio/sfx/hurt1.wav','./audio/sfx/pickup.wav','./audio/sfx/arrow.wav'
+			,'./audio/sfx/missle.wav', './audio/sfx/missle_hit.wav', './audio/sfx/fireball.wav'
+			,'./audio/sfx/lightening.wav',' ./audio/sfx/lightening_strike.wav'
+			,'./images/oryx_roguelike_b_graveyard.png', './images/oryx_roguelike_b_catacombs.png'
+			,'./images/oryx_roguelike_b_castle.png','./images/oryx_roguelike_b_temple.png'
+			,'./images/oryx_roguelike_b_landmark.png'
+			,'./images/oryx_roguelike_portraits.png'
+			,'./audio/music/DST-TheHauntedChapel.mp3'
+			], function() {
+					
+			Crafty.sprite(1, './images/slash.png', {
+				slash_effect: [0*TILE_WIDTH, 0*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT]
+			});
+
+			Crafty.sprite(1, './images/oryx_roguelike_portraits.png', {
+				portrait_fighter: [378, 288, 108, 108],
+				portrait_wizard: [138, 168, 108, 108]
+			});
+			
+			
+			Crafty.sprite(1, './images/equipment_fighter.png', {
+				shirt_0: [0*TILE_WIDTH, 0*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				shirt_1: [0*TILE_WIDTH, 1*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				shirt_2: [0*TILE_WIDTH, 2*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				shirt_3: [0*TILE_WIDTH, 3*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				shirt_4: [0*TILE_WIDTH, 4*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				pants_0: [1*TILE_WIDTH, 0*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				pants_1: [1*TILE_WIDTH, 1*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				pants_2: [1*TILE_WIDTH, 2*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				pants_3: [1*TILE_WIDTH, 3*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				pants_4: [1*TILE_WIDTH, 4*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				helm_0: [2*TILE_WIDTH, 0*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				helm_1: [2*TILE_WIDTH, 1*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				helm_2: [2*TILE_WIDTH, 2*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				helm_3: [2*TILE_WIDTH, 3*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				helm_4: [2*TILE_WIDTH, 4*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				boots_0: [3*TILE_WIDTH, 0*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				boots_1: [3*TILE_WIDTH, 1*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				boots_2: [3*TILE_WIDTH, 2*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				boots_3: [3*TILE_WIDTH, 3*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				boots_4: [3*TILE_WIDTH, 4*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				shield_0: [4*TILE_WIDTH, 0*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				shield_1: [4*TILE_WIDTH, 1*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				shield_2: [4*TILE_WIDTH, 2*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				shield_3: [4*TILE_WIDTH, 3*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				shield_4: [4*TILE_WIDTH, 4*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				sword_0: [5*TILE_WIDTH, 0*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				sword_1: [5*TILE_WIDTH, 1*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				sword_2: [5*TILE_WIDTH, 2*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				sword_3: [5*TILE_WIDTH, 3*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				sword_4: [5*TILE_WIDTH, 4*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT]
+			});
+
+			Crafty.sprite(1, './images/equip_icons_fighter.png', {
+				icon_shirt_0: [0*TILE_WIDTH, 0*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_shirt_1: [0*TILE_WIDTH, 1*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_shirt_2: [0*TILE_WIDTH, 2*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_shirt_3: [0*TILE_WIDTH, 3*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_shirt_4: [0*TILE_WIDTH, 4*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_pants_0: [1*TILE_WIDTH, 0*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_pants_1: [1*TILE_WIDTH, 1*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_pants_2: [1*TILE_WIDTH, 2*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_pants_3: [1*TILE_WIDTH, 3*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_pants_4: [1*TILE_WIDTH, 4*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_helm_0: [2*TILE_WIDTH, 0*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_helm_1: [2*TILE_WIDTH, 1*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_helm_2: [2*TILE_WIDTH, 2*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_helm_3: [2*TILE_WIDTH, 3*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_helm_4: [2*TILE_WIDTH, 4*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_boots_0: [3*TILE_WIDTH, 0*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_boots_1: [3*TILE_WIDTH, 1*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_boots_2: [3*TILE_WIDTH, 2*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_boots_3: [3*TILE_WIDTH, 3*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_boots_4: [3*TILE_WIDTH, 4*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_shield_0: [4*TILE_WIDTH, 0*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_shield_1: [4*TILE_WIDTH, 1*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_shield_2: [4*TILE_WIDTH, 2*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_shield_3: [4*TILE_WIDTH, 3*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_shield_4: [4*TILE_WIDTH, 4*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_sword_0: [5*TILE_WIDTH, 0*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_sword_1: [5*TILE_WIDTH, 1*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_sword_2: [5*TILE_WIDTH, 2*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_sword_3: [5*TILE_WIDTH, 3*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_sword_4: [5*TILE_WIDTH, 4*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT]
+			});
+			
+			Crafty.sprite(1, './images/equipment_wizard.png', {
+				robe_0: [0*TILE_WIDTH, 0*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				robe_1: [0*TILE_WIDTH, 1*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				robe_2: [0*TILE_WIDTH, 2*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				robe_3: [0*TILE_WIDTH, 3*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				robe_4: [0*TILE_WIDTH, 4*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				hat_0: [1*TILE_WIDTH, 0*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				hat_1: [1*TILE_WIDTH, 1*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				hat_2: [1*TILE_WIDTH, 2*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				hat_3: [1*TILE_WIDTH, 3*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				hat_4: [1*TILE_WIDTH, 4*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				staff_0: [2*TILE_WIDTH, 0*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				staff_1: [2*TILE_WIDTH, 1*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				staff_2: [2*TILE_WIDTH, 2*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				staff_3: [2*TILE_WIDTH, 3*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				staff_4: [2*TILE_WIDTH, 4*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT]
+			});
+			
+			Crafty.sprite(1, './images/equip_icons_wizard.png', {
+				icon_robe_0: [0*TILE_WIDTH, 0*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_robe_1: [0*TILE_WIDTH, 1*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_robe_2: [0*TILE_WIDTH, 2*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_robe_3: [0*TILE_WIDTH, 3*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_robe_4: [0*TILE_WIDTH, 4*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_hat_0: [1*TILE_WIDTH, 0*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_hat_1: [1*TILE_WIDTH, 1*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_hat_2: [1*TILE_WIDTH, 2*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_hat_3: [1*TILE_WIDTH, 3*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_hat_4: [1*TILE_WIDTH, 4*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_staff_0: [2*TILE_WIDTH, 0*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_staff_1: [2*TILE_WIDTH, 1*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_staff_2: [2*TILE_WIDTH, 2*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_staff_3: [2*TILE_WIDTH, 3*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				icon_staff_4: [2*TILE_WIDTH, 4*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT]
+			});
+			
+			Crafty.sprite(1, './images/oryx_roguelike_16x24.png', {
+				fighter: [0*TILE_WIDTH, 24*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				wizard: [12*TILE_WIDTH, 24*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				magic_missle: [0*TILE_WIDTH, 10*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				fireball: [10*TILE_WIDTH, 8*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				arrow: [5*TILE_WIDTH, 9*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				sleep: [0*TILE_WIDTH, 8*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				smoke: [3*TILE_WIDTH, 8*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				lightening: [3*TILE_WIDTH, 9*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				elec_aoe: [0, 0, 3*TILE_WIDTH, 3*TILE_HEIGHT],
+				
+				orc: [5*TILE_WIDTH, 29*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				orc_archer: [6*TILE_WIDTH, 29*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				orc_chief: [8*TILE_WIDTH, 29*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				spider: [8*TILE_WIDTH, 27*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				rat: [1*TILE_WIDTH, 26*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				rat_king: [4*TILE_WIDTH, 26*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				bat: [6*TILE_WIDTH, 26*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				skeleton: [0*TILE_WIDTH, 30*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				skeleton_warrior: [1*TILE_WIDTH, 30*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				skeleton_mage: [4*TILE_WIDTH, 30*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				skeleton_necro: [5*TILE_WIDTH, 30*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				skeleton_boss: [2*TILE_WIDTH, 30*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				skeleton_archer: [3*TILE_WIDTH, 30*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				skeleton_magic: [6*TILE_WIDTH, 30*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				imp: [4*TILE_WIDTH, 29*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				death_knight: [11*TILE_WIDTH, 30*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				death_mage: [16*TILE_WIDTH, 30*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				necromancer: [2*TILE_WIDTH, 32*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				
+				skull: [214*3, 848*3, 12*3, 12*3],
+				bone: [256*3, 1020*3, 8*3, 8*3],
+				
+				wall_brick: [0*TILE_WIDTH, 13*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				ceiling_brick: [7*TILE_WIDTH, 12*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				floor_cracks: [9*TILE_WIDTH, 15*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				wall_mud: [2*TILE_WIDTH, 13*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				ceiling_mud: [13*TILE_WIDTH, 12*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				floor_mouldy: [9*TILE_WIDTH, 12*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				entrance: [8*TILE_WIDTH, 14*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				exit_closed: [7*TILE_WIDTH, 16*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+				exit: [14*TILE_WIDTH, 16*TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT],
+			});
+
+			Crafty.sprite(1, './images/oryx_roguelike_b_graveyard.png', {
+				scene_entrance1: [24, 168, 240, 120],
+				scene_entrance2: [24, 310, 240, 120],
+				scene_graveyard: [24, 456, 240, 120]
+			});
+
+			Crafty.sprite(1, './images/oryx_roguelike_b_catacombs.png', {
+				scene_catacombs1: [24, 312, 240, 120],
+				scene_catacombs2: [24, 24, 240, 120],
+				scene_catacombs3: [24, 456, 240, 120]
+			});
+			
+			Crafty.sprite(1, './images/oryx_roguelike_b_castle.png', {
+				scene_castle1: [24, 744, 240, 120],
+				scene_castle2: [24, 168, 240, 120],
+				scene_castle3: [24, 312, 240, 120]
+			});
+
+			Crafty.sprite(1, './images/oryx_roguelike_b_temple.png', {
+				scene_temple1: [24, 312, 240, 120],
+				scene_temple2: [24, 24, 240, 120],
+				scene_temple3: [24, 168, 240, 120]
+			});
+			
+			Crafty.sprite(1, './images/oryx_roguelike_b_landmark.png', {
+				scene_landmark1: [24, 456, 240, 120],
+			});
+
+			
+			g_game.sounds.swing1 = new buzz.sound( "./audio/sfx/swing1", {
+				formats: [ "wav" ]
+			});
+			g_game.sounds.swing2 = new buzz.sound( "./audio/sfx/swing2", {
+				formats: [ "wav" ]
+			});
+			g_game.sounds.swing3 = new buzz.sound( "./audio/sfx/swing3", {
+				formats: [ "wav" ]
+			});
+			g_game.sounds.hurt1 = new buzz.sound( "./audio/sfx/hurt1", {
+				formats: [ "wav" ]
+			});
+			g_game.sounds.missle = new buzz.sound( "./audio/sfx/missle", {
+				formats: [ "wav" ]
+			});
+			g_game.sounds.missle_hit = new buzz.sound( "./audio/sfx/missle_hit", {
+				formats: [ "wav" ]
+			});
+			g_game.sounds.fireball = new buzz.sound( "./audio/sfx/fireball", {
+				formats: [ "wav" ]
+			});
+			g_game.sounds.lightening = new buzz.sound( "./audio/sfx/lightening", {
+				formats: [ "wav" ]
+			});
+			g_game.sounds.lightening_strike = new buzz.sound( "./audio/sfx/lightening_strike", {
+				formats: [ "wav" ]
+			});
+			g_game.sounds.arrow = new buzz.sound( "./audio/sfx/arrow", {
+				formats: [ "wav" ]
+			});
+			g_game.sounds.pickup = new buzz.sound( "./audio/sfx/pickup", {
+				formats: [ "wav" ]
+			});
+		
+			Crafty.scene("intro");
+			
+		});
+	});
+
+	Crafty.scene("death", function () {
+		$('#divGUI').hide();
+		Crafty.background("#000");		
+
+		Crafty.viewport.x = 0;
+		Crafty.viewport.y = 0;
+		
+		Crafty.e('2D, ' + RENDERING_MODE + ', scene_graveyard')
+			.attr({ x: VIEW_WIDTH/2 - 240/2, y: VIEW_HEIGHT/3 - 120/2, z: 1 })
+			
+		
+		Crafty.e('2D, ' + RENDERING_MODE + ', Text').attr({ w: VIEW_WIDTH, x: 0, y: 96, z: 1000 })
+			.text('Death')
+			.textColor('#9D9D9D', 1)
+			.textFont({ size: "24pt", weight: 'bold', family: GAME_FONT })
+			.css({ 'text-align': 'center'})
+
+			
+		Crafty.e('2D, ' + RENDERING_MODE + ', Text, Keyboard').attr({ w: VIEW_WIDTH, x: 0, y: VIEW_HEIGHT-160, z: 1000 })
+			.text("Type space to try again...")
+			.textColor('#9D9D9D', 1)
+			.textFont({ size: "16pt", weight: 'bold', family: GAME_FONT })
+			.css({ 'text-align': 'center'})
+			.bind('KeyDown', function(evt) {
+				if (evt.key == Crafty.keys.SPACE) {
+					Crafty.scene("splash");
+				}
+			})
+			
+
+	});
+
+	Crafty.scene("intro", function () {
+		$('#divGUI').hide();
+		Crafty.background("#000");		
+
+		Crafty.viewport.x = 0;
+		Crafty.viewport.y = 0;
+		
+		Crafty.e('2D, ' + RENDERING_MODE + ', ' + GAME.DUNGEONLEVELS[g_game.curLevel].sceneInfo.pic1)
+			.attr({ x: VIEW_WIDTH/2 - 240/2, y: VIEW_HEIGHT/3 - 120/2, z: 1 })
+			
+		Crafty.e('2D, ' + RENDERING_MODE + ', ' + GAME.DUNGEONLEVELS[g_game.curLevel].sceneInfo.pic2)
+			.attr({ x: VIEW_WIDTH/2 - 2*240 + 60, y: VIEW_HEIGHT/3, z: 1 })
+
+		Crafty.e('2D, ' + RENDERING_MODE + ', ' + GAME.DUNGEONLEVELS[g_game.curLevel].sceneInfo.pic3)
+			.attr({ x: VIEW_WIDTH/2 + 240 - 60, y: VIEW_HEIGHT/3, z: 1 })
+
+		var speakers = {};
+		speakers.fighter = Crafty.e('2D, ' + RENDERING_MODE + ', portrait_fighter')
+			.attr({ x: VIEW_WIDTH/2 + 108/2, y: VIEW_HEIGHT/2, z: 10 })
+		speakers.wizard = Crafty.e('2D, ' + RENDERING_MODE + ', portrait_wizard')
+			.attr({ x: VIEW_WIDTH/2 - 3*108/2, y: VIEW_HEIGHT/2, z: 10 })
+
+			Crafty.e('2D, ' + RENDERING_MODE + ', Text').attr({ w: VIEW_WIDTH, x: 0, y: 64, z: 1000 })
+			.text("Two Friends, One Dungeon")
+			.textColor('#9D9D9D', 1)
+			.textFont({ size: "32pt", weight: 'bold', family: GAME_FONT })
+			.css({ 'text-align': 'center'})
+		
+		Crafty.e('2D, ' + RENDERING_MODE + ', Text, Keyboard').attr({ w: VIEW_WIDTH, x: 0, y: VIEW_HEIGHT-160, z: 1000 })
+			.text("Type space to continue...")
+			.textColor('#9D9D9D', 1)
+			.textFont({ size: "16pt", weight: 'bold', family: GAME_FONT })
+			.css({ 'text-align': 'center'})
+			.bind('KeyDown', function(evt) {
+				if (evt.key == Crafty.keys.SPACE) {
+					Crafty.scene("splash");
+				}
+			})
+			
+		playSong('DST-TheHauntedChapel');
+
+	});
+
+	Crafty.scene("splash", function () {
+		$('#divGUI').hide();
+		Crafty.background("#000");		
+
+		g_game.curLevel = localStorage.curLevel || 0;
+
+		Crafty.viewport.x = 0;
+		Crafty.viewport.y = 0;
+		
+		Crafty.e('2D, ' + RENDERING_MODE + ', ' + GAME.DUNGEONLEVELS[g_game.curLevel].sceneInfo.pic1)
+			.attr({ x: VIEW_WIDTH/2 - 240/2, y: VIEW_HEIGHT/3 - 120/2, z: 1 })
+
+		Crafty.e('2D, ' + RENDERING_MODE + ', ' + GAME.DUNGEONLEVELS[g_game.curLevel].sceneInfo.pic2)
+			.attr({ x: VIEW_WIDTH/2 - 2*240 + 60, y: VIEW_HEIGHT/3, z: 1 })
+
+		Crafty.e('2D, ' + RENDERING_MODE + ', ' + GAME.DUNGEONLEVELS[g_game.curLevel].sceneInfo.pic3)
+			.attr({ x: VIEW_WIDTH/2 + 240 - 60, y: VIEW_HEIGHT/3, z: 1 })
+			
+		var speakers = {};
+		speakers.fighter = Crafty.e('2D, ' + RENDERING_MODE + ', portrait_fighter')
+			.attr({ x: VIEW_WIDTH/2 + 108/2, y: VIEW_HEIGHT/2, z: 10 })
+		speakers.wizard = Crafty.e('2D, ' + RENDERING_MODE + ', portrait_wizard')
+			.attr({ x: VIEW_WIDTH/2 - 3*108/2, y: VIEW_HEIGHT/2, z: 10 })
+					
+		Crafty.e('2D, ' + RENDERING_MODE + ', Text').attr({ w: VIEW_WIDTH, x: 0, y: 64, z: 1000 })
+			.text("Stage " + (parseInt(g_game.curLevel, 10) + 1))
+			.textColor('#9D9D9D', 1)
+			.textFont({ size: "16pt", weight: 'bold', family: GAME_FONT })
+			.css({ 'text-align': 'center'})
+
+		Crafty.e('2D, ' + RENDERING_MODE + ', Text').attr({ w: VIEW_WIDTH, x: 0, y: 96, z: 1000 })
+			.text(GAME.DUNGEONLEVELS[g_game.curLevel].name)
+			.textColor('#9D9D9D', 1)
+			.textFont({ size: "24pt", weight: 'bold', family: GAME_FONT })
+			.css({ 'text-align': 'center'})
+
+			
+		var dlgCounter = 0;
+		var dlgInterval = setInterval(function() {
+			if (dlgCounter >= GAME.DUNGEONLEVELS[g_game.curLevel].sceneInfo.dialog.length) {
+				clearInterval(dlgInterval);
+				Crafty.e('2D, ' + RENDERING_MODE + ', Text, Keyboard').attr({ w: VIEW_WIDTH, x: 0, y: VIEW_HEIGHT-160, z: 1000 })
+					.text("Type space to continue...")
+					.textColor('#9D9D9D', 1)
+					.textFont({ size: "16pt", weight: 'bold', family: GAME_FONT })
+					.css({ 'text-align': 'center'})
+					.bind('KeyDown', function(evt) {
+						if (evt.key == Crafty.keys.SPACE) {
+							if (g_game.curLevel == GAME.DUNGEONLEVELS.length-1) {
+								localStorage.curLevel = 0;
+								Crafty.scene("intro");
+							}
+							else {
+								Crafty.scene("main");
+							}
+						}
+					})
+			}
+			else {
+			var dialog = GAME.DUNGEONLEVELS[g_game.curLevel].sceneInfo.dialog[dlgCounter];
+			Crafty.e('FloatingText')
+				.FloatingText(speakers[dialog.speaker].x/TILE_WIDTH - 1, speakers[dialog.speaker].y/TILE_HEIGHT - 0.25, 
+					dialog.text, '#31A2F2', 90);
+				
+			dlgCounter++;
+			}
+		
+		}, 2000);
+			
+		playSong(GAME.DUNGEONLEVELS[g_game.curLevel].song);
+
+	});
+	
+	Crafty.scene("loading");	
+
+}
+
+function playSong(newSong) {
+	if (g_game.songTitle != newSong) {
+		g_game.songTitle = newSong;
+		if (g_game.song) {
+			g_game.song.stop();
+		}
+		g_game.song = new buzz.sound( "./audio/music/" + newSong, {
+			formats: [ "ogg" ]
+		});		
+		g_game.song.setVolume(60).play().loop();
+	}
+}		
+
+
+	</script>
+</head>
+<body>
+
+<div id="divGUI" style="width: 100%, height: 100%">
+	<img id="imgwizardBox" src="./images/charbox_wizard.png" style="position: absolute;z-index: 10000;" />
+	<div id="divwizardHealth" style="background: #BE2633;position: absolute;width: 33px; height: 30px;z-index: 9000"></div> 
+	<div id="divwizardMana" style="background: #005784;position: absolute;width: 30px; height: 42px;z-index: 9000"></div> 
+	<div id="divwizardXP" style="background: #EB8931;position: absolute;width: 30px; height: 9px;z-index: 11000"></div> 
+	<!--div id="divwizardSpellProgress" style="background-image: url(./images/spellProgress.png);height: 48px; width: 240px;position: absolute;z-index: 11000"></div--> 
+	<div id="divwizardLevelText" style="position: absolute;z-index: 11000; color: #9D9D9D; text-align: center;">00</div> 
+	<div id="divwizardAttackText" style="position: absolute;z-index: 11000; color: #9D9D9D; text-align: center;">00</div> 
+	<div id="divwizardDefenseText" style="position: absolute;z-index: 11000; color: #9D9D9D; text-align: center;">00</div> 
+	<div id="divwizardHealthText" style="position: absolute;z-index: 11000; color: #9D9D9D; text-align: center;">00</div> 
+	<div id="divwizardManaText" style="position: absolute;z-index: 11000; color: #9D9D9D; text-align: center;">00</div> 
+	<div id="divwizardSpells" style="background-image: url(./images/spell_background.png); position: absolute;z-index: 11000;">
+		<img id="imgSpell_Missle" class="spellImage" src="./images/spell_missle.png" />
+		<img id="imgSpell_Fireball" class="spellImage" src="./images/spell_fireball.png" />
+		<img id="imgSpell_Sleep" class="spellImage" src="./images/spell_sleep.png" />
+		<img id="imgSpell_Lightening" class="spellImage" src="./images/spell_lightening.png" />
+	</div>
+	<div id="divwizardSpellControls" class="playerControls" style="position: absolute;z-index: 120000;">
+		<div id="divKeySpell1" class="keyText">1</div>
+		<div id="divKeySpell2" class="keyText">2</div>
+		<div id="divKeySpell3" class="keyText">3</div>
+		<div id="divKeySpell4" class="keyText">4</div>
+	</div> 
+	<div id="divwizardControls" class="playerControls" style="background-image: url(./images/controls.png); position: absolute;z-index: 11000;">
+		<div id="divKeyUp" class="keyText">W</div>
+		<div id="divKeyLeft" class="keyText">A</div>
+		<div id="divKeyDown" class="keyText">S</div>
+		<div id="divKeyRight" class="keyText">D</div>
+	</div> 
+	
+	<img id="imgfighterBox" src="./images/charbox_fighter.png" style="position: absolute;z-index: 10000;" />
+	<div id="divfighterHealth" style="background: #BE2633;position: absolute;width: 33px; height: 30px;z-index: 9000" ></div> 
+	<div id="divfighterMana" style="background: #005784;position: absolute;width: 30px; height: 42px;z-index: 9000" ></div> 
+	<div id="divfighterXP" style="background: #EB8931;position: absolute;width: 30px; height: 9px;z-index: 11000"></div> 
+	<div id="divfighterLevelText" style="position: absolute;z-index: 11000; color: #9D9D9D; text-align: center;">00</div> 
+	<div id="divfighterAttackText" style="position: absolute;z-index: 11000; color: #9D9D9D; text-align: center;">00</div> 
+	<div id="divfighterDefenseText" style="position: absolute;z-index: 11000; color: #9D9D9D; text-align: center;">00</div> 
+	<div id="divfighterHealthText" style="position: absolute;z-index: 11000; color: #9D9D9D; text-align: center;">00</div> 
+	<div id="divfighterControls" class="playerControls" style="background-image: url(./images/controls.png); position: absolute;z-index: 11000;"></div> 
+	
+	<canvas id="canvasMiniMap" style="position: absolute;z-index: 5000; border: 2px solid; opacity: 0.8;"></canvas>
+	
+	<div id="divOverlay" style="background-image: url(./images/meshx3.png);background-repeat:repeat;position: absolute;z-index: 8000"></div> 
+</div>	
+</body>
