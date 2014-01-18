@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<!--
+	Galactic Outlaw - an HTML5 game 
+	Copyright (C) 2014 Jonas "sanojian" Olmstead 
+	
+	Artwork - Oryx (http://oryxdesignlab.com/)
+	Music - Deceased Superior Technician (http://www.nosoapradio.us/)
+	
+	Thanks for buzzjs and craftyjs!
+-->
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<title>Galactic Outlaw</title>
+	<script type="text/javascript" src="./includes/crafty.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script type="text/javascript" src="./includes/buzz.min.js"></script>
+	<link href='//fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'>
+	<style>
+		body, html { margin:0; padding: 0; overflow:hidden; font-family:Arial; font-size:20px }
+		#cr-stage { border:2px solid black; margin:5px auto; color:white }
+		
+	</style>
+	
+	<script language="javascript">
+"use strict";
+
+
+var RENDERING_MODE = 'DOM';//'Canvas';
+var GAME_FONT = '"Press Start 2P", cursive';
+var TILE_SIZE = 8*3;
+var VIEW_WIDTH = 960; //28*TILE_WIDTH;
+var VIEW_HEIGHT = 640; //10*TILE_HEIGHT;
+
+var g_game = {
+	slashEffects: {
+		objArray: [],
+		cursor: 0,
+		getNextEffect: function() {
+			g_game.slashEffects.cursor = (g_game.slashEffects.cursor + 1) % g_game.slashEffects.objArray.length;
+			return g_game.slashEffects.objArray[g_game.slashEffects.cursor];
+		}
+	},
+	sounds: {},
+	music: {},
+	curLevel: 0
+};
+
+window.addEventListener("load", function(event) {
+
+	//VIEW_WIDTH = $(document).width();
+	//VIEW_HEIGHT = $(document).height();
+	Crafty.init(VIEW_WIDTH, VIEW_HEIGHT);
+	
+	doCraftyInitialization();
+});
+
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+function doCraftyInitialization() {
+	
+	Crafty.c('Ship', {
+		
+		Ship: function(x, y, type) {
+			this.requires('2D, ' + RENDERING_MODE + ', Collision, ' + type)
+				.attr( { x: x, y: y, z: 100 } )
+				.collision()
+				.bind('EnterFrame', function(frameObj) {
+					this.attr( { x: this.x + this.velocity.x, y: this.y + this.velocity.y });
+				})
+				.origin('center')
+				
+			
+			this.velocity =  new Crafty.math.Vector2D(0,0);
+			this.direction =  new Crafty.math.Vector2D(0,0);
+			this.turn(0);
+			
+			return this;
+		},
+		turn: function(amt) {
+			//var angle = Math.atan2(this.direction.y, this.direction.x);
+			//angle += amt;
+			this.rotation += amt;
+			var vY = 1 * Math.sin(this.rotation * Math.PI / 180);
+			var vX = 1 * Math.cos(this.rotation * Math.PI / 180);
+			this.direction.setValues(vX, vY);
+		}
+	});
+
+	Crafty.c('Player', {
+
+		Player: function(x, y) {
+			this.requires('Keyboard, Ship')
+				.Ship(x, y, 'ship')
+				.bind('EnterFrame', function(frameObj) {
+					if (this.isDown(Crafty.keys.UP_ARROW)) {
+						this.velocity.add(new Crafty.math.Vector2D(this.direction.x*0.05, this.direction.y*0.05));
+					}
+					if (this.isDown(Crafty.keys.LEFT_ARROW)) {
+						this.turn(-4);
+					}
+					if (this.isDown(Crafty.keys.RIGHT_ARROW)) {
+						this.turn(4);
+					}
+
+				})
+				.bind('KeyDown', function(evt) {
+					if (evt.key == Crafty.keys.SPACE) {
+						Crafty.e('Bullet').Bullet(this.x, this.y, this.direction);
+					}
+				})
+				
+			return this;
+		}
+	});
+	
+	Crafty.c('Bullet', {
+		range: 1000,
+	
+		Bullet: function(x, y, dir) {
+			this.requires('2D, ' + RENDERING_MODE + ', Collision, bullet')
+				.attr( { x: x, y: y, z: 100 } )
+				.collision()
+				.bind('EnterFrame', function(frameObj) {
+					this.attr( { x: this.x + this.velocity.x, y: this.y + this.velocity.y });
+					this.travelled += Math.sqrt(Math.pow(this.velocity.x, 2) + Math.pow(this.velocity.y, 2));
+					if (this.travelled > this.range) {
+						this.destroy();
+					}
+				})
+				
+			this.velocity = new Crafty.math.Vector2D(dir.x*10, dir.y*10);
+			this.travelled = 0;
+			
+			return this;
+		}
+	});
+	
+	
+	Crafty.scene("main", function () {
+		Crafty.background('url(./images/background.png)');	
+
+		var player = Crafty.e('Player').Player(10, 10);
+		Crafty.viewport.clampToEntities = false;
+		Crafty.viewport.follow(player, player.w/2, player.h/2);
+	
+		Crafty.e('2D, ' + RENDERING_MODE + ',planet').attr({ x: 100, y: 100, z: 100 });
+		Crafty.e('Ship').Ship(200, 10, 'ship2');
+	});
+
+	Crafty.scene("loading", function () {
+		Crafty.background("#000");
+		//try {
+		Crafty.e('2D, ' + RENDERING_MODE + ', Text').attr({ w: 800, h: 20, x: VIEW_WIDTH/2 - 400, y: VIEW_HEIGHT/2-160, z: 1000 })
+			.text("Loading...")
+			.textColor('#fff', 1)
+			.textFont({ size: "16pt", weight: 'bold', family: GAME_FONT })
+			//.css({ "text-align": "center", "font-family": GAME_FONT, "font-size": "44px" });
+		//} catch (ex) {;}
+		
+		Crafty.load(['./images/lofi_scifi_v2.png'	], function() {
+					
+			Crafty.sprite(1, './images/lofi_scifi_v2.png', {
+				ship: 	[2 * TILE_SIZE, 34 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				ship2: 	[2 * TILE_SIZE, 43 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				
+				bullet:	[8 * TILE_SIZE, 78 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				
+				planet: [8*3, 664*3, 24*3, 24*3]
+			});
+
+		
+			Crafty.scene("main");
+			
+		});
+	});
+	
+	Crafty.scene("loading");
+}
+
+
+	</script>
+</head>
+<body>
+	<div id="divGUI" style="width: 100%, height: 100%">
+	</div>	
+</body>
