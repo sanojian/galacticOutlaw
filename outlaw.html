@@ -149,13 +149,15 @@ function doCraftyInitialization() {
 						else if (angleDiff > 0) {
 							this.turn(-1);
 						}
+						// chase?
 						if (Math.abs(angleDiff) < Math.PI/4 && dist > 200) {
 							this.velocity.add(new Crafty.math.Vector2D(this.direction.x*0.02, this.direction.y*0.02));
 							if (frameObj.frame % 10 == 0) {
 								g_game.exhaustEffects.getNextEffect().show(this.x + this.w/2, this.y + this.h/2);					
 							}
 						}
-						if (frameObj.frame % 100 == 0) {
+						// fire
+						if (Math.abs(angleDiff) < Math.PI/4 && frameObj.frame % 100 == 0) {
 							Crafty.e('Bullet').Bullet(this.x, this.y, this.direction, this[0]);						
 						}
 					}
