@@ -25,7 +25,7 @@
 "use strict";
 
 
-var RENDERING_MODE = 'DOM';//'Canvas';
+var RENDERING_MODE = 'Canvas';
 var GAME_FONT = '"Press Start 2P", cursive';
 var TILE_SIZE = 8*3;
 var VIEW_WIDTH = 960; //28*TILE_WIDTH;
@@ -62,6 +62,47 @@ window.addEventListener("load", function(event) {
 	doCraftyInitialization();
 });
 
+function layoutGUI() {
+	$('#divGUI').show();
+	var pos = $('#cr-stage').offset();
+
+	$('#canvasMiniMap').css({ width: 48*3, height: 48*3, left: pos.left+3, top: pos.top + $('#cr-stage').height() - 48*3 - 6 });
+
+}
+
+function updateMiniMap() {
+	var drawingCanvas = document.getElementById('canvasMiniMap');
+	var context = drawingCanvas.getContext('2d');
+	
+	for (var y=0;y<48;y++) {
+		context.fillStyle = y % 2 ? '#394677' : '#4A5B99';
+		for (var x=0;x<48;x++) {
+			context.fillRect(x*6,y*3,6,3);
+		}
+	}
+
+	// player
+	context.fillStyle = '#0f0';
+	var player = Crafty(Crafty('Player')[0]);
+	context.fillRect(24*6,24*3,6,3);
+	
+	// ships
+	context.fillStyle = '#f00';
+	var shipIDs = Crafty('AIShip');
+	for (var i=0;i<shipIDs.length;i++) {
+		var ship = Crafty(shipIDs[i]);
+		context.fillRect(24*6 + ship.x/8 - player.x/8, 24*3 + ship.y/8 - player.y/8,6,3);
+	}
+
+	// planets
+	context.fillStyle = '#fff';
+	var shipIDs = Crafty('planet');
+	for (var i=0;i<shipIDs.length;i++) {
+		var ship = Crafty(shipIDs[i]);
+		context.fillRect(24*6 + ship.x/8 - player.x/8, 24*3 + ship.y/8 - player.y/8,12,6);
+	}
+	
+}
 function getParameterByName(name) {
     name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
     var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
@@ -72,12 +113,17 @@ function getParameterByName(name) {
 function doCraftyInitialization() {
 	
 	Crafty.c('Ship', {
+		maxSpeed: 2,
 		
 		Ship: function(x, y, type, faction) {
 			this.requires('2D, ' + RENDERING_MODE + ', Collision, solid, ' + type + ',' + faction)
 				.attr( { x: x, y: y, z: 100 } )
 				.collision()
 				.bind('EnterFrame', function(frameObj) {
+					var speed = this.velocity.magnitude();
+					if (speed > this.maxSpeed) {
+						this.velocity = this.velocity.scale(this.maxSpeed/speed);
+					}
 					this.attr( { x: this.x + this.velocity.x, y: this.y + this.velocity.y });
 				})
 				.origin('center')
@@ -187,12 +233,16 @@ function doCraftyInitialization() {
 						this.turn(4);
 					}
 
+					g_game.$stage.css('background-position', '' + (-this.x/4) + 'px ' + (-this.y/4) + 'px');
+					updateMiniMap();
 				})
 				.bind('KeyDown', function(evt) {
 					if (evt.key == Crafty.keys.SPACE) {
 						Crafty.e('Bullet').Bullet(this.x, this.y, this.direction, this[0]);
 					}
 				})
+				
+			
 				
 			return this;
 		}
@@ -287,18 +337,23 @@ function doCraftyInitialization() {
 		for (var i=0;i<10;i++) {
 			g_game.collideEffects.objArray.push(Crafty.e('Fragment').Fragment());
 		}
-		for (var i=0;i<10;i++) {
+		for (var i=0;i<20;i++) {
 			g_game.exhaustEffects.objArray.push(Crafty.e('Exhaust').Exhaust());
 		}
 
-		var player = Crafty.e('Player').Player(10, 10);
+		layoutGUI();
+		g_game.$stage = $('#cr-stage');
+		var startX = 500;
+		var startY = 500;
+		
+		var player = Crafty.e('Player').Player(startX, startY);
 		Crafty.viewport.clampToEntities = false;
 		Crafty.viewport.follow(player, player.w/2, player.h/2);
 	
-		Crafty.e('2D, ' + RENDERING_MODE + ',planet, solid').attr({ x: 100, y: 100, z: 100 });
-		Crafty.e('AIShip').AIShip(200, 10, 'ship2', 'faction2');
-		Crafty.e('AIShip').AIShip(400, 100, 'ship2', 'faction2');
-		Crafty.e('AIShip').AIShip(300, 200, 'ship2', 'faction2');
+		Crafty.e('2D, ' + RENDERING_MODE + ',planet, solid').attr({ x: startX + 100, y: startY + 100, z: 60 });
+		Crafty.e('AIShip').AIShip(startX + 200, startY + 10, 'ship2', 'faction2');
+		Crafty.e('AIShip').AIShip(startX + 400, startY + 100, 'ship2', 'faction2');
+		Crafty.e('AIShip').AIShip(startX + 300, startY + 200, 'ship2', 'faction2');
 	});
 
 	Crafty.scene("loading", function () {
@@ -339,5 +394,7 @@ function doCraftyInitialization() {
 </head>
 <body>
 	<div id="divGUI" style="width: 100%, height: 100%">
+	
+		<canvas id="canvasMiniMap" style="position: absolute;z-index: 5000; border: 2px solid; opacity: 0.8;"></canvas>
 	</div>	
 </body>
