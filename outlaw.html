@@ -19,6 +19,14 @@
 		body, html { margin:0; padding: 0; overflow:hidden; font-family:Arial; font-size:20px }
 		#cr-stage { border:2px solid black; margin:5px auto; color:white }
 		
+		div.shipSlot {
+			background-image: url("./images/shipSlot.png");
+			width: 48px;
+			height: 120px;
+			display: inline-block;
+			margin: 12px;
+		}
+		
 	</style>
 	
 	<script language="javascript">
@@ -66,7 +74,23 @@ function layoutGUI() {
 	$('#divGUI').show();
 	var pos = $('#cr-stage').offset();
 
+	//$('#divOverlay').css({ width: $('#cr-stage').width(), height: $('#cr-stage').height(), left: pos.left+2, top: pos.top+2 });
 	$('#canvasMiniMap').css({ width: 48*3, height: 48*3, left: pos.left+3, top: pos.top + $('#cr-stage').height() - 48*3 - 6 });
+	
+	var shipParts = [
+		{ type: 'weapon' },
+		{ type: 'shield' }
+	];
+	
+	$('#divShipParts').css({ width: 48*3, height: 48*3, left: pos.left+6 + 48*3, top: pos.top + $('#cr-stage').height() - 48*3 - 6 });
+	for (var i=0;i<shipParts.length;i++) {
+		$('#divShipParts').append('<div class="shipSlot"></div>');
+	}
+
+	var posParts = $('#divShipParts').offset();
+	$('#divInventory').css({ width: 144, height: 144, left: posParts.left + $('#divControls').width() +6, top: pos.top + $('#cr-stage').height() - 48*3 - 6 });
+
+	$('#divControls').css({ width: 144, height: 96, left: pos.left + $('#cr-stage').width() - 144, top: pos.top + $('#cr-stage').height() - 48*3 - 6 });
 
 }
 
@@ -393,8 +417,15 @@ function doCraftyInitialization() {
 	</script>
 </head>
 <body>
-	<div id="divGUI" style="width: 100%, height: 100%">
-	
-		<canvas id="canvasMiniMap" style="position: absolute;z-index: 5000; border: 2px solid; opacity: 0.8;"></canvas>
+	<div id="divGUI" style="width: 100%; height: 100%;">
+		<canvas id="canvasMiniMap" style="position: absolute;z-index: 5000; border: 2px solid; opacity: 0.6;"></canvas>
+		<div id="divShipParts" style="position: absolute;border: 1px solid #fff;z-index: 5000;"></div>
+		<!--div id="divOverlay" style="background-image: url(./images/meshx3.png);background-repeat:repeat;position: absolute;z-index: 8000"></div--> 
+		<div id="divControls" style="position: absolute;border: 1px solid #fff;z-index: 5000;">
+			<img src="./images/arrows.png" />
+		</div>
+		<div id="divInventory" style="position: absolute;z-index: 5000;">
+			<img src="./images/shipInventory.png" />
+		</div>
 	</div>	
 </body>
