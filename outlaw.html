@@ -21,10 +21,10 @@
 		
 		div.shipSlot {
 			background-image: url("./images/shipSlot.png");
-			width: 48px;
-			height: 120px;
+			width: 120px;
+			height: 48px;
 			display: inline-block;
-			margin: 12px;
+			margin: 3px 12px;
 		}
 		
 	</style>
@@ -36,7 +36,7 @@
 var RENDERING_MODE = 'Canvas';
 var GAME_FONT = '"Press Start 2P", cursive';
 var TILE_SIZE = 8*3;
-var VIEW_WIDTH = 960; //28*TILE_WIDTH;
+var VIEW_WIDTH = 960 - 144; //28*TILE_WIDTH;
 var VIEW_HEIGHT = 640; //10*TILE_HEIGHT;
 
 var g_game = {
@@ -75,20 +75,23 @@ function layoutGUI() {
 	var pos = $('#cr-stage').offset();
 
 	//$('#divOverlay').css({ width: $('#cr-stage').width(), height: $('#cr-stage').height(), left: pos.left+2, top: pos.top+2 });
-	$('#canvasMiniMap').css({ width: 48*3, height: 48*3, left: pos.left+3, top: pos.top + $('#cr-stage').height() - 48*3 - 6 });
+	$('#canvasMiniMap').css({ width: 48*3, height: 48*3, left: pos.left+12 + $('#cr-stage').width(), top: pos.top + 12 });
 	
 	var shipParts = [
+		{ type: 'weapon' },
+		{ type: 'shield' },
+		{ type: 'weapon' },
 		{ type: 'weapon' },
 		{ type: 'shield' }
 	];
 	
-	$('#divShipParts').css({ width: 48*3, height: 48*3, left: pos.left+6 + 48*3, top: pos.top + $('#cr-stage').height() - 48*3 - 6 });
+	$('#divShipParts').css({ width: 48*3, height: 48*3, left: pos.left+12 + $('#cr-stage').width(), top: pos.top + $('#canvasMiniMap').height() + 24 });
 	for (var i=0;i<shipParts.length;i++) {
 		$('#divShipParts').append('<div class="shipSlot"></div>');
 	}
 
 	var posParts = $('#divShipParts').offset();
-	$('#divInventory').css({ width: 144, height: 144, left: posParts.left + $('#divControls').width() +6, top: pos.top + $('#cr-stage').height() - 48*3 - 6 });
+	$('#divInventory').css({ width: 144, height: 144, left: pos.left+12 + + $('#cr-stage').width(), top: pos.top + $('#cr-stage').height() - 48*3 - 6 });
 
 	$('#divControls').css({ width: 144, height: 96, left: pos.left + $('#cr-stage').width() - 144, top: pos.top + $('#cr-stage').height() - 48*3 - 6 });
 
@@ -418,7 +421,7 @@ function doCraftyInitialization() {
 </head>
 <body>
 	<div id="divGUI" style="width: 100%; height: 100%;">
-		<canvas id="canvasMiniMap" style="position: absolute;z-index: 5000; border: 2px solid; opacity: 0.6;"></canvas>
+		<canvas id="canvasMiniMap" style="position: absolute;z-index: 5000; opacity: 0.6;"></canvas>
 		<div id="divShipParts" style="position: absolute;border: 1px solid #fff;z-index: 5000;"></div>
 		<!--div id="divOverlay" style="background-image: url(./images/meshx3.png);background-repeat:repeat;position: absolute;z-index: 8000"></div--> 
 		<div id="divControls" style="position: absolute;border: 1px solid #fff;z-index: 5000;">
