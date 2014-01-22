@@ -85,7 +85,8 @@ window.addEventListener("load", function(event) {
 	doCraftyInitialization();
 	
 	$('#divGUI').on('mousedown', 'div.shipPart', function() {
-		console.log('click');
+		$('div.shipPart').css('z-index', 6000);
+		$(this).css('z-index', 9000);
 		g_game.$draggedPart = $(this);
 	});
 	$('#divGUI').on('mousemove', 'div.shipPart', function(e) {
@@ -97,6 +98,27 @@ window.addEventListener("load", function(event) {
 		}
 	});
 	$('#divGUI').on('mouseup', 'div.shipPart', function() {
+		var posDragged = g_game.$draggedPart.offset();
+		var cX = posDragged.left + g_game.$draggedPart.width()/2;
+		var cY = posDragged.top + g_game.$draggedPart.height()/2;
+	
+		var posInv = $('#divInventory').offset();
+		var bFoundPos = false;
+		if (cX >= posInv.left && cY >= posInv.top && cX <= posInv.left + $('#divInventory').width() && cY <= posInv.top + $('#divInventory').height()) {
+			g_game.$draggedPart.css({ top: posInv.top, left: posInv.left });
+			bFoundPos = true;
+		}
+		if (!bFoundPos) {
+			for (var i=0;i<5;i++) {
+				var $slot = $('div.shipSlot[data-slot=' + i + ']');
+				var posSlot = $slot.offset();
+				if (cX >= posSlot.left && cY >= posSlot.top && cX <= posSlot.left + $slot.width() && cY <= posSlot.top + $slot.height()) {
+					g_game.$draggedPart.css({ top: posSlot.top, left: posSlot.left + $slot.width() - g_game.$draggedPart.width() });
+					bFoundPos = true;
+				}
+			}
+		}
+		
 		g_game.$draggedPart = undefined;
 	});
 });
@@ -126,7 +148,7 @@ function layoutGUI() {
 	
 	$('#divShipParts').css({ width: 48*3, height: 48*3, left: pos.left+12 + $('#cr-stage').width(), top: pos.top + $('#canvasMiniMap').height() + 24 });
 	for (var i=0;i<shipParts.length;i++) {
-		$('#divShipParts').append('<div class="shipSlot"></div>');
+		$('#divShipParts').append('<div class="shipSlot" data-slot="' + i + '"></div>');
 	}
 
 	var posParts = $('#divShipParts').offset();
