@@ -26,6 +26,21 @@
 			display: inline-block;
 			margin: 3px 12px;
 		}
+		#divInventory {
+			width: 144px;
+			height: 144px;
+			background-image: url("./images/shipInventory.png");
+			padding: 0;
+		}
+		div.shipPart {
+			width: 48px;
+			height: 48px;
+			background-image: url("./images/partBackground.png");
+			display: inline-block;
+			cursor: pointer;
+			position: absolute;
+			z-index: 6000;
+		}
 		
 	</style>
 	
@@ -68,6 +83,22 @@ window.addEventListener("load", function(event) {
 	Crafty.init(VIEW_WIDTH, VIEW_HEIGHT);
 	
 	doCraftyInitialization();
+	
+	$('#divGUI').on('mousedown', 'div.shipPart', function() {
+		console.log('click');
+		g_game.$draggedPart = $(this);
+	});
+	$('#divGUI').on('mousemove', 'div.shipPart', function(e) {
+		if (g_game.$draggedPart && g_game.$draggedPart.attr('data-partid') == $(this).attr('data-partid')) {
+			g_game.$draggedPart.css({
+				top: e.pageY - $(e.currentTarget).height()/2,
+				left: e.pageX - $(e.currentTarget).width()/2
+			});
+		}
+	});
+	$('#divGUI').on('mouseup', 'div.shipPart', function() {
+		g_game.$draggedPart = undefined;
+	});
 });
 
 function layoutGUI() {
@@ -78,11 +109,19 @@ function layoutGUI() {
 	$('#canvasMiniMap').css({ width: 48*3, height: 48*3, left: pos.left+12 + $('#cr-stage').width(), top: pos.top + 12 });
 	
 	var shipParts = [
-		{ type: 'weapon' },
-		{ type: 'shield' },
-		{ type: 'weapon' },
-		{ type: 'weapon' },
-		{ type: 'shield' }
+		{ type: 'weapon', id: 1 },
+		{ type: 'shield', id: 2 },
+		{ type: 'weapon', id: 3 },
+		{ type: 'weapon', id: 4 },
+		{ type: 'shield', id: 5 }
+	];
+
+	var shipInventory = [
+		{ type: 'weapon', id: 6 },
+		{ type: 'shield', id: 7 },
+		{ type: 'weapon', id: 8 },
+		{ type: 'weapon', id: 9 },
+		{ type: 'shield', id: 10 }
 	];
 	
 	$('#divShipParts').css({ width: 48*3, height: 48*3, left: pos.left+12 + $('#cr-stage').width(), top: pos.top + $('#canvasMiniMap').height() + 24 });
@@ -92,6 +131,11 @@ function layoutGUI() {
 
 	var posParts = $('#divShipParts').offset();
 	$('#divInventory').css({ width: 144, height: 144, left: pos.left+12 + + $('#cr-stage').width(), top: pos.top + $('#cr-stage').height() - 48*3 - 6 });
+	var posInv = $('#divInventory').offset();
+	for (var i=0;i<shipInventory.length;i++) {
+		$('#divGUI').append('<div class="shipPart" data-slot="' + i + '"></div>');
+		$('div.shipPart[data-slot=' + i + ']').css({ left: posInv.left + (i % 3) * 48, top: posInv.top + Math.floor(i / 3) * 48 });
+	}
 
 	$('#divControls').css({ width: 144, height: 96, left: pos.left + $('#cr-stage').width() - 144, top: pos.top + $('#cr-stage').height() - 48*3 - 6 });
 
@@ -427,8 +471,6 @@ function doCraftyInitialization() {
 		<div id="divControls" style="position: absolute;border: 1px solid #fff;z-index: 5000;">
 			<img src="./images/arrows.png" />
 		</div>
-		<div id="divInventory" style="position: absolute;z-index: 5000;">
-			<img src="./images/shipInventory.png" />
-		</div>
+		<div id="divInventory" style="position: absolute;z-index: 5000;"></div>
 	</div>	
 </body>
