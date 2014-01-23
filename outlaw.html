@@ -130,15 +130,7 @@ function layoutGUI() {
 	//$('#divOverlay').css({ width: $('#cr-stage').width(), height: $('#cr-stage').height(), left: pos.left+2, top: pos.top+2 });
 	$('#canvasMiniMap').css({ width: 48*3, height: 48*3, left: pos.left+12 + $('#cr-stage').width(), top: pos.top + 12 });
 	
-	var shipParts = [
-		{ type: 'weapon', id: 1 },
-		{ type: 'shield', id: 2 },
-		{ type: 'weapon', id: 3 },
-		{ type: 'weapon', id: 4 },
-		{ type: 'shield', id: 5 }
-	];
-
-	var shipInventory = [
+	g_game.shipInventory = [
 		{ type: 'weapon', id: 6 },
 		{ type: 'shield', id: 7 },
 		{ type: 'weapon', id: 8 },
@@ -147,14 +139,14 @@ function layoutGUI() {
 	];
 	
 	$('#divShipParts').css({ width: 48*3, height: 48*3, left: pos.left+12 + $('#cr-stage').width(), top: pos.top + $('#canvasMiniMap').height() + 24 });
-	for (var i=0;i<shipParts.length;i++) {
+	for (var i=0;i<5;i++) {
 		$('#divShipParts').append('<div class="shipSlot" data-slot="' + i + '"></div>');
 	}
 
 	var posParts = $('#divShipParts').offset();
 	$('#divInventory').css({ width: 144, height: 144, left: pos.left+12 + + $('#cr-stage').width(), top: pos.top + $('#cr-stage').height() - 48*3 - 6 });
 	var posInv = $('#divInventory').offset();
-	for (var i=0;i<shipInventory.length;i++) {
+	for (var i=0;i<g_game.shipInventory.length;i++) {
 		$('#divGUI').append('<div class="shipPart" data-slot="' + i + '"></div>');
 		$('div.shipPart[data-slot=' + i + ']').css({ left: posInv.left + (i % 3) * 48, top: posInv.top + Math.floor(i / 3) * 48 });
 	}
