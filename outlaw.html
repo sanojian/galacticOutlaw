@@ -26,6 +26,14 @@
 			display: inline-block;
 			margin: 3px 12px;
 		}
+		div.powerBar {
+			background-color: #1B9916;
+			position: relative;
+			left: 6px;
+			top: 15px;
+			width: 0px;
+			height: 18px;
+		}
 		#divInventory {
 			width: 144px;
 			height: 144px;
@@ -41,6 +49,16 @@
 			position: absolute;
 			z-index: 6000;
 		}
+		
+		.icon {
+			width:24px;
+			height:24px;
+			background:url(./images/lofi_scifi_v2.png) no-repeat;
+		}
+		
+		.icon.icon-gun {background-position: -216px -1824px}
+		.icon.icon-shield {background-position: -48px -1800px}
+		.icon.part { margin: 12px }
 		
 	</style>
 	
@@ -71,17 +89,48 @@ var g_game = {
 			return g_game.exhaustEffects.objArray[g_game.exhaustEffects.cursor];
 		}
 	},
+	parts: {},
 	sounds: {},
 	music: {},
 	curLevel: 0
 };
 
-g_game.inventory = {
+var generateUid = function (separator) {
+    var delim = separator || "-";
+
+    function S4() {
+        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+    }
+
+    return (S4() + S4() + delim + S4() + delim + S4() + delim + S4() + delim + S4() + S4() + S4());
+};
+
+function ShipPart(type, regen) {
+	this.guid = generateUid();
+	this.type = type;
+	this.regen = regen;
+	this.power = 0;
 	
-}
+	this.getInfo = function() {
+		return {};
+	};
+	
+	this.tick = function() {
+		this.power = Math.min(100, this.power + this.regen);
+	};
+	
+	var icon = 'gun';
+	if (type == 'shield') {
+		icon = 'shield';
+	}
+	$('#divGUI').append('<div class="shipPart" data-guid="' + this.guid + '"><div class="icon icon-' + icon + ' part" title="' + type + '"/></div>');
+	
+	this.$image = $('div.shipPart[data-guid=' + this.guid + ']');
+};
 
 function Inventory() {
 	
+	this.count = 0;
 	this.slots = [];
 	for (var i=0;i<9;i++) {
 		this.slots.push({
@@ -89,31 +138,69 @@ function Inventory() {
 		});
 	}
 
-	this.addPart = function(partDef, $partImg) {
+	this.addPart = function(part) {
 		// find empty slot
-		for (var i=0;i<9;i++) {
+		for (var i=0;i<this.slots.length;i++) {
 			if (this.slots[i].contents == undefined) {
-				this.slots[i].contents = partDef;
-				if ($partImg) {
-					var oldSlot = $partImg.attr('data-slot');
-					if (oldSlot !== undefined) {
-						this.slots[oldSlot].contents = undefined;
-					}
-					$partImg.attr('data-slot', i);
-				}
-				else {
-					// a new part
-					$('#divGUI').append('<div class="shipPart" data-loc="inventory" data-slot="' + i + '"></div>');
-					$partImg = $('div.shipPart[data-slot=' + i + ']');		
-				}
+				this.slots[i].contents = part;
 				var posInv = $('#divInventory').offset();
-				$partImg.css({ top: posInv.top + Math.floor(i/3)* 16*3, left: posInv.left + (i % 3) * 16*3 });
+				part.$image.css({ top: posInv.top + Math.floor(i/3)* 16*3, left: posInv.left + (i % 3) * 16*3 });
+				this.count += 1;
 				return i;
 			}
 		}
 		return -1;
 	};
+	
+	this.removePart = function(part) {
+		for (var i=0;i<this.slots.length;i++) {
+			if (this.slots[i].contents == part) {	
+				this.slots[i].contents = undefined;
+				part.comesFrom = { place: 'inventory', slot: i };
+			}
+		}
+	};
 };
+
+function ShipSlot(index) {
+
+	this.index = index;
+	
+	$('#divShipParts').append('<div class="shipSlot" data-slot="' + index + '"></div>');
+	this.$slotImage = $('div.shipSlot[data-slot=' + index + ']');
+	this.$slotImage.append('<div class="powerBar" />');
+	this.$slotPower = this.$slotImage.find('.powerBar');
+	
+	this.tick = function() {
+		if (this.part) {
+			this.part.tick();
+			this.$slotPower.css('width', 60 * this.part.power / 100);
+		}
+		else {
+			this.$slotPower.css('width', 0);
+		}
+	};
+	
+	this.addPart = function(part) {
+		this.part = part;
+		part.power = 0;
+		var posSlot = this.$slotImage.offset();
+		this.part.$image.css({ top: posSlot.top, left: posSlot.left + this.$slotImage.width() - g_game.draggedPart.$image.width() });
+		if (part.type == 'shield') {
+			g_game.player.addShield();
+		}
+	};
+	this.removePart = function(part) {
+		if (this.part == part) {
+			this.part = undefined;
+			part.comesFrom = { place: 'slot', slot: index };
+			if (part.type == 'shield') {
+				g_game.player.removeShield();
+			}
+		}
+	};
+
+}
 
 window.addEventListener("load", function(event) {
 
@@ -123,29 +210,32 @@ window.addEventListener("load", function(event) {
 	
 	doCraftyInitialization();
 	
-	$('#divGUI').on('mousedown', 'div.shipPart', function() {
+	$('#divGUI').on('mousedown', 'div.shipPart', function(e) {
 		$('div.shipPart').css('z-index', 6000);
 		$(this).css('z-index', 9000);
-		g_game.$draggedPart = $(this);
+		g_game.draggedPart = g_game.parts[$(e.currentTarget).attr('data-guid')];
+		g_game.shipInventory.removePart(g_game.draggedPart);
+		for (var i=0;i<g_game.shipSlots.length;i++) {
+			g_game.shipSlots[i].removePart(g_game.draggedPart);
+		}
 	});
 	$('#divGUI').on('mousemove', 'div.shipPart', function(e) {
-		if (g_game.$draggedPart && g_game.$draggedPart.attr('data-partid') == $(this).attr('data-partid')) {
-			g_game.$draggedPart.css({
+		if (g_game.draggedPart && g_game.draggedPart.guid == $(e.currentTarget).attr('data-guid')) {
+			$(e.currentTarget).css({
 				top: e.pageY - $(e.currentTarget).height()/2,
 				left: e.pageX - $(e.currentTarget).width()/2
 			});
 		}
 	});
-	$('#divGUI').on('mouseup', 'div.shipPart', function() {
-		var posDragged = g_game.$draggedPart.offset();
-		var cX = posDragged.left + g_game.$draggedPart.width()/2;
-		var cY = posDragged.top + g_game.$draggedPart.height()/2;
+	$('#divGUI').on('mouseup', 'div.shipPart', function(e) {
+		var posDragged = $(e.currentTarget).offset();
+		var cX = posDragged.left + $(e.currentTarget).width()/2;
+		var cY = posDragged.top + $(e.currentTarget).height()/2;
 	
 		var posInv = $('#divInventory').offset();
 		var bFoundPos = false;
 		if (cX >= posInv.left && cY >= posInv.top && cX <= posInv.left + $('#divInventory').width() && cY <= posInv.top + $('#divInventory').height()) {
-			//g_game.$draggedPart.css({ top: posInv.top, left: posInv.left });
-			g_game.shipInventory.addPart({}, g_game.$draggedPart);
+			g_game.shipInventory.addPart(g_game.draggedPart);
 			bFoundPos = true;
 		}
 		if (!bFoundPos) {
@@ -153,13 +243,25 @@ window.addEventListener("load", function(event) {
 				var $slot = $('div.shipSlot[data-slot=' + i + ']');
 				var posSlot = $slot.offset();
 				if (cX >= posSlot.left && cY >= posSlot.top && cX <= posSlot.left + $slot.width() && cY <= posSlot.top + $slot.height()) {
-					g_game.$draggedPart.css({ top: posSlot.top, left: posSlot.left + $slot.width() - g_game.$draggedPart.width() });
-					bFoundPos = true;
+					if (!g_game.shipSlots[i].part) {
+						g_game.shipSlots[i].addPart(g_game.draggedPart);
+						bFoundPos = true;
+						i = 5;
+					}
 				}
 			}
 		}
+		if (!bFoundPos) {
+			// send it back where it came from
+			if (g_game.draggedPart.comesFrom.place == 'inventory') {
+				g_game.shipInventory.addPart(g_game.draggedPart);
+			}
+			else if (g_game.draggedPart.comesFrom.place == 'slot') {
+				g_game.shipSlots[g_game.draggedPart.comesFrom.slot].addPart(g_game.draggedPart);
+			}
+		}
 		
-		g_game.$draggedPart = undefined;
+		g_game.draggedPart = undefined;
 	});
 });
 
@@ -170,26 +272,25 @@ function layoutGUI() {
 	//$('#divOverlay').css({ width: $('#cr-stage').width(), height: $('#cr-stage').height(), left: pos.left+2, top: pos.top+2 });
 	$('#canvasMiniMap').css({ width: 48*3, height: 48*3, left: pos.left+12 + $('#cr-stage').width(), top: pos.top + 12 });
 	
-	g_game.shipInventory = new Inventory();/*[
-		{ type: 'weapon', id: 6 },
-		{ type: 'shield', id: 7 },
-		{ type: 'weapon', id: 8 },
-		{ type: 'weapon', id: 9 },
-		{ type: 'shield', id: 10 }
-	];*/
+	g_game.shipInventory = new Inventory();	
+	g_game.shipSlots = [];
 	
-	
-	$('#divShipParts').css({ width: 48*3, height: 48*3, left: pos.left+12 + $('#cr-stage').width(), top: pos.top + $('#canvasMiniMap').height() + 24 });
+	$('#divShipParts').css({ width: 48*3, left: pos.left+12 + $('#cr-stage').width(), top: pos.top + $('#canvasMiniMap').height() + 24 });
 	for (var i=0;i<5;i++) {
-		$('#divShipParts').append('<div class="shipSlot" data-slot="' + i + '"></div>');
+		g_game.shipSlots.push(new ShipSlot(i));	
 	}
 
 	var posParts = $('#divShipParts').offset();
 	$('#divInventory').css({ width: 144, height: 144, left: pos.left+12 + + $('#cr-stage').width(), top: pos.top + $('#cr-stage').height() - 48*3 - 6 });
 	var posInv = $('#divInventory').offset();
-	for (var i=0;i<4;i++) {
-		g_game.shipInventory.addPart({ type: 'weapon', id: 6 });
-	}
+
+	// a new part
+	var newPart = new ShipPart('weapon', 30);
+	g_game.parts[newPart.guid] = newPart;
+	g_game.shipInventory.addPart(newPart);
+	var newPart = new ShipPart('shield', 5);
+	g_game.parts[newPart.guid] = newPart;
+	g_game.shipInventory.addPart(newPart);
 
 	$('#divControls').css({ width: 144, height: 96, left: pos.left + $('#cr-stage').width() - 144, top: pos.top + $('#cr-stage').height() - 48*3 - 6 });
 
@@ -208,7 +309,6 @@ function updateMiniMap() {
 
 	// player
 	context.fillStyle = '#0f0';
-	var player = Crafty(Crafty('Player')[0]);
 	context.fillRect(24*6,24*3,6,3);
 	
 	// ships
@@ -216,7 +316,7 @@ function updateMiniMap() {
 	var shipIDs = Crafty('AIShip');
 	for (var i=0;i<shipIDs.length;i++) {
 		var ship = Crafty(shipIDs[i]);
-		context.fillRect(24*6 + ship.x/8 - player.x/8, 24*3 + ship.y/8 - player.y/8,6,3);
+		context.fillRect(24*6 + ship.x/8 - g_game.player.x/8, 24*3 + ship.y/8 - g_game.player.y/8,6,3);
 	}
 
 	// planets
@@ -224,7 +324,7 @@ function updateMiniMap() {
 	var shipIDs = Crafty('planet');
 	for (var i=0;i<shipIDs.length;i++) {
 		var ship = Crafty(shipIDs[i]);
-		context.fillRect(24*6 + ship.x/8 - player.x/8, 24*3 + ship.y/8 - player.y/8,12,6);
+		context.fillRect(24*6 + ship.x/8 - g_game.player.x/8, 24*3 + ship.y/8 - g_game.player.y/8,12,6);
 	}
 	
 }
@@ -260,14 +360,19 @@ function doCraftyInitialization() {
 			this.hitPoints = 3;
 			this.maxHitPoints = 3;
 			
+			return this;
+		},
+		addShield: function() {
 			this.shield = Crafty.e('2D, ' + RENDERING_MODE + ', shield')
 				.attr( { x: this.x + this.w/2 - 16*3/2, y: this.y + this.h/2 - 16*3/2, z: 100, alpha: 0.5 } );
 			this.attach(this.shield);
 			this.shieldStrength = 6;
 			this.maxShieldStrength = 6;
-			
-			
-			return this;
+		},
+		removeShield: function() {
+			this.detach(this.shield);
+			this.shield.destroy();
+			this.shield = undefined;
 		},
 		turn: function(amt) {
 			//var angle = Math.atan2(this.direction.y, this.direction.x);
@@ -278,7 +383,7 @@ function doCraftyInitialization() {
 			this.direction.setValues(vX, vY);
 		},
 		takeDamage: function(amt) {
-			if (this.shieldStrength > 0) {
+			if (this.shield && this.shieldStrength > 0) {
 				this.shieldStrength = Math.max(0, this.shieldStrength - amt);
 				this.shield.alpha = 0.5 * this.shieldStrength / this.maxShieldStrength;
 			}
@@ -329,7 +434,7 @@ function doCraftyInitialization() {
 						}
 						// fire
 						if (Math.abs(angleDiff) < Math.PI/4 && frameObj.frame % 100 == 0) {
-							Crafty.e('Bullet').Bullet(this.x, this.y, this.direction, this[0]);						
+							Crafty.e('Bullet').Bullet(this.x, this.y, this.direction, this[0], 1);						
 						}
 					}
 				})
@@ -358,12 +463,22 @@ function doCraftyInitialization() {
 						this.turn(4);
 					}
 
+					if (frameObj.frame % 10 == 0) {
+						for (var i=0;i<g_game.shipSlots.length;i++) {
+							g_game.shipSlots[i].tick();
+						}
+					}
+					
 					g_game.$stage.css('background-position', '' + (-this.x/4) + 'px ' + (-this.y/4) + 'px');
 					updateMiniMap();
 				})
 				.bind('KeyDown', function(evt) {
 					if (evt.key == Crafty.keys.SPACE) {
-						Crafty.e('Bullet').Bullet(this.x, this.y, this.direction, this[0]);
+						for (var i=0;i<g_game.shipSlots.length;i++) {
+							if (g_game.shipSlots[i].part && g_game.shipSlots[i].part.type == 'weapon' && g_game.shipSlots[i].part.power == 100) {
+								Crafty.e('Bullet').Bullet(this.x, this.y, this.direction, this[0], 2);
+							}
+						}
 					}
 				})
 				
@@ -377,7 +492,7 @@ function doCraftyInitialization() {
 		range: 1000,
 		speed: 10,
 	
-		Bullet: function(x, y, dir, sourceId) {
+		Bullet: function(x, y, dir, sourceId, damage) {
 			this.requires('2D, ' + RENDERING_MODE + ', Collision, bullet')
 				.attr( { x: x, y: y, z: 100 } )
 				.collision()
@@ -388,7 +503,7 @@ function doCraftyInitialization() {
 					if (hits) {
 						if (hits[0].obj[0] != sourceId) {
 							if (hits[0].obj.has('Ship')) {
-								hits[0].obj.takeDamage(1);
+								hits[0].obj.takeDamage(damage);
 							}
 							this.destroy();
 							return;
@@ -471,9 +586,9 @@ function doCraftyInitialization() {
 		var startX = 500;
 		var startY = 500;
 		
-		var player = Crafty.e('Player').Player(startX, startY);
+		g_game.player = Crafty.e('Player').Player(startX, startY);
 		Crafty.viewport.clampToEntities = false;
-		Crafty.viewport.follow(player, player.w/2, player.h/2);
+		Crafty.viewport.follow(g_game.player, g_game.player.w/2, g_game.player.h/2);
 	
 		Crafty.e('2D, ' + RENDERING_MODE + ',planet, solid').attr({ x: startX + 100, y: startY + 100, z: 60 });
 		Crafty.e('AIShip').AIShip(startX + 200, startY + 10, 'ship2', 'faction2');
@@ -517,10 +632,10 @@ function doCraftyInitialization() {
 
 	</script>
 </head>
-<body>
+<body style="background-color: #444;">
 	<div id="divGUI" style="width: 100%; height: 100%;">
 		<canvas id="canvasMiniMap" style="position: absolute;z-index: 5000; opacity: 0.6;"></canvas>
-		<div id="divShipParts" style="position: absolute;border: 1px solid #fff;z-index: 5000;"></div>
+		<div id="divShipParts" style="position: absolute;z-index: 5000;"></div>
 		<!--div id="divOverlay" style="background-image: url(./images/meshx3.png);background-repeat:repeat;position: absolute;z-index: 8000"></div--> 
 		<div id="divControls" style="position: absolute;border: 1px solid #fff;z-index: 5000;">
 			<img src="./images/arrows.png" />
