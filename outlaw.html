@@ -1,68 +1,68 @@
 <!DOCTYPE html>
 <!--
-	Galactic Outlaw - an HTML5 game 
-	Copyright (C) 2014 Jonas "sanojian" Olmstead 
-	
-	Artwork - Oryx (http://oryxdesignlab.com/)
-	Music - Deceased Superior Technician (http://www.nosoapradio.us/)
-	
-	Thanks for buzzjs and craftyjs!
+        Galactic Outlaw - an HTML5 game 
+        Copyright (C) 2014 Jonas "sanojian" Olmstead 
+        
+        Artwork - Oryx (http://oryxdesignlab.com/)
+        Music - Deceased Superior Technician (http://www.nosoapradio.us/)
+        
+        Thanks for buzzjs and craftyjs!
 -->
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-	<title>Galactic Outlaw</title>
-	<script type="text/javascript" src="./includes/crafty.js"></script>
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-	<script type="text/javascript" src="./includes/buzz.min.js"></script>
-	<link href='//fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'>
-	<style>
-		body, html { margin:0; padding: 0; overflow:hidden; font-family:Arial; font-size:20px }
-		#cr-stage { border:2px solid black; margin:5px auto; color:white }
-		
-		div.shipSlot {
-			background-image: url("./images/shipSlot.png");
-			width: 120px;
-			height: 48px;
-			display: inline-block;
-			margin: 3px 12px;
-		}
-		div.powerBar {
-			background-color: #1B9916;
-			position: relative;
-			left: 6px;
-			top: 15px;
-			width: 0px;
-			height: 18px;
-		}
-		#divInventory {
-			width: 144px;
-			height: 144px;
-			background-image: url("./images/shipInventory.png");
-			padding: 0;
-		}
-		div.shipPart {
-			width: 48px;
-			height: 48px;
-			background-image: url("./images/partBackground.png");
-			display: inline-block;
-			cursor: pointer;
-			position: absolute;
-			z-index: 6000;
-		}
-		
-		.icon {
-			width:24px;
-			height:24px;
-			background:url(./images/lofi_scifi_v2.png) no-repeat;
-		}
-		
-		.icon.icon-gun {background-position: -216px -1824px}
-		.icon.icon-shield {background-position: -48px -1800px}
-		.icon.part { margin: 12px }
-		
-	</style>
-	
-	<script language="javascript">
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+        <title>Galactic Outlaw</title>
+        <script type="text/javascript" src="./includes/crafty.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script type="text/javascript" src="./includes/buzz.min.js"></script>
+        <link href='//fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'>
+        <style>
+                body, html { margin:0; padding: 0; overflow:hidden; font-family:Arial; font-size:20px }
+                #cr-stage { border:2px solid black; margin:5px auto; color:white }
+                
+                div.shipSlot {
+                        background-image: url("./images/shipSlot.png");
+                        width: 120px;
+                        height: 48px;
+                        display: inline-block;
+                        margin: 3px 12px;
+                }
+                div.powerBar {
+                        background-color: #1B9916;
+                        position: relative;
+                        left: 6px;
+                        top: 15px;
+                        width: 0px;
+                        height: 18px;
+                }
+                #divInventory {
+                        width: 144px;
+                        height: 144px;
+                        background-image: url("./images/shipInventory.png");
+                        padding: 0;
+                }
+                div.shipPart {
+                        width: 48px;
+                        height: 48px;
+                        background-image: url("./images/partBackground.png");
+                        display: inline-block;
+                        cursor: pointer;
+                        position: absolute;
+                        z-index: 6000;
+                }
+                
+                .icon {
+                        width:24px;
+                        height:24px;
+                        background:url(./images/lofi_scifi_v2.png) no-repeat;
+                }
+                
+                .icon.icon-gun {background-position: -216px -1824px}
+                .icon.icon-shield {background-position: -48px -1800px}
+                .icon.part { margin: 12px }
+                
+        </style>
+        
+        <script language="javascript">
 "use strict";
 
 
@@ -73,26 +73,26 @@ var VIEW_WIDTH = 960 - 144; //28*TILE_WIDTH;
 var VIEW_HEIGHT = 640; //10*TILE_HEIGHT;
 
 var g_game = {
-	collideEffects: {
-		objArray: [],
-		cursor: 0,
-		getNextEffect: function() {
-			g_game.collideEffects.cursor = (g_game.collideEffects.cursor + 1) % g_game.collideEffects.objArray.length;
-			return g_game.collideEffects.objArray[g_game.collideEffects.cursor];
-		}
-	},
-	exhaustEffects: {
-		objArray: [],
-		cursor: 0,
-		getNextEffect: function() {
-			g_game.exhaustEffects.cursor = (g_game.exhaustEffects.cursor + 1) % g_game.exhaustEffects.objArray.length;
-			return g_game.exhaustEffects.objArray[g_game.exhaustEffects.cursor];
-		}
-	},
-	parts: {},
-	sounds: {},
-	music: {},
-	curLevel: 0
+        collideEffects: {
+                objArray: [],
+                cursor: 0,
+                getNextEffect: function() {
+                        g_game.collideEffects.cursor = (g_game.collideEffects.cursor + 1) % g_game.collideEffects.objArray.length;
+                        return g_game.collideEffects.objArray[g_game.collideEffects.cursor];
+                }
+        },
+        exhaustEffects: {
+                objArray: [],
+                cursor: 0,
+                getNextEffect: function() {
+                        g_game.exhaustEffects.cursor = (g_game.exhaustEffects.cursor + 1) % g_game.exhaustEffects.objArray.length;
+                        return g_game.exhaustEffects.objArray[g_game.exhaustEffects.cursor];
+                }
+        },
+        parts: {},
+        sounds: {},
+        music: {},
+        curLevel: 0
 };
 
 var generateUid = function (separator) {
@@ -106,227 +106,231 @@ var generateUid = function (separator) {
 };
 
 function ShipPart(type, regen) {
-	this.guid = generateUid();
-	this.type = type;
-	this.regen = regen;
-	this.power = 0;
-	
-	this.getInfo = function() {
-		return {};
-	};
-	
-	this.tick = function() {
-		this.power = Math.min(100, this.power + this.regen);
-	};
-	
-	var icon = 'gun';
-	if (type == 'shield') {
-		icon = 'shield';
-	}
-	$('#divGUI').append('<div class="shipPart" data-guid="' + this.guid + '"><div class="icon icon-' + icon + ' part" title="' + type + '"/></div>');
-	
-	this.$image = $('div.shipPart[data-guid=' + this.guid + ']');
+        this.guid = generateUid();
+        this.type = type;
+        this.regen = regen;
+        this.power = 0;
+        
+        this.getInfo = function() {
+                return {};
+        };
+        
+        this.tick = function() {
+                this.power = Math.min(100, this.power + this.regen);
+        };
+        
+		this.changePower = function(amt) {
+			this.power = Math.min(100, Math.max(0, this.power + amt));
+		};
+		
+        var icon = 'gun';
+        if (type == 'shield') {
+			icon = 'shield';
+        }
+        $('#divGUI').append('<div class="shipPart" data-guid="' + this.guid + '"><div class="icon icon-' + icon + ' part" title="' + type + '"/></div>');
+        
+        this.$image = $('div.shipPart[data-guid=' + this.guid + ']');
 };
 
 function Inventory() {
-	
-	this.count = 0;
-	this.slots = [];
-	for (var i=0;i<9;i++) {
-		this.slots.push({
-			contents: undefined
-		});
-	}
+        
+        this.count = 0;
+        this.slots = [];
+        for (var i=0;i<9;i++) {
+                this.slots.push({
+                        contents: undefined
+                });
+        }
 
-	this.addPart = function(part) {
-		// find empty slot
-		for (var i=0;i<this.slots.length;i++) {
-			if (this.slots[i].contents == undefined) {
-				this.slots[i].contents = part;
-				var posInv = $('#divInventory').offset();
-				part.$image.css({ top: posInv.top + Math.floor(i/3)* 16*3, left: posInv.left + (i % 3) * 16*3 });
-				this.count += 1;
-				return i;
-			}
-		}
-		return -1;
-	};
-	
-	this.removePart = function(part) {
-		for (var i=0;i<this.slots.length;i++) {
-			if (this.slots[i].contents == part) {	
-				this.slots[i].contents = undefined;
-				part.comesFrom = { place: 'inventory', slot: i };
-			}
-		}
-	};
+        this.addPart = function(part) {
+                // find empty slot
+                for (var i=0;i<this.slots.length;i++) {
+                        if (this.slots[i].contents == undefined) {
+                                this.slots[i].contents = part;
+                                var posInv = $('#divInventory').offset();
+                                part.$image.css({ top: posInv.top + Math.floor(i/3)* 16*3, left: posInv.left + (i % 3) * 16*3 });
+                                this.count += 1;
+                                return i;
+                        }
+                }
+                return -1;
+        };
+        
+        this.removePart = function(part) {
+                for (var i=0;i<this.slots.length;i++) {
+                        if (this.slots[i].contents == part) {        
+                                this.slots[i].contents = undefined;
+                                part.comesFrom = { place: 'inventory', slot: i };
+                        }
+                }
+        };
 };
 
 function ShipSlot(index) {
 
-	this.index = index;
-	
-	$('#divShipParts').append('<div class="shipSlot" data-slot="' + index + '"></div>');
-	this.$slotImage = $('div.shipSlot[data-slot=' + index + ']');
-	this.$slotImage.append('<div class="powerBar" />');
-	this.$slotPower = this.$slotImage.find('.powerBar');
-	
-	this.tick = function() {
-		if (this.part) {
-			this.part.tick();
-			this.$slotPower.css('width', 60 * this.part.power / 100);
-		}
-		else {
-			this.$slotPower.css('width', 0);
-		}
-	};
-	
-	this.addPart = function(part) {
-		this.part = part;
-		part.power = 0;
-		var posSlot = this.$slotImage.offset();
-		this.part.$image.css({ top: posSlot.top, left: posSlot.left + this.$slotImage.width() - g_game.draggedPart.$image.width() });
-		if (part.type == 'shield') {
-			g_game.player.addShield();
-		}
-	};
-	this.removePart = function(part) {
-		if (this.part == part) {
-			this.part = undefined;
-			part.comesFrom = { place: 'slot', slot: index };
-			if (part.type == 'shield') {
-				g_game.player.removeShield();
-			}
-		}
-	};
+        this.index = index;
+        
+        $('#divShipParts').append('<div class="shipSlot" data-slot="' + index + '"></div>');
+        this.$slotImage = $('div.shipSlot[data-slot=' + index + ']');
+        this.$slotImage.append('<div class="powerBar" />');
+        this.$slotPower = this.$slotImage.find('.powerBar');
+        
+        this.tick = function() {
+                if (this.part) {
+                        this.part.tick();
+                        this.$slotPower.css('width', 60 * this.part.power / 100);
+                }
+                else {
+                        this.$slotPower.css('width', 0);
+                }
+        };
+        
+        this.addPart = function(part) {
+                this.part = part;
+                part.power = 0;
+                var posSlot = this.$slotImage.offset();
+                this.part.$image.css({ top: posSlot.top, left: posSlot.left + this.$slotImage.width() - g_game.draggedPart.$image.width() });
+                if (part.type == 'shield') {
+					g_game.player.addShield(part);
+                }
+        };
+        this.removePart = function(part) {
+                if (this.part == part) {
+                        this.part = undefined;
+                        part.comesFrom = { place: 'slot', slot: index };
+                        if (part.type == 'shield') {
+                                g_game.player.removeShield();
+                        }
+                }
+        };
 
 }
 
 window.addEventListener("load", function(event) {
 
-	//VIEW_WIDTH = $(document).width();
-	//VIEW_HEIGHT = $(document).height();
-	Crafty.init(VIEW_WIDTH, VIEW_HEIGHT);
-	
-	doCraftyInitialization();
-	
-	$('#divGUI').on('mousedown', 'div.shipPart', function(e) {
-		$('div.shipPart').css('z-index', 6000);
-		$(this).css('z-index', 9000);
-		g_game.draggedPart = g_game.parts[$(e.currentTarget).attr('data-guid')];
-		g_game.shipInventory.removePart(g_game.draggedPart);
-		for (var i=0;i<g_game.shipSlots.length;i++) {
-			g_game.shipSlots[i].removePart(g_game.draggedPart);
-		}
-	});
-	$('#divGUI').on('mousemove', 'div.shipPart', function(e) {
-		if (g_game.draggedPart && g_game.draggedPart.guid == $(e.currentTarget).attr('data-guid')) {
-			$(e.currentTarget).css({
-				top: e.pageY - $(e.currentTarget).height()/2,
-				left: e.pageX - $(e.currentTarget).width()/2
-			});
-		}
-	});
-	$('#divGUI').on('mouseup', 'div.shipPart', function(e) {
-		var posDragged = $(e.currentTarget).offset();
-		var cX = posDragged.left + $(e.currentTarget).width()/2;
-		var cY = posDragged.top + $(e.currentTarget).height()/2;
-	
-		var posInv = $('#divInventory').offset();
-		var bFoundPos = false;
-		if (cX >= posInv.left && cY >= posInv.top && cX <= posInv.left + $('#divInventory').width() && cY <= posInv.top + $('#divInventory').height()) {
-			g_game.shipInventory.addPart(g_game.draggedPart);
-			bFoundPos = true;
-		}
-		if (!bFoundPos) {
-			for (var i=0;i<5;i++) {
-				var $slot = $('div.shipSlot[data-slot=' + i + ']');
-				var posSlot = $slot.offset();
-				if (cX >= posSlot.left && cY >= posSlot.top && cX <= posSlot.left + $slot.width() && cY <= posSlot.top + $slot.height()) {
-					if (!g_game.shipSlots[i].part) {
-						g_game.shipSlots[i].addPart(g_game.draggedPart);
-						bFoundPos = true;
-						i = 5;
-					}
-				}
-			}
-		}
-		if (!bFoundPos) {
-			// send it back where it came from
-			if (g_game.draggedPart.comesFrom.place == 'inventory') {
-				g_game.shipInventory.addPart(g_game.draggedPart);
-			}
-			else if (g_game.draggedPart.comesFrom.place == 'slot') {
-				g_game.shipSlots[g_game.draggedPart.comesFrom.slot].addPart(g_game.draggedPart);
-			}
-		}
-		
-		g_game.draggedPart = undefined;
-	});
+        //VIEW_WIDTH = $(document).width();
+        //VIEW_HEIGHT = $(document).height();
+        Crafty.init(VIEW_WIDTH, VIEW_HEIGHT);
+        
+        doCraftyInitialization();
+        
+        $('#divGUI').on('mousedown', 'div.shipPart', function(e) {
+                $('div.shipPart').css('z-index', 6000);
+                $(this).css('z-index', 9000);
+                g_game.draggedPart = g_game.parts[$(e.currentTarget).attr('data-guid')];
+                g_game.shipInventory.removePart(g_game.draggedPart);
+                for (var i=0;i<g_game.shipSlots.length;i++) {
+                        g_game.shipSlots[i].removePart(g_game.draggedPart);
+                }
+        });
+        $('#divGUI').on('mousemove', 'div.shipPart', function(e) {
+                if (g_game.draggedPart && g_game.draggedPart.guid == $(e.currentTarget).attr('data-guid')) {
+                        $(e.currentTarget).css({
+                                top: e.pageY - $(e.currentTarget).height()/2,
+                                left: e.pageX - $(e.currentTarget).width()/2
+                        });
+                }
+        });
+        $('#divGUI').on('mouseup', 'div.shipPart', function(e) {
+                var posDragged = $(e.currentTarget).offset();
+                var cX = posDragged.left + $(e.currentTarget).width()/2;
+                var cY = posDragged.top + $(e.currentTarget).height()/2;
+        
+                var posInv = $('#divInventory').offset();
+                var bFoundPos = false;
+                if (cX >= posInv.left && cY >= posInv.top && cX <= posInv.left + $('#divInventory').width() && cY <= posInv.top + $('#divInventory').height()) {
+                        g_game.shipInventory.addPart(g_game.draggedPart);
+                        bFoundPos = true;
+                }
+                if (!bFoundPos) {
+                        for (var i=0;i<5;i++) {
+                                var $slot = $('div.shipSlot[data-slot=' + i + ']');
+                                var posSlot = $slot.offset();
+                                if (cX >= posSlot.left && cY >= posSlot.top && cX <= posSlot.left + $slot.width() && cY <= posSlot.top + $slot.height()) {
+                                        if (!g_game.shipSlots[i].part) {
+                                                g_game.shipSlots[i].addPart(g_game.draggedPart);
+                                                bFoundPos = true;
+                                                i = 5;
+                                        }
+                                }
+                        }
+                }
+                if (!bFoundPos) {
+                        // send it back where it came from
+                        if (g_game.draggedPart.comesFrom.place == 'inventory') {
+                                g_game.shipInventory.addPart(g_game.draggedPart);
+                        }
+                        else if (g_game.draggedPart.comesFrom.place == 'slot') {
+                                g_game.shipSlots[g_game.draggedPart.comesFrom.slot].addPart(g_game.draggedPart);
+                        }
+                }
+                
+                g_game.draggedPart = undefined;
+        });
 });
 
 function layoutGUI() {
-	$('#divGUI').show();
-	var pos = $('#cr-stage').offset();
+        $('#divGUI').show();
+        var pos = $('#cr-stage').offset();
 
-	//$('#divOverlay').css({ width: $('#cr-stage').width(), height: $('#cr-stage').height(), left: pos.left+2, top: pos.top+2 });
-	$('#canvasMiniMap').css({ width: 48*3, height: 48*3, left: pos.left+12 + $('#cr-stage').width(), top: pos.top + 12 });
-	
-	g_game.shipInventory = new Inventory();	
-	g_game.shipSlots = [];
-	
-	$('#divShipParts').css({ width: 48*3, left: pos.left+12 + $('#cr-stage').width(), top: pos.top + $('#canvasMiniMap').height() + 24 });
-	for (var i=0;i<5;i++) {
-		g_game.shipSlots.push(new ShipSlot(i));	
-	}
+        //$('#divOverlay').css({ width: $('#cr-stage').width(), height: $('#cr-stage').height(), left: pos.left+2, top: pos.top+2 });
+        $('#canvasMiniMap').css({ width: 48*3, height: 48*3, left: pos.left+12 + $('#cr-stage').width(), top: pos.top + 12 });
+        
+        g_game.shipInventory = new Inventory();        
+        g_game.shipSlots = [];
+        
+        $('#divShipParts').css({ width: 48*3, left: pos.left+12 + $('#cr-stage').width(), top: pos.top + $('#canvasMiniMap').height() + 24 });
+        for (var i=0;i<5;i++) {
+                g_game.shipSlots.push(new ShipSlot(i));        
+        }
 
-	var posParts = $('#divShipParts').offset();
-	$('#divInventory').css({ width: 144, height: 144, left: pos.left+12 + + $('#cr-stage').width(), top: pos.top + $('#cr-stage').height() - 48*3 - 6 });
-	var posInv = $('#divInventory').offset();
+        var posParts = $('#divShipParts').offset();
+        $('#divInventory').css({ width: 144, height: 144, left: pos.left+12 + + $('#cr-stage').width(), top: pos.top + $('#cr-stage').height() - 48*3 - 6 });
+        var posInv = $('#divInventory').offset();
 
-	// a new part
-	var newPart = new ShipPart('weapon', 30);
-	g_game.parts[newPart.guid] = newPart;
-	g_game.shipInventory.addPart(newPart);
-	var newPart = new ShipPart('shield', 5);
-	g_game.parts[newPart.guid] = newPart;
-	g_game.shipInventory.addPart(newPart);
+        // a new part
+        var newPart = new ShipPart('weapon', 11);
+        g_game.parts[newPart.guid] = newPart;
+        g_game.shipInventory.addPart(newPart);
+        var newPart = new ShipPart('shield', 3);
+        g_game.parts[newPart.guid] = newPart;
+        g_game.shipInventory.addPart(newPart);
 
-	$('#divControls').css({ width: 144, height: 96, left: pos.left + $('#cr-stage').width() - 144, top: pos.top + $('#cr-stage').height() - 48*3 - 6 });
+        $('#divControls').css({ width: 144, height: 96, left: pos.left + $('#cr-stage').width() - 144, top: pos.top + $('#cr-stage').height() - 48*3 - 6 });
 
 }
 
 function updateMiniMap() {
-	var drawingCanvas = document.getElementById('canvasMiniMap');
-	var context = drawingCanvas.getContext('2d');
-	
-	for (var y=0;y<48;y++) {
-		context.fillStyle = y % 2 ? '#394677' : '#4A5B99';
-		for (var x=0;x<48;x++) {
-			context.fillRect(x*6,y*3,6,3);
-		}
-	}
+        var drawingCanvas = document.getElementById('canvasMiniMap');
+        var context = drawingCanvas.getContext('2d');
+        
+        for (var y=0;y<48;y++) {
+                context.fillStyle = y % 2 ? '#394677' : '#4A5B99';
+                for (var x=0;x<48;x++) {
+                        context.fillRect(x*6,y*3,6,3);
+                }
+        }
 
-	// player
-	context.fillStyle = '#0f0';
-	context.fillRect(24*6,24*3,6,3);
-	
-	// ships
-	context.fillStyle = '#f00';
-	var shipIDs = Crafty('AIShip');
-	for (var i=0;i<shipIDs.length;i++) {
-		var ship = Crafty(shipIDs[i]);
-		context.fillRect(24*6 + ship.x/8 - g_game.player.x/8, 24*3 + ship.y/8 - g_game.player.y/8,6,3);
-	}
+        // player
+        context.fillStyle = '#0f0';
+        context.fillRect(24*6,24*3,6,3);
+        
+        // ships
+        context.fillStyle = '#f00';
+        var shipIDs = Crafty('AIShip');
+        for (var i=0;i<shipIDs.length;i++) {
+                var ship = Crafty(shipIDs[i]);
+                context.fillRect(24*6 + ship.x/8 - g_game.player.x/8, 24*3 + ship.y/8 - g_game.player.y/8,6,3);
+        }
 
-	// planets
-	context.fillStyle = '#fff';
-	var shipIDs = Crafty('planet');
-	for (var i=0;i<shipIDs.length;i++) {
-		var ship = Crafty(shipIDs[i]);
-		context.fillRect(24*6 + ship.x/8 - g_game.player.x/8, 24*3 + ship.y/8 - g_game.player.y/8,12,6);
-	}
-	
+        // planets
+        context.fillStyle = '#fff';
+        var shipIDs = Crafty('planet');
+        for (var i=0;i<shipIDs.length;i++) {
+                var ship = Crafty(shipIDs[i]);
+                context.fillRect(24*6 + ship.x/8 - g_game.player.x/8, 24*3 + ship.y/8 - g_game.player.y/8,12,6);
+        }
+        
 }
 function getParameterByName(name) {
     name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
@@ -336,310 +340,315 @@ function getParameterByName(name) {
 }
 
 function doCraftyInitialization() {
-	
-	Crafty.c('Ship', {
-		maxSpeed: 2,
-		
-		Ship: function(x, y, type, faction) {
-			this.requires('2D, ' + RENDERING_MODE + ', Collision, solid, ' + type + ',' + faction)
-				.attr( { x: x, y: y, z: 100 } )
-				.collision()
-				.bind('EnterFrame', function(frameObj) {
-					var speed = this.velocity.magnitude();
-					if (speed > this.maxSpeed) {
-						this.velocity = this.velocity.scale(this.maxSpeed/speed);
-					}
-					this.attr( { x: this.x + this.velocity.x, y: this.y + this.velocity.y });
-				})
-				.origin('center')
-				
-			
-			this.velocity =  new Crafty.math.Vector2D(0,0);
-			this.direction =  new Crafty.math.Vector2D(0,0);
-			this.turn(0);
-			this.hitPoints = 3;
-			this.maxHitPoints = 3;
-			
-			return this;
-		},
-		addShield: function() {
-			this.shield = Crafty.e('2D, ' + RENDERING_MODE + ', shield')
-				.attr( { x: this.x + this.w/2 - 16*3/2, y: this.y + this.h/2 - 16*3/2, z: 100, alpha: 0.5 } );
-			this.attach(this.shield);
-			this.shieldStrength = 6;
-			this.maxShieldStrength = 6;
-		},
-		removeShield: function() {
-			this.detach(this.shield);
-			this.shield.destroy();
-			this.shield = undefined;
-		},
-		turn: function(amt) {
-			//var angle = Math.atan2(this.direction.y, this.direction.x);
-			//angle += amt;
-			this.rotation = (this.rotation + amt) % 360;
-			var vY = 1 * Math.sin(this.rotation * Math.PI / 180);
-			var vX = 1 * Math.cos(this.rotation * Math.PI / 180);
-			this.direction.setValues(vX, vY);
-		},
-		takeDamage: function(amt) {
-			if (this.shield && this.shieldStrength > 0) {
-				this.shieldStrength = Math.max(0, this.shieldStrength - amt);
-				this.shield.alpha = 0.5 * this.shieldStrength / this.maxShieldStrength;
-			}
-			else {
-				this.hitPoints = Math.max(0, this.hitPoints - amt);
-				for (var i=0;i<2;i++) {
-					g_game.collideEffects.getNextEffect().show(this.x, this.y);
-				}
-				if (this.hitPoints <= 0) {
-					for (var i=0;i<3;i++) {
-						g_game.collideEffects.getNextEffect().show(this.x, this.y);
-					}
-					this.destroy();
-				}
-			}
-		}
-	});
+        
+        Crafty.c('Ship', {
+                maxSpeed: 2,
+                
+                Ship: function(x, y, type, faction) {
+                        this.requires('2D, ' + RENDERING_MODE + ', Collision, solid, ' + type + ',' + faction)
+                                .attr( { x: x, y: y, z: 100 } )
+                                .collision()
+                                .bind('EnterFrame', function(frameObj) {
+                                        var speed = this.velocity.magnitude();
+                                        if (speed > this.maxSpeed) {
+                                                this.velocity = this.velocity.scale(this.maxSpeed/speed);
+                                        }
+                                        this.attr( { x: this.x + this.velocity.x, y: this.y + this.velocity.y });
+										if (this.shield && frameObj.frame % 10 == 0) {
+											this.shield.alpha = 1 * this.shieldPart.power / 100;
+										}
+                                })
+                                .origin('center')
+                                
+                        
+                        this.velocity =  new Crafty.math.Vector2D(0,0);
+                        this.direction =  new Crafty.math.Vector2D(0,0);
+                        this.turn(0);
+                        this.hitPoints = 3;
+                        this.maxHitPoints = 3;
+                        
+                        return this;
+                },
+                addShield: function(part) {
+                        this.shield = Crafty.e('2D, ' + RENDERING_MODE + ', shield')
+                                .attr( { x: this.x + this.w/2 - 16*3/2, y: this.y + this.h/2 - 16*3/2, z: 100, alpha: 0.5 } );
+                        this.attach(this.shield);
+						this.shieldPart = part;
+                        //this.shieldStrength = 6;
+                        //this.maxShieldStrength = 6;
+                },
+                removeShield: function() {
+                        this.detach(this.shield);
+                        this.shield.destroy();
+						this.shieldPart = undefined;
+                        this.shield = undefined;
+                },
+                turn: function(amt) {
+                        //var angle = Math.atan2(this.direction.y, this.direction.x);
+                        //angle += amt;
+                        this.rotation = (this.rotation + amt) % 360;
+                        var vY = 1 * Math.sin(this.rotation * Math.PI / 180);
+                        var vX = 1 * Math.cos(this.rotation * Math.PI / 180);
+                        this.direction.setValues(vX, vY);
+                },
+                takeDamage: function(amt) {
+                        if (this.shield && this.shieldPart.power > 20) {
+                                this.shieldPart.changePower(-amt*20);
+                        }
+                        else {
+                                this.hitPoints = Math.max(0, this.hitPoints - amt);
+                                for (var i=0;i<2;i++) {
+                                        g_game.collideEffects.getNextEffect().show(this.x, this.y);
+                                }
+                                if (this.hitPoints <= 0) {
+                                        for (var i=0;i<3;i++) {
+                                                g_game.collideEffects.getNextEffect().show(this.x, this.y);
+                                        }
+                                        this.destroy();
+                                }
+                        }
+                }
+        });
 
-	Crafty.c('AIShip', {
-		
-		AIShip: function(x, y, type, faction) {
-			this.requires('Ship')
-				.Ship(x, y, type, faction)
-				.bind('EnterFrame', function(frameObj) {
-					var enemies = Crafty('faction1');
-					if (enemies.length) {
-						var target = Crafty(enemies[0]);
-						// turn towards enemy
-						var dx = target.x - this.x;
-						var dy = target.y - this.y;
-						var dist = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-						var angleToTarget = Math.atan2(dy, dx);
-						var rotationRads = this.rotation * Math.PI / 180;
-						var angleDiff = rotationRads - angleToTarget;
-						angleDiff = (angleDiff + Math.PI) % (Math.PI*2) - Math.PI;
-						if (angleDiff < 0) {
-							this.turn(1);
-						}
-						else if (angleDiff > 0) {
-							this.turn(-1);
-						}
-						// chase?
-						if (Math.abs(angleDiff) < Math.PI/4 && dist > 200) {
-							this.velocity.add(new Crafty.math.Vector2D(this.direction.x*0.02, this.direction.y*0.02));
-							if (frameObj.frame % 10 == 0) {
-								g_game.exhaustEffects.getNextEffect().show(this.x + this.w/2, this.y + this.h/2);					
-							}
-						}
-						// fire
-						if (Math.abs(angleDiff) < Math.PI/4 && frameObj.frame % 100 == 0) {
-							Crafty.e('Bullet').Bullet(this.x, this.y, this.direction, this[0], 1);						
-						}
-					}
-				})
-				
-			return this;
-		}
-	});
-	
-	
-	Crafty.c('Player', {
+        Crafty.c('AIShip', {
+                
+                AIShip: function(x, y, type, faction) {
+                        this.requires('Ship')
+                                .Ship(x, y, type, faction)
+                                .bind('EnterFrame', function(frameObj) {
+                                        var enemies = Crafty('faction1');
+                                        if (enemies.length) {
+                                                var target = Crafty(enemies[0]);
+                                                // turn towards enemy
+                                                var dx = target.x - this.x;
+                                                var dy = target.y - this.y;
+                                                var dist = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+                                                var angleToTarget = Math.atan2(dy, dx);
+                                                var rotationRads = this.rotation * Math.PI / 180;
+                                                var angleDiff = rotationRads - angleToTarget;
+                                                angleDiff = (angleDiff + Math.PI) % (Math.PI*2) - Math.PI;
+                                                if (angleDiff < 0) {
+                                                        this.turn(1);
+                                                }
+                                                else if (angleDiff > 0) {
+                                                        this.turn(-1);
+                                                }
+                                                // chase?
+                                                if (Math.abs(angleDiff) < Math.PI/4 && dist > 200) {
+                                                        this.velocity.add(new Crafty.math.Vector2D(this.direction.x*0.02, this.direction.y*0.02));
+                                                        if (frameObj.frame % 10 == 0) {
+                                                                g_game.exhaustEffects.getNextEffect().show(this.x + this.w/2, this.y + this.h/2);                                        
+                                                        }
+                                                }
+                                                // fire
+                                                if (Math.abs(angleDiff) < Math.PI/4 && frameObj.frame % 100 == 0) {
+                                                        Crafty.e('Bullet').Bullet(this.x, this.y, this.direction, this[0], 1);                                                
+                                                }
+                                        }
+                                })
+                                
+                        return this;
+                }
+        });
+        
+        
+        Crafty.c('Player', {
 
-		Player: function(x, y) {
-			this.requires('Keyboard, Ship')
-				.Ship(x, y, 'ship', 'faction1')
-				.bind('EnterFrame', function(frameObj) {
-					if (this.isDown(Crafty.keys.UP_ARROW)) {
-						this.velocity.add(new Crafty.math.Vector2D(this.direction.x*0.05, this.direction.y*0.05));
-						if (frameObj.frame % 10 == 0) {
-							g_game.exhaustEffects.getNextEffect().show(this.x + this.w/2, this.y + this.h/2);					
-						}
-					}
-					if (this.isDown(Crafty.keys.LEFT_ARROW)) {
-						this.turn(-4);
-					}
-					if (this.isDown(Crafty.keys.RIGHT_ARROW)) {
-						this.turn(4);
-					}
+                Player: function(x, y) {
+                        this.requires('Keyboard, Ship')
+                                .Ship(x, y, 'ship', 'faction1')
+                                .bind('EnterFrame', function(frameObj) {
+                                        if (this.isDown(Crafty.keys.UP_ARROW) || this.isDown(Crafty.keys.W)) {
+                                                this.velocity.add(new Crafty.math.Vector2D(this.direction.x*0.05, this.direction.y*0.05));
+                                                if (frameObj.frame % 10 == 0) {
+                                                        g_game.exhaustEffects.getNextEffect().show(this.x + this.w/2, this.y + this.h/2);                                        
+                                                }
+                                        }
+                                        if (this.isDown(Crafty.keys.LEFT_ARROW) || this.isDown(Crafty.keys.A)) {
+                                                this.turn(-4);
+                                        }
+                                        if (this.isDown(Crafty.keys.RIGHT_ARROW) || this.isDown(Crafty.keys.D)) {
+                                                this.turn(4);
+                                        }
 
-					if (frameObj.frame % 10 == 0) {
-						for (var i=0;i<g_game.shipSlots.length;i++) {
-							g_game.shipSlots[i].tick();
-						}
-					}
-					
-					g_game.$stage.css('background-position', '' + (-this.x/4) + 'px ' + (-this.y/4) + 'px');
-					updateMiniMap();
-				})
-				.bind('KeyDown', function(evt) {
-					if (evt.key == Crafty.keys.SPACE) {
-						for (var i=0;i<g_game.shipSlots.length;i++) {
-							if (g_game.shipSlots[i].part && g_game.shipSlots[i].part.type == 'weapon' && g_game.shipSlots[i].part.power == 100) {
-								Crafty.e('Bullet').Bullet(this.x, this.y, this.direction, this[0], 2);
-							}
-						}
-					}
-				})
-				
-			
-				
-			return this;
-		}
-	});
-	
-	Crafty.c('Bullet', {
-		range: 1000,
-		speed: 10,
-	
-		Bullet: function(x, y, dir, sourceId, damage) {
-			this.requires('2D, ' + RENDERING_MODE + ', Collision, bullet')
-				.attr( { x: x, y: y, z: 100 } )
-				.collision()
-				.bind('EnterFrame', function(frameObj) {
-					this.attr( { x: this.x + this.velocity.x, y: this.y + this.velocity.y });
-					this.travelled += Math.sqrt(Math.pow(this.velocity.x, 2) + Math.pow(this.velocity.y, 2));
-					var hits = this.hit('solid');
-					if (hits) {
-						if (hits[0].obj[0] != sourceId) {
-							if (hits[0].obj.has('Ship')) {
-								hits[0].obj.takeDamage(damage);
-							}
-							this.destroy();
-							return;
-						}
-					}
-					if (this.travelled > this.range) {
-						this.destroy();
-					}
-				})
-				
-			this.velocity = new Crafty.math.Vector2D(dir.x*this.speed, dir.y*this.speed);
-			this.travelled = 0;
-			
-			return this;
-		}
-	});
+                                        if (frameObj.frame % 10 == 0) {
+                                                for (var i=0;i<g_game.shipSlots.length;i++) {
+                                                        g_game.shipSlots[i].tick();
+                                                }
+                                        }
+                                        
+                                        g_game.$stage.css('background-position', '' + (-this.x/4) + 'px ' + (-this.y/4) + 'px');
+                                        updateMiniMap();
+                                })
+                                .bind('KeyDown', function(evt) {
+                                        if (evt.key == Crafty.keys.SPACE) {
+                                                for (var i=0;i<g_game.shipSlots.length;i++) {
+                                                        if (g_game.shipSlots[i].part && g_game.shipSlots[i].part.type == 'weapon' && g_game.shipSlots[i].part.power == 100) {
+															g_game.shipSlots[i].part.changePower(-60);
+                                                            Crafty.e('Bullet').Bullet(this.x, this.y, this.direction, this[0], 2);
+                                                        }
+                                                }
+                                        }
+                                })
+                                
+                        
+                                
+                        return this;
+                }
+        });
+        
+        Crafty.c('Bullet', {
+                range: 1000,
+                speed: 10,
+        
+                Bullet: function(x, y, dir, sourceId, damage) {
+                        this.requires('2D, ' + RENDERING_MODE + ', Collision, bullet')
+                                .attr( { x: x, y: y, z: 100 } )
+                                .collision()
+                                .bind('EnterFrame', function(frameObj) {
+                                        this.attr( { x: this.x + this.velocity.x, y: this.y + this.velocity.y });
+                                        this.travelled += Math.sqrt(Math.pow(this.velocity.x, 2) + Math.pow(this.velocity.y, 2));
+                                        var hits = this.hit('solid');
+                                        if (hits) {
+                                                if (hits[0].obj[0] != sourceId) {
+                                                        if (hits[0].obj.has('Ship')) {
+                                                                hits[0].obj.takeDamage(damage);
+                                                        }
+                                                        this.destroy();
+                                                        return;
+                                                }
+                                        }
+                                        if (this.travelled > this.range) {
+                                                this.destroy();
+                                        }
+                                })
+                                
+                        this.velocity = new Crafty.math.Vector2D(dir.x*this.speed, dir.y*this.speed);
+                        this.travelled = 0;
+                        
+                        return this;
+                }
+        });
 
-	Crafty.c('Exhaust', {
-		Exhaust: function() {
-			this.requires('2D, ' + RENDERING_MODE + ', exhaust, Delay')
-				.attr( { z: 10 } )
-	
-			this.visible = false;
-			return this;
-		},
-		show: function(x, y) {
-			this.attr( { x: x, y: y } )
-			this.visible = true;
-			var self = this;
-			this.delay(function() {
-				self.visible = false;
-			}, 1000);
-		}		
-	});
-	
-	Crafty.c('Fragment', {
-		Fragment: function() {
-			this.requires('2D, ' + RENDERING_MODE + ', fragment, Delay')
-				.attr( { z: 100 } )
-				.bind('EnterFrame', function(frameObj) {
-					if (this.visible) {
-						this.attr( { x: this.x + this.velocity.x, y: this.y + this.velocity.y });
-					}
-				})
-		
-			this.visible = false;
-			this.range = 100;
-			this.speed = 4;
-			this.direction = new Crafty.math.Vector2D(-1 + Math.random()*2, -1 + Math.random()*2);
-			this.velocity = new Crafty.math.Vector2D(this.direction.x*this.speed, this.direction.y*this.speed);
-		
-			return this;
-		},
-		show: function(x, y) {
-			this.attr( { x: x, y: y, z: 100 } )
-			this.direction = new Crafty.math.Vector2D(-1 + Math.random()*2, -1 + Math.random()*2);
-			this.velocity = new Crafty.math.Vector2D(this.direction.x*this.speed, this.direction.y*this.speed);
-			this.visible = true;
-			var self = this;
-			this.delay(function() {
-				self.visible = false;
-			}, 250 + Math.random()*500);
-		}
-	});
-	
-	
-	Crafty.scene("main", function () {
-		Crafty.background('url(./images/background.png)');	
+        Crafty.c('Exhaust', {
+                Exhaust: function() {
+                        this.requires('2D, ' + RENDERING_MODE + ', exhaust, Delay')
+                                .attr( { z: 10 } )
+        
+                        this.visible = false;
+                        return this;
+                },
+                show: function(x, y) {
+                        this.attr( { x: x, y: y } )
+                        this.visible = true;
+                        var self = this;
+                        this.delay(function() {
+                                self.visible = false;
+                        }, 1000);
+                }                
+        });
+        
+        Crafty.c('Fragment', {
+                Fragment: function() {
+                        this.requires('2D, ' + RENDERING_MODE + ', fragment, Delay')
+                                .attr( { z: 100 } )
+                                .bind('EnterFrame', function(frameObj) {
+                                        if (this.visible) {
+                                                this.attr( { x: this.x + this.velocity.x, y: this.y + this.velocity.y });
+                                        }
+                                })
+                
+                        this.visible = false;
+                        this.range = 100;
+                        this.speed = 4;
+                        this.direction = new Crafty.math.Vector2D(-1 + Math.random()*2, -1 + Math.random()*2);
+                        this.velocity = new Crafty.math.Vector2D(this.direction.x*this.speed, this.direction.y*this.speed);
+                
+                        return this;
+                },
+                show: function(x, y) {
+                        this.attr( { x: x, y: y, z: 100 } )
+                        this.direction = new Crafty.math.Vector2D(-1 + Math.random()*2, -1 + Math.random()*2);
+                        this.velocity = new Crafty.math.Vector2D(this.direction.x*this.speed, this.direction.y*this.speed);
+                        this.visible = true;
+                        var self = this;
+                        this.delay(function() {
+                                self.visible = false;
+                        }, 250 + Math.random()*500);
+                }
+        });
+        
+        
+        Crafty.scene("main", function () {
+                Crafty.background('url(./images/background.png)');        
 
-		
-		for (var i=0;i<10;i++) {
-			g_game.collideEffects.objArray.push(Crafty.e('Fragment').Fragment());
-		}
-		for (var i=0;i<20;i++) {
-			g_game.exhaustEffects.objArray.push(Crafty.e('Exhaust').Exhaust());
-		}
+                
+                for (var i=0;i<10;i++) {
+                        g_game.collideEffects.objArray.push(Crafty.e('Fragment').Fragment());
+                }
+                for (var i=0;i<20;i++) {
+                        g_game.exhaustEffects.objArray.push(Crafty.e('Exhaust').Exhaust());
+                }
 
-		layoutGUI();
-		g_game.$stage = $('#cr-stage');
-		var startX = 500;
-		var startY = 500;
-		
-		g_game.player = Crafty.e('Player').Player(startX, startY);
-		Crafty.viewport.clampToEntities = false;
-		Crafty.viewport.follow(g_game.player, g_game.player.w/2, g_game.player.h/2);
-	
-		Crafty.e('2D, ' + RENDERING_MODE + ',planet, solid').attr({ x: startX + 100, y: startY + 100, z: 60 });
-		Crafty.e('AIShip').AIShip(startX + 200, startY + 10, 'ship2', 'faction2');
-		Crafty.e('AIShip').AIShip(startX + 400, startY + 100, 'ship2', 'faction2');
-		Crafty.e('AIShip').AIShip(startX + 300, startY + 200, 'ship2', 'faction2');
-	});
+                layoutGUI();
+                g_game.$stage = $('#cr-stage');
+                var startX = 500;
+                var startY = 500;
+                
+                g_game.player = Crafty.e('Player').Player(startX, startY);
+                Crafty.viewport.clampToEntities = false;
+                Crafty.viewport.follow(g_game.player, g_game.player.w/2, g_game.player.h/2);
+        
+                Crafty.e('2D, ' + RENDERING_MODE + ',planet, solid').attr({ x: startX + 100, y: startY + 100, z: 60 });
+                Crafty.e('AIShip').AIShip(startX + 200, startY + 10, 'ship2', 'faction2');
+                Crafty.e('AIShip').AIShip(startX + 400, startY + 100, 'ship2', 'faction2');
+                Crafty.e('AIShip').AIShip(startX + 300, startY + 200, 'ship2', 'faction2');
+        });
 
-	Crafty.scene("loading", function () {
-		Crafty.background("#000");
-		//try {
-		Crafty.e('2D, ' + RENDERING_MODE + ', Text').attr({ w: 800, h: 20, x: VIEW_WIDTH/2 - 400, y: VIEW_HEIGHT/2-160, z: 1000 })
-			.text("Loading...")
-			.textColor('#fff', 1)
-			.textFont({ size: "16pt", weight: 'bold', family: GAME_FONT })
-			//.css({ "text-align": "center", "font-family": GAME_FONT, "font-size": "44px" });
-		//} catch (ex) {;}
-		
-		Crafty.load(['./images/lofi_scifi_v2.png'	], function() {
-					
-			Crafty.sprite(1, './images/lofi_scifi_v2.png', {
-				ship: 		[2 * TILE_SIZE, 34 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
-				ship2: 		[2 * TILE_SIZE, 43 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
-				
-				bullet:		[8 * TILE_SIZE, 78 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
-				fragment: 	[8 * TILE_SIZE, 77 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
-				shield:		[88 * 3, 644*3, 16*3, 16*3],
-				exhaust:	[163*3, 612*3, 1*3, 1*3],
-				
-				planet: 	[8*3, 664*3, 24*3, 24*3]
-			});
+        Crafty.scene("loading", function () {
+                Crafty.background("#000");
+                //try {
+                Crafty.e('2D, ' + RENDERING_MODE + ', Text').attr({ w: 800, h: 20, x: VIEW_WIDTH/2 - 400, y: VIEW_HEIGHT/2-160, z: 1000 })
+                        .text("Loading...")
+                        .textColor('#fff', 1)
+                        .textFont({ size: "16pt", weight: 'bold', family: GAME_FONT })
+                        //.css({ "text-align": "center", "font-family": GAME_FONT, "font-size": "44px" });
+                //} catch (ex) {;}
+                
+                Crafty.load(['./images/lofi_scifi_v2.png'        ], function() {
+                                        
+                        Crafty.sprite(1, './images/lofi_scifi_v2.png', {
+                                ship:                 [2 * TILE_SIZE, 34 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+                                ship2:                 [2 * TILE_SIZE, 43 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+                                
+                                bullet:                [8 * TILE_SIZE, 78 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+                                fragment:         [8 * TILE_SIZE, 77 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+                                shield:                [88 * 3, 644*3, 16*3, 16*3],
+                                exhaust:        [163*3, 612*3, 1*3, 1*3],
+                                
+                                planet:         [8*3, 664*3, 24*3, 24*3]
+                        });
 
-		
-			Crafty.scene("main");
-			
-		});
-	});
-	
-	Crafty.scene("loading");
+                
+                        Crafty.scene("main");
+                        
+                });
+        });
+        
+        Crafty.scene("loading");
 }
 
 
-	</script>
+        </script>
 </head>
-<body style="background-color: #444;">
-	<div id="divGUI" style="width: 100%; height: 100%;">
-		<canvas id="canvasMiniMap" style="position: absolute;z-index: 5000; opacity: 0.6;"></canvas>
-		<div id="divShipParts" style="position: absolute;z-index: 5000;"></div>
-		<!--div id="divOverlay" style="background-image: url(./images/meshx3.png);background-repeat:repeat;position: absolute;z-index: 8000"></div--> 
-		<div id="divControls" style="position: absolute;border: 1px solid #fff;z-index: 5000;">
-			<img src="./images/arrows.png" />
-		</div>
-		<div id="divInventory" style="position: absolute;z-index: 5000;"></div>
-	</div>	
+<body style="background-color: #444;" unselectable="on" onselectstart="return false;" >
+        <div id="divGUI" style="width: 100%; height: 100%;">
+                <canvas id="canvasMiniMap" style="position: absolute;z-index: 5000; opacity: 0.6;"></canvas>
+                <div id="divShipParts" style="position: absolute;z-index: 5000;"></div>
+                <!--div id="divOverlay" style="background-image: url(./images/meshx3.png);background-repeat:repeat;position: absolute;z-index: 8000"></div--> 
+                <div id="divControls" style="position: absolute;border: 1px solid #fff;z-index: 5000;">
+                        <img src="./images/arrows.png" />
+                </div>
+                <div id="divInventory" style="position: absolute;z-index: 5000;"></div>
+        </div>        
 </body>
