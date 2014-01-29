@@ -199,6 +199,7 @@ function ShipSlot(index) {
 		if (part.type == 'shield') {
 			g_game.player.addShield(part);
 		}
+		g_game.player.reconfigureShip();
 	};
 	this.removePart = function (part) {
 		if (this.part == part) {
@@ -211,6 +212,7 @@ function ShipSlot(index) {
 				g_game.player.removeShield();
 			}
 		}
+		g_game.player.reconfigureShip();
 	};
 
 }
@@ -318,37 +320,78 @@ function layoutGUI() {
 		visibility: 'hidden'
 	});
 
+	var drawingCanvas = document.getElementById('canvasMiniMap');
+	var context = drawingCanvas.getContext('2d');
+	context.scale(2, 1);
+
 }
 
 function updateMiniMap() {
 	var drawingCanvas = document.getElementById('canvasMiniMap');
 	var context = drawingCanvas.getContext('2d');
 
+	//context.scale(1, 1);
 	for (var y = 0; y < 48; y++) {
 		context.fillStyle = y % 2 ? '#394677' : '#4A5B99';
 		for (var x = 0; x < 48; x++) {
-			context.fillRect(x * 6, y * 3, 6, 3);
+			context.fillRect(x * 3, y * 3, 3, 3);
 		}
 	}
 
+	// view area
+	//context.strokeStyle = '#4A5B99';
+	var w = VIEW_WIDTH / (8);
+	var h = VIEW_HEIGHT / (8);
+	var edgeX = 24 * 3 - w/2;
+	var edgeY = 24 * 3 - h/2;
+	context.lineWidth = 3;
+	context.strokeRect(edgeX, edgeY, w, h);
+	
 	// player
 	context.fillStyle = '#0f0';
-	context.fillRect(24 * 6, 24 * 3, 6, 3);
+	context.fillRect(24 * 3, 24 * 3, 3, 3);
+
+	function fillDot(dotX, dotY, dotW, dotH) {
+		// in view area?
+		var dx = dotX - g_game.player.x;
+		var dy = dotY - g_game.player.y;
+		if (Math.abs(dx) <= VIEW_WIDTH/2 && Math.abs(dy) <= VIEW_HEIGHT/2) {
+			context.fillRect(24 * 3 + dx / 8, 24 * 3 + dy / 8, dotW, dotH);
+		}
+		else {
+			var x = 24 * 3 + dx / 8;
+			var y = 24 * 3 + dy / 8;
+			if (Math.abs(dx) > VIEW_WIDTH/2 && dx < 0) {
+				x = edgeX - (Math.abs(dx)/8 - w/2)/10;
+			}
+			else if (Math.abs(dx) > VIEW_WIDTH/2 && dx > 0) {
+				x = edgeX + w + (Math.abs(dx)/8 - w/2)/10;
+			}
+			if (Math.abs(dy) > VIEW_HEIGHT/2 && dy < 0) {
+				y = edgeY - (Math.abs(dy)/8 - h/2)/10;
+			}
+			else if (Math.abs(dy) > VIEW_HEIGHT/2 && dy > 0) {
+				y = edgeY + h + (Math.abs(dy)/8 - h/2)/10;
+			}
+			context.fillRect(x, y, dotW, dotH);
+		}
+	};
 
 	// ships
 	context.fillStyle = '#f00';
 	var shipIDs = Crafty('AIShip');
 	for (var i = 0; i < shipIDs.length; i++) {
 		var ship = Crafty(shipIDs[i]);
-		context.fillRect(24 * 6 + ship.x / 8 - g_game.player.x / 8, 24 * 3 + ship.y / 8 - g_game.player.y / 8, 6, 3);
+		//context.fillRect(24 * 3 + ship.x / 8 - g_game.player.x / 8, 24 * 3 + ship.y / 8 - g_game.player.y / 8, 3, 3);
+		fillDot(ship.x, ship.y, 3, 3);
 	}
-
+	
 	// planets
 	context.fillStyle = '#fff';
-	var shipIDs = Crafty('planet');
-	for (var i = 0; i < shipIDs.length; i++) {
-		var ship = Crafty(shipIDs[i]);
-		context.fillRect(24 * 6 + ship.x / 8 - g_game.player.x / 8, 24 * 3 + ship.y / 8 - g_game.player.y / 8, 12, 6);
+	var planetIDs = Crafty('planet');
+	for (var i = 0; i < planetIDs.length; i++) {
+		var planet = Crafty(planetIDs[i]);
+		fillDot(planet.x, planet.y, 6, 6);
 	}
 
 }
@@ -407,8 +450,6 @@ function doCraftyInitialization() {
 				});
 			this.attach(this.shield);
 			this.shieldPart = part;
-			//this.shieldStrength = 6;
-			//this.maxShieldStrength = 6;
 		},
 		removeShield: function () {
 			this.detach(this.shield);
@@ -417,8 +458,6 @@ function doCraftyInitialization() {
 			this.shield = undefined;
 		},
 		turn: function (amt) {
-			//var angle = Math.atan2(this.direction.y, this.direction.x);
-			//angle += amt;
 			this.rotation = (this.rotation + amt) % 360;
 			var vY = 1 * Math.sin(this.rotation * Math.PI / 180);
 			var vX = 1 * Math.cos(this.rotation * Math.PI / 180);
@@ -502,6 +541,14 @@ function doCraftyInitialization() {
 					if (this.isDown(Crafty.keys.RIGHT_ARROW) || this.isDown(Crafty.keys.D)) {
 						this.turn(4);
 					}
+					if (this.isDown(Crafty.keys.SPACE)) {
+						for (var i=0;i<this.shipConfiguration.weapon.length;i++) {
+							if (this.shipConfiguration.weapon[i].power == 100) {
+								this.shipConfiguration.weapon[i].changePower(-60);
+								Crafty.e('Bullet').Bullet(this.x, this.y, this.direction, this[0], 2);
+							}
+						}
+					}
 
 					if (frameObj.frame % 10 == 0) {
 						for (var i = 0; i < g_game.shipSlots.length; i++) {
@@ -512,20 +559,20 @@ function doCraftyInitialization() {
 					g_game.$stage.css('background-position', '' + (-this.x / 4) + 'px ' + (-this.y / 4) + 'px');
 					updateMiniMap();
 				})
-				.bind('KeyDown', function (evt) {
-					if (evt.key == Crafty.keys.SPACE) {
-						for (var i = 0; i < g_game.shipSlots.length; i++) {
-							if (g_game.shipSlots[i].part && g_game.shipSlots[i].part.type == 'weapon' && g_game.shipSlots[i].part.power == 100) {
-								g_game.shipSlots[i].part.changePower(-60);
-								Crafty.e('Bullet').Bullet(this.x, this.y, this.direction, this[0], 2);
-							}
-						}
-					}
-				})
-
-
 
 			return this;
+		},
+		reconfigureShip: function() {
+			this.shipConfiguration = {
+				weapon: [],
+				shield: [],
+				engine: []
+			}
+			for (var i = 0; i < g_game.shipSlots.length; i++) {
+				if (g_game.shipSlots[i].part) {
+					this.shipConfiguration[g_game.shipSlots[i].part.type].push(g_game.shipSlots[i].part);
+				}
+			}		
 		}
 	});
 
@@ -684,9 +731,9 @@ function doCraftyInitialization() {
 			y: startY + 100,
 			z: 60
 		});
-		Crafty.e('AIShip').AIShip(startX + 200, startY + 10, 'ship2', 'faction2');
-		Crafty.e('AIShip').AIShip(startX + 400, startY + 100, 'ship2', 'faction2');
-		Crafty.e('AIShip').AIShip(startX + 300, startY + 200, 'ship2', 'faction2');
+		Crafty.e('AIShip').AIShip(startX + 200, startY + 10, 'enemyShip' + Math.floor(1 + Math.random()*6), 'faction2');
+		Crafty.e('AIShip').AIShip(startX + 400, startY + 100, 'enemyShip' + Math.floor(1 + Math.random()*6), 'faction2');
+		Crafty.e('AIShip').AIShip(startX + 300, startY + 200, 'motherShip', 'faction2');
 		
 		// some inventory
 		var newPart = new ShipPart('weapon', 11);
@@ -732,7 +779,13 @@ function doCraftyInitialization() {
 
 			Crafty.sprite(1, './images/lofi_scifi_v2.png', {
 				ship: [2 * TILE_SIZE, 34 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
-				ship2: [2 * TILE_SIZE, 43 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				enemyShip1: [2 * TILE_SIZE, 43 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				enemyShip2: [2 * TILE_SIZE, 44 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				enemyShip3: [2 * TILE_SIZE, 45 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				enemyShip4: [2 * TILE_SIZE, 46 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				enemyShip5: [2 * TILE_SIZE, 47 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				enemyShip6: [2 * TILE_SIZE, 48 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				motherShip: [19 * TILE_SIZE, 49 * TILE_SIZE, TILE_SIZE*2, TILE_SIZE*2],
 
 				bullet: [8 * TILE_SIZE, 78 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				fragment: [8 * TILE_SIZE, 77 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
