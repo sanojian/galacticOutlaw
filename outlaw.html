@@ -331,9 +331,9 @@ function updateMiniMap() {
 	var context = drawingCanvas.getContext('2d');
 
 	//context.scale(1, 1);
-	for (var y = 0; y < 48; y++) {
+	for (var y = 0; y <= 49; y++) {
 		context.fillStyle = y % 2 ? '#394677' : '#4A5B99';
-		for (var x = 0; x < 48; x++) {
+		for (var x = 0; x <= 49; x++) {
 			context.fillRect(x * 3, y * 3, 3, 3);
 		}
 	}
@@ -513,7 +513,7 @@ function doCraftyInitialization() {
 						}
 						// fire
 						if (Math.abs(angleDiff) < Math.PI / 4 && frameObj.frame % 100 == 0) {
-							Crafty.e('Bullet').Bullet(this.x, this.y, this.direction, this[0], 1);
+							Crafty.e('Bullet').Bullet(this.x, this.y, this.direction, this[0], 2);
 						}
 					}
 				})
@@ -523,9 +523,9 @@ function doCraftyInitialization() {
 	});
 
 
-	Crafty.c('Player', {
+	Crafty.c('PlayerShip', {
 
-		Player: function (x, y) {
+		PlayerShip: function (x, y) {
 			this.requires('Keyboard, Ship')
 				.Ship(x, y, 'ship', 'faction1')
 				.bind('EnterFrame', function (frameObj) {
@@ -629,7 +629,7 @@ function doCraftyInitialization() {
 						x: this.x + this.velocity.x,
 						y: this.y + this.velocity.y
 					});
-					if (this.hit('Player')) {
+					if (this.hit('PlayerShip')) {
 						var newPart = new ShipPart('weapon', 11);
 						g_game.parts[newPart.guid] = newPart;
 						g_game.shipInventory.addPart(newPart);
@@ -722,15 +722,27 @@ function doCraftyInitialization() {
 		var startX = 500;
 		var startY = 500;
 
-		g_game.player = Crafty.e('Player').Player(startX, startY);
+		g_game.player = Crafty.e('PlayerShip').PlayerShip(startX, startY);
 		Crafty.viewport.clampToEntities = false;
 		Crafty.viewport.follow(g_game.player, g_game.player.w / 2, g_game.player.h / 2);
 
-		Crafty.e('2D, ' + RENDERING_MODE + ', planet').attr({
+		Crafty.e('2D, ' + RENDERING_MODE + ', planet, planet1').attr({
 			x: startX + 100,
 			y: startY + 100,
 			z: 60
 		});
+		Crafty.e('2D, ' + RENDERING_MODE + ', planet, planet2').attr({
+			x: startX - 400,
+			y: startY + 900,
+			z: 60
+		});
+		Crafty.e('2D, ' + RENDERING_MODE + ', planet, planet3').attr({
+			x: startX + 1200,
+			y: startY - 300,
+			z: 60
+		});
+
+
 		Crafty.e('AIShip').AIShip(startX + 200, startY + 10, 'enemyShip' + Math.floor(1 + Math.random()*6), 'faction2');
 		Crafty.e('AIShip').AIShip(startX + 400, startY + 100, 'enemyShip' + Math.floor(1 + Math.random()*6), 'faction2');
 		Crafty.e('AIShip').AIShip(startX + 300, startY + 200, 'motherShip', 'faction2');
@@ -792,7 +804,9 @@ function doCraftyInitialization() {
 				shield: [88 * 3, 644 * 3, 16 * 3, 16 * 3],
 				exhaust: [163 * 3, 612 * 3, 1 * 3, 1 * 3],
 
-				planet: [8 * 3, 664 * 3, 24 * 3, 24 * 3],
+				planet1: [8 * 3, 664 * 3, 24 * 3, 24 * 3],
+				planet2: [8 * 3 + 24 * 3, 664 * 3, 24 * 3, 24 * 3],
+				planet3: [0, 664 * 3 + 24 * 3, 40 * 3, 40 * 3],
 				loot:	[8 * 3, 632*3, 8*3, 8*3]
 			});
 
