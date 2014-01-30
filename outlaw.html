@@ -111,6 +111,7 @@ function ShipPart(type, regen, pow) {
 	this.type = type;
 	this.regen = regen;
 	this.power = pow || 0;
+	this.readyToUse = true;
 
 	this.getInfo = function () {
 		return {};
@@ -127,6 +128,18 @@ function ShipPart(type, regen, pow) {
 			var change = this.power - curPow;
 			g_game.player.shipConfiguration.engine[0].changePower(-change);
 		}
+	};
+	
+	this.fire = function(x, y, direction, id, dmg) {
+		if (this.readyToUse)
+			this.readyToUse = false;
+			this.changePower(-20);
+			var self = this;
+			setTimeout(function() {
+				self.readyToUse = true;
+			}, 1000);
+			Crafty.e('Bullet').Bullet(x, y, direction, id, dmg);
+	
 	};
 
 	this.changePower = function (amt) {
@@ -562,7 +575,7 @@ function doCraftyInitialization() {
 	Crafty.c('PlayerShip', {
 
 		PlayerShip: function (x, y) {
-			this.requires('Keyboard, Ship')
+			this.requires('Keyboard, Ship, Delay')
 				.Ship(x, y, 'ship', 'faction1')
 				.bind('EnterFrame', function (frameObj) {
 					if (this.isDown(Crafty.keys.UP_ARROW) || this.isDown(Crafty.keys.W)) {
@@ -579,9 +592,8 @@ function doCraftyInitialization() {
 					}
 					if (this.isDown(Crafty.keys.SPACE)) {
 						for (var i=0;i<this.shipConfiguration.weapon.length;i++) {
-							if (this.shipConfiguration.weapon[i].power == 100) {
-								this.shipConfiguration.weapon[i].changePower(-60);
-								Crafty.e('Bullet').Bullet(this.x, this.y, this.direction, this[0], 2);
+							if (this.shipConfiguration.weapon[i].readyToUse && this.shipConfiguration.weapon[i].power >= 20) {
+								this.shipConfiguration.weapon[i].fire(this.x, this.y, this.direction, this[0], 2);
 							}
 						}
 					}
@@ -797,13 +809,13 @@ function doCraftyInitialization() {
 
 		var newPart = new ShipPart('weapon', 11, 0);
 		g_game.parts[newPart.guid] = newPart;
-		g_game.shipSlots[4].addPart(newPart);
+		g_game.shipSlots[2].addPart(newPart);
 		var newPart = new ShipPart('shield', 3, 0);
 		g_game.parts[newPart.guid] = newPart;
 		g_game.shipSlots[3].addPart(newPart);
 		var newPart = new ShipPart('engine', 3, 100);
 		g_game.parts[newPart.guid] = newPart;
-		g_game.shipSlots[2].addPart(newPart);
+		g_game.shipSlots[4].addPart(newPart);
 		
 	});
 
