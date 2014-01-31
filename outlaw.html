@@ -245,7 +245,9 @@ window.addEventListener("load", function (event) {
 	//VIEW_HEIGHT = $(document).height();
 	Crafty.init(VIEW_WIDTH, VIEW_HEIGHT);
 
-	doCraftyInitialization();
+	initCraftySpace();
+	initCraftySurface();
+	initCraftyScenes();
 
 	$('#divGUI').on('mousedown', 'div.shipPart', function (e) {
 		$('div.shipPart').css('z-index', 6000);
@@ -369,10 +371,6 @@ function updateMiniMap() {
 	context.lineWidth = 3;
 	context.strokeRect(edgeX, edgeY, w, h);
 	
-	// player
-	//context.fillStyle = '#0f0';
-	//context.fillRect(24 * 3, 24 * 3, 3, 3);
-
 	function fillDot(dotX, dotY, dotW, dotH) {
 		// in view area?
 		var dx = dotX - g_game.player.x;
@@ -413,10 +411,14 @@ function updateMiniMap() {
 		var ship = Crafty(shipIDs[i]);
 		fillDot(ship.x, ship.y, 3, 3);
 	}
+
+	// player
+	context.fillStyle = '#00f';
+	context.fillRect(24 * 3, 24 * 3, 3, 3);
 	
 	// planets
 	context.fillStyle = '#fff';
-	var planetIDs = Crafty('planet');
+	var planetIDs = Crafty('Planet');
 	for (var i = 0; i < planetIDs.length; i++) {
 		var planet = Crafty(planetIDs[i]);
 		fillDot(planet.x, planet.y, 6, 6);
@@ -431,7 +433,77 @@ function getParameterByName(name) {
 	return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
-function doCraftyInitialization() {
+function initCraftySurface() {
+
+	Crafty.c('Mob', {
+		Mob: function (x, y) {
+			this.requires('2D, ' + RENDERING_MODE + ', Collision, SpriteAnimation')
+				.attr({	x: x, y: y,	z: 100 })
+				.collision()
+				.reel('WalkRight', 300, [[this.__coord[0] + 0*TILE_SIZE, this.__coord[1]], [this.__coord[0] + 1*TILE_SIZE, this.__coord[1]], [this.__coord[0] + 2*TILE_SIZE, this.__coord[1]]])
+				.reel('WalkDown', 300, [[this.__coord[0] + 3*TILE_SIZE, this.__coord[1]], [this.__coord[0] + 4*TILE_SIZE, this.__coord[1]], [this.__coord[0] + 5*TILE_SIZE, this.__coord[1]]])
+				.reel('WalkLeft', 300, [[this.__coord[0] + 6*TILE_SIZE, this.__coord[1]], [this.__coord[0] + 7*TILE_SIZE, this.__coord[1]], [this.__coord[0] + 8*TILE_SIZE, this.__coord[1]]])
+				.reel('WalkUp', 300, [[this.__coord[0] + 9*TILE_SIZE, this.__coord[1]], [this.__coord[0] + 10*TILE_SIZE, this.__coord[1]], [this.__coord[0] + 11*TILE_SIZE, this.__coord[1]]])
+				.bind('NewDirection', function(dir) {
+					if (dir.x > 0) {
+						this.animate('WalkRight', -1);
+					}
+					else if (dir.x < 0) {
+						this.animate('WalkLeft', -1);
+					}
+					else if (dir.y < 0) {
+						this.animate('WalkUp', -1);
+					}
+					else if (dir.y > 0) {
+						this.animate('WalkDown', -1);
+					}
+					else {
+						this.pauseAnimation();
+					}
+				})
+
+			return this;
+		}
+	});
+
+	Crafty.c('PlayerMan', {
+		PlayerMan: function (x, y) {
+			this.requires('Mob, Fourway, playerMan')
+				.fourway(2)
+				.Mob(x, y)
+				.bind('Moved', function(from) {
+					g_game.$stage.css('background-position', '' + Math.floor(-this.x) + 'px ' + Math.floor(-this.y) + 'px');
+				})
+				
+			return this;
+		}
+	});
+	
+	Crafty.c('AIMob', {
+		direction: { x: 0, y: 0 },
+		
+		AIMob: function (x, y) {
+			this.requires('Mob, alienMan, Delay')
+				.bind('EnterFrame', function(frameObj) {
+					this.attr({ x: this.x + this.direction.x, y: this.y + this.direction.y });
+				})
+				.Mob(x, y)
+			
+			this.walkRandomDirection();
+			
+			return this;
+		},
+		walkRandomDirection: function() {
+			this.direction = { x: 1 - Math.floor(Math.random()*3), y: 1 - Math.floor(Math.random()*3) };
+			this.trigger('NewDirection', this.direction);
+			var self = this;
+			this.delay(function() { self.walkRandomDirection(); }, 1500);
+		}
+	});
+	
+}
+
+function initCraftySpace() {
 
 	Crafty.c('Ship', {
 		maxSpeed: 2,
@@ -597,14 +669,19 @@ function doCraftyInitialization() {
 							}
 						}
 					}
-
+					
+					var planets = this.hit('Planet');
+					if (planets) {
+						Crafty.scene('planetSurface');
+					}
+					
 					if (frameObj.frame % 10 == 0) {
 						for (var i = 0; i < g_game.shipSlots.length; i++) {
 							g_game.shipSlots[i].tick();
 						}
 					}
 
-					g_game.$stage.css('background-position', '' + (-this.x / 4) + 'px ' + (-this.y / 4) + 'px');
+					g_game.$stage.css('background-position', '' + Math.floor(-this.x / 4) + 'px ' + Math.floor(-this.y / 4) + 'px');
 					updateMiniMap();
 				})
 
@@ -621,6 +698,16 @@ function doCraftyInitialization() {
 					this.shipConfiguration[g_game.shipSlots[i].part.type].push(g_game.shipSlots[i].part);
 				}
 			}		
+		}
+	});
+
+	Crafty.c('Planet', {
+
+		Planet: function (x, y, type) {
+			this.requires('2D, ' + RENDERING_MODE + ', Collision, ' + type)
+				.attr({	x: x, y: y,	z: 60 })
+				.collision()
+			return this;
 		}
 	});
 
@@ -753,6 +840,28 @@ function doCraftyInitialization() {
 		}
 	});
 
+}
+
+function initCraftyScenes() {
+	
+	Crafty.scene("planetSurface", function () {
+		Crafty.background('url(./images/background.png)');
+
+		$('#divGUI').css('visibility', 'hidden');
+		g_game.$stage = $('#cr-stage');
+		var startX = 500;
+		var startY = 500;
+
+		g_game.player = Crafty.e('PlayerMan').PlayerMan(startX, startY);
+		
+		Crafty.e('AIMob').AIMob(startX-200, startY-200);
+		
+		$('#divGUI').css('visibility', 'hidden');
+		//g_game.player = Crafty.e('PlayerShip').PlayerShip(startX, startY);
+		Crafty.viewport.clampToEntities = false;
+		Crafty.viewport.follow(g_game.player, g_game.player.w / 2, g_game.player.h / 2);
+		
+	});
 
 	Crafty.scene("main", function () {
 		Crafty.background('url(./images/background.png)');
@@ -765,7 +874,7 @@ function doCraftyInitialization() {
 			g_game.exhaustEffects.objArray.push(Crafty.e('Exhaust').Exhaust());
 		}
 
-		layoutGUI();
+		$('#divGUI').css('visibility', 'visible');
 		g_game.$stage = $('#cr-stage');
 		var startX = 500;
 		var startY = 500;
@@ -776,21 +885,9 @@ function doCraftyInitialization() {
 		Crafty.viewport.follow(g_game.player, g_game.player.w / 2, g_game.player.h / 2);
 
 		g_game.planets = [];
-		g_game.planets.push(Crafty.e('2D, ' + RENDERING_MODE + ', planet, planet1').attr({
-			x: startX + 100,
-			y: startY + 100,
-			z: 60
-		}));
-		g_game.planets.push(Crafty.e('2D, ' + RENDERING_MODE + ', planet, planet2').attr({
-			x: startX - 400,
-			y: startY + 900,
-			z: 60
-		}));
-		g_game.planets.push(Crafty.e('2D, ' + RENDERING_MODE + ', planet, planet3').attr({
-			x: startX + 1200,
-			y: startY - 300,
-			z: 60
-		}));
+		g_game.planets.push(Crafty.e('Planet').Planet(startX + 100, startY + 100, 'planet1' ));
+		g_game.planets.push(Crafty.e('Planet').Planet(startX - 400, startY + 900, 'planet2' ));
+		g_game.planets.push(Crafty.e('Planet').Planet(startX + 1200, startY - 300, 'planet3' ));
 
 		Crafty.e('AIShip').AIShip(startX - 100, startY - 100, 'friendShip1', 'faction1', 'faction2', g_game.planets[0]);
 		Crafty.e('AIShip').AIShip(startX + 1200, startY - 300, 'friendShip1', 'faction1', 'faction2', g_game.planets[2]);
@@ -860,11 +957,15 @@ function doCraftyInitialization() {
 				planet1: [8 * 3, 664 * 3, 24 * 3, 24 * 3],
 				planet2: [8 * 3 + 24 * 3, 664 * 3, 24 * 3, 24 * 3],
 				planet3: [0, 664 * 3 + 24 * 3, 40 * 3, 40 * 3],
-				loot:	[8 * 3, 632*3, 8*3, 8*3]
+				loot:	[8 * 3, 632*3, 8*3, 8*3],
+				
+				playerMan: [1* TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				alienMan: [16* TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, TILE_SIZE]
 			});
 
 
-			Crafty.scene("main");
+			layoutGUI();
+			Crafty.scene("planetSurface");
 
 		});
 	});
@@ -875,7 +976,7 @@ function doCraftyInitialization() {
 	</script>
 </head>
 <body style="background-color: #444;" unselectable="on" onselectstart="return false;" >
-	<div id="divGUI" style="width: 100%; height: 100%;">
+	<div id="divGUI" style="width: 100%; height: 100%; visiblity: hidden;">
 		<canvas id="canvasMiniMap" style="position: absolute;z-index: 5000; opacity: 0.6;"></canvas>
 		<div id="divShipParts" style="position: absolute;z-index: 5000;"></div>
 		<!--div id="divOverlay" style="background-image: url(./images/meshx3.png);background-repeat:repeat;position: absolute;z-index: 8000"></div--> 
