@@ -436,9 +436,9 @@ function getParameterByName(name) {
 function initCraftySurface() {
 
 	Crafty.c('Mob', {
-		Mob: function (x, y) {
-			this.requires('2D, ' + RENDERING_MODE + ', Collision, SpriteAnimation')
-				.attr({	x: x, y: y,	z: 100 })
+		Mob: function (type) {
+			this.requires('2D, ' + RENDERING_MODE + ', Collision, SpriteAnimation, ' + type)
+				.attr({	z: 100 })
 				.collision()
 				.reel('WalkRight', 300, [[this.__coord[0] + 0*TILE_SIZE, this.__coord[1]], [this.__coord[0] + 1*TILE_SIZE, this.__coord[1]], [this.__coord[0] + 2*TILE_SIZE, this.__coord[1]]])
 				.reel('WalkDown', 300, [[this.__coord[0] + 3*TILE_SIZE, this.__coord[1]], [this.__coord[0] + 4*TILE_SIZE, this.__coord[1]], [this.__coord[0] + 5*TILE_SIZE, this.__coord[1]]])
@@ -461,19 +461,21 @@ function initCraftySurface() {
 						this.pauseAnimation();
 					}
 				})
+				.bind('Moved', function(from) {
+					if (this.hit('solid')) {
+						this.attr({ x: from.x, y: from.y });
+					}
+				})
 
 			return this;
 		}
 	});
 
 	Crafty.c('PlayerMan', {
-		PlayerMan: function (x, y) {
-			this.requires('Mob, Fourway, playerMan')
+		PlayerMan: function (type) {
+			this.requires('Mob, Fourway')
 				.fourway(2)
-				.Mob(x, y)
-				.bind('Moved', function(from) {
-					g_game.$stage.css('background-position', '' + Math.floor(-this.x) + 'px ' + Math.floor(-this.y) + 'px');
-				})
+				.Mob(type)
 				
 			return this;
 		}
@@ -482,12 +484,14 @@ function initCraftySurface() {
 	Crafty.c('AIMob', {
 		direction: { x: 0, y: 0 },
 		
-		AIMob: function (x, y) {
-			this.requires('Mob, alienMan, Delay')
+		AIMob: function (type) {
+			this.requires('Mob, Delay')
 				.bind('EnterFrame', function(frameObj) {
+					var from = { x: this.x, y: this.y };
 					this.attr({ x: this.x + this.direction.x, y: this.y + this.direction.y });
+					this.trigger('Moved', from);
 				})
-				.Mob(x, y)
+				.Mob(type)
 			
 			this.walkRandomDirection();
 			
@@ -672,7 +676,7 @@ function initCraftySpace() {
 					
 					var planets = this.hit('Planet');
 					if (planets) {
-						Crafty.scene('planetSurface');
+						loadMap('test1');
 					}
 					
 					if (frameObj.frame % 10 == 0) {
@@ -706,7 +710,7 @@ function initCraftySpace() {
 		Planet: function (x, y, type) {
 			this.requires('2D, ' + RENDERING_MODE + ', Collision, ' + type)
 				.attr({	x: x, y: y,	z: 60 })
-				.collision()
+				.collision([this.w/2-8, this.h/2-8], [this.w/2+8, this.h/2-8], [this.w/2+8, this.h/2+8], [this.w/2-8, this.h/2+8])
 			return this;
 		}
 	});
@@ -842,6 +846,30 @@ function initCraftySpace() {
 
 }
 
+function loadMap(strMap) {
+		
+	$.getJSON('./maps/' + strMap + '.json?' + Math.random(), function(data) {
+		
+		for (var i=0;i<data.tilesets.length;i++) {
+			var myMap = new Object();
+			var width = data.tilesets[i].imagewidth / data.tilesets[i].tilewidth;
+			var height = data.tilesets[i].imageheight / data.tilesets[i].tileheight;
+			
+			for (var y=0;y<height;y++)
+				for (var x=0;x<width;x++) 
+					myMap['maptile_' + (data.tilesets[i].firstgid + y*width+x)] = [x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE, TILE_SIZE];
+
+			Crafty.sprite(1, './maps/' + data.tilesets[i].image, myMap);
+		}
+		
+		g_game.map = data;
+		
+		Crafty.scene("planetSurface"); //when everything is loaded, run the main scene
+		
+	});
+
+}
+
 function initCraftyScenes() {
 	
 	Crafty.scene("planetSurface", function () {
@@ -849,17 +877,53 @@ function initCraftyScenes() {
 
 		$('#divGUI').css('visibility', 'hidden');
 		g_game.$stage = $('#cr-stage');
-		var startX = 500;
-		var startY = 500;
+		var startX = 300;
+		var startY = 220;
 
-		g_game.player = Crafty.e('PlayerMan').PlayerMan(startX, startY);
+		for (var i=0;i<g_game.map.layers.length;i++) {
+			if (g_game.map.layers[i].type == 'objectgroup') {
+				// objects
+				for (var j=0;j<g_game.map.layers[i].objects.length;j++) {
+					var obj = g_game.map.layers[i].objects[j];
+					//var el = Crafty.e(obj.properties.components)[obj.properties.components]('maptile_' + obj.gid)
+					//				.attr({ x: obj.x, y: obj.y });
+					var el = Crafty.e('2D, ' + RENDERING_MODE + ', maptile_' + obj.gid)
+								.attr({ x: obj.x, y: obj.y });
+					if (obj.properties && obj.properties.entity) {
+						el.addComponent(obj.properties.entity);
+						el[obj.properties.entity]('maptile_' + obj.gid);
+					}
+					
+				}
+			}
+			else {
+				// tiles
+				for (var y=0;y<g_game.map.layers[i].height;y++) {
+					for (var x=0;x<g_game.map.layers[i].width;x++) {
+						var tile = g_game.map.layers[i].data[x + y * g_game.map.layers[i].width];
+						if (tile > 0) {
+							var el = Crafty.e('2D, ' + RENDERING_MODE + ', maptile_' + g_game.map.layers[i].data[x + y * g_game.map.layers[i].width])
+										.attr({ x: x * g_game.map.tilewidth, y: y * g_game.map.tileheight, z: 1 });
+							if (g_game.map.layers[i].properties && g_game.map.layers[i].properties.components && g_game.map.layers[i].properties.components.indexOf('solid') != -1) {
+								el.addComponent('solid').addComponent('Collision').collision();
+							}
+						}
+					}
+				}
+			}
+		}
 		
-		Crafty.e('AIMob').AIMob(startX-200, startY-200);
+		//Crafty.e('bigShip').attr( { x: 200, y: 220, z: 20 });
 		
-		$('#divGUI').css('visibility', 'hidden');
-		//g_game.player = Crafty.e('PlayerShip').PlayerShip(startX, startY);
+		//g_game.player = Crafty.e('PlayerMan').PlayerMan().attr({ x: startX, y: startY });
+		g_game.player = Crafty(Crafty('PlayerMan')[0]);
 		Crafty.viewport.clampToEntities = false;
 		Crafty.viewport.follow(g_game.player, g_game.player.w / 2, g_game.player.h / 2);
+		
+		//Crafty.e('AIMob').AIMob('alienMan').attr({ x: startX-50, y: startY-50 });;
+		//Crafty.e('AIMob').AIMob('alienBlob').attr({ x: startX-100, y: startY-50 });;
+		
+		//Crafty.e('AIMob').AIMob('cat').attr({ x: startX+100, y: startY });;
 		
 	});
 
@@ -939,8 +1003,8 @@ function initCraftyScenes() {
 		Crafty.load(['./images/lofi_scifi_v2.png'], function () {
 
 			Crafty.sprite(1, './images/lofi_scifi_v2.png', {
-				ship: [2 * TILE_SIZE, 35 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
-				friendShip1: [22 * TILE_SIZE, 34 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				ship: [2 * TILE_SIZE, 34 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				friendShip1: [22 * TILE_SIZE, 35 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				enemyShip1: [2 * TILE_SIZE, 43 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				enemyShip2: [2 * TILE_SIZE, 44 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				enemyShip3: [2 * TILE_SIZE, 45 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
@@ -948,6 +1012,7 @@ function initCraftyScenes() {
 				enemyShip5: [2 * TILE_SIZE, 47 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				enemyShip6: [2 * TILE_SIZE, 48 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				motherShip: [19 * TILE_SIZE, 49 * TILE_SIZE, TILE_SIZE*2, TILE_SIZE*2],
+				bigShip: [2 * TILE_SIZE, 49 * TILE_SIZE, TILE_SIZE*2, TILE_SIZE*2],
 
 				bullet: [8 * TILE_SIZE, 78 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				fragment: [8 * TILE_SIZE, 77 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
@@ -960,12 +1025,16 @@ function initCraftyScenes() {
 				loot:	[8 * 3, 632*3, 8*3, 8*3],
 				
 				playerMan: [1* TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				alienBlob: [16* TILE_SIZE, 6 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				cat: [16* TILE_SIZE, 7 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				alienMan: [16* TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, TILE_SIZE]
 			});
 
 
 			layoutGUI();
-			Crafty.scene("planetSurface");
+			//Crafty.scene("main");
+			loadMap('test1');
+
 
 		});
 	});
