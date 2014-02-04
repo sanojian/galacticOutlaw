@@ -476,8 +476,63 @@ function initCraftySurface() {
 			this.requires('Mob, Fourway')
 				.fourway(2)
 				.Mob(type)
+				.bind('Moved', function(from) {
+					if (this.hit('DialogSource')) {
+						g_game.cDialogBox.showText('Hello there');
+						this.attr({ x: from.x, y: from.y });
+					}
+				})
 				
 			return this;
+		}
+	});
+
+	Crafty.c('DialogSource', {
+		DialogSource: function (type) {
+			this.requires('2D, ' + RENDERING_MODE + ', Collision, ' + type)
+				.attr({ z: 100 })
+				.collision()
+				
+			return this;
+		}
+	});
+	
+	Crafty.c('Dialog', {
+		delayTime: 100,
+		
+		Dialog: function () {
+			this.requires('2D, DOM, Color, Text, textbox')
+			   .attr({x: 200, y: 200, w: VIEW_WIDTH-24, h: 64})
+			   .color("rgb(200,200,200)")
+			   .text("")
+			   .css("overflow-y", "scroll")
+			   .bind("EnterFrame", function(frameobj) {
+					if (this.performDisplay) {
+						this.timeAccumulator += frameobj.dt;
+						if (this.timeAccumulator >= this.delayTime) {
+							this.timeAccumulator -= this.delayTime;
+							this.text(this.textToDisplay.substr(0,this.charIndex++));
+							if (this.charIndex >= this.textToDisplay.length) {
+								this.performDisplay = false;
+								this.visible = false;
+							}
+						}
+					}
+			   })
+			
+			this.visible = false;
+			
+			return this;
+		},
+		showText: function(txt) {
+			if (!this.performDisplay) {
+				this.visible = true;
+				this.timeAccumulator = 0;
+				this.charIndex = 0;
+				this.textToDisplay = txt;
+				this.performDisplay = true;
+				this.attr({ x: 0 - Crafty.viewport.x + 12, y: 0 - Crafty.viewport.y + 12 });
+			}
 		}
 	});
 	
@@ -887,7 +942,8 @@ function initCraftyScenes() {
 					var obj = g_game.map.layers[i].objects[j];
 					//var el = Crafty.e(obj.properties.components)[obj.properties.components]('maptile_' + obj.gid)
 					//				.attr({ x: obj.x, y: obj.y });
-					var el = Crafty.e('2D, ' + RENDERING_MODE + ', maptile_' + obj.gid)
+					var el = Crafty.e('2D, ' + RENDERING_MODE + ', maptile_' + obj.gid 
+									+ (obj.properties && obj.properties.components ? ',' + obj.properties.components : ''))
 								.attr({ x: obj.x, y: obj.y });
 					if (obj.properties && obj.properties.entity) {
 						el.addComponent(obj.properties.entity);
@@ -920,6 +976,7 @@ function initCraftyScenes() {
 		Crafty.viewport.clampToEntities = false;
 		Crafty.viewport.follow(g_game.player, g_game.player.w / 2, g_game.player.h / 2);
 		
+		g_game.cDialogBox = Crafty.e('Dialog').Dialog();
 		//Crafty.e('AIMob').AIMob('alienMan').attr({ x: startX-50, y: startY-50 });;
 		//Crafty.e('AIMob').AIMob('alienBlob').attr({ x: startX-100, y: startY-50 });;
 		

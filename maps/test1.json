@@ -89,7 +89,8 @@
                  "name":"",
                  "properties":
                     {
-                     "entity":"Mob"
+                     "entity":"DialogSource",
+                     "name":"King"
                     },
                  "type":"",
                  "visible":true,
