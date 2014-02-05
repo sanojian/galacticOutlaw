@@ -1,0 +1,15 @@
+[
+	{
+		"speaker": "King Abner",
+		"image": "king",
+		"text": ["And here we are!",
+		         "This ends the presentation..."]
+	},
+
+	{
+		"speaker": "Queen Quinella",
+		"image": "queen",
+		"text": ["Thanks for watching!",
+		         "See you next time."]
+	}
+]
