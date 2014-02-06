@@ -439,8 +439,8 @@ function getParameterByName(name) {
 function initCraftySurface() {
 
 	Crafty.c('Mob', {
-		Mob: function (type) {
-			this.requires('2D, ' + RENDERING_MODE + ', Collision, SpriteAnimation, ' + type)
+		Mob: function (type, name) {
+			this.requires('2D, ' + RENDERING_MODE + ', Collision, SpriteAnimation, solid, ' + type)
 				.attr({	z: 100 })
 				.collision()
 				.reel('WalkRight', 300, [[this.__coord[0] + 0*TILE_SIZE, this.__coord[1]], [this.__coord[0] + 1*TILE_SIZE, this.__coord[1]], [this.__coord[0] + 2*TILE_SIZE, this.__coord[1]]])
@@ -465,12 +465,46 @@ function initCraftySurface() {
 					}
 				})
 				.bind('Moved', function(from) {
-					if (this.hit('solid')) {
-						this.attr({ x: from.x, y: from.y });
+					var solids = this.hit('solid');
+					if (solids && solids[0].normal) {
+						// slide around object
+						this.x += Math.ceil(solids[0].normal.x * -solids[0].overlap);
+						this.y += Math.ceil(solids[0].normal.y * -solids[0].overlap);
+						if (this.hit('solid')) {
+							// still hitting, give up
+							this.attr({x: from.x, y:from.y});
+						}
+						return;
+					}
+					else if (solids) {
+						this.attr({x: from.x, y:from.y});
+						return;
 					}
 				})
 
+			this.charName = name;
 			return this;
+		},
+		takeDamage: function() {
+			this.destroy();
+			
+			// flying bones
+			for (var i=0;i<2 + Math.floor(Math.random()*2);i++) {
+				Crafty.e('2D, ' + RENDERING_MODE + ', ' + (i==0 ? 'skull' : 'bone'))
+					.attr({ x: this.x + TILE_SIZE/4 + TILE_SIZE*Math.random(), y: this.y + TILE_SIZE/4 + Math.random()*TILE_SIZE/2, z: this.z+1 })
+					.bind('EnterFrame', function() {
+						this.frameCount = this.frameCount ? this.frameCount + 1 : 1;
+						this.dx = this.dx ? this.dx : 1 - Math.random() * 2;
+						this.dy = this.dy ? this.dy : -2 - Math.random() * 3;
+						this.dy += 0.3;
+						this.duration = this.duration ? this.duration : 10 + 15 * Math.random();
+						this.attr({ x: this.x + this.dx, y: this.y + this.dy });
+						if (this.frameCount > this.duration) {
+							this.destroy();
+						}
+					});
+			}
+
 		}
 	});
 
@@ -480,10 +514,20 @@ function initCraftySurface() {
 				.fourway(2)
 				.Mob(type)
 				.bind('Moved', function(from) {
-					if (this.hit('DialogSource')) {
+					var dlgChars = this.hit('DialogSource');
+					if (dlgChars) {
+						var dlgChar = dlgChars[0].obj;
 						g_game.cDialogBox.attr({ x: 12 - Crafty.viewport.x, y: 12 - Crafty.viewport.y });
-						g_game.cDialogBox.messageBox(Crafty.asset("./dialog/King.dlg.json"), {font: {size: '14px', family: GAME_FONT }})
+						g_game.cDialogBox.messageBox(Crafty.asset('./dialog/' + dlgChar.charName + '.dlg.json'), {font: {size: '14px', family: GAME_FONT }})
 						this.attr({ x: from.x, y: from.y });
+						
+						var mobIDs = Crafty('AIMob');
+						for (var i=0;i<mobIDs.length;i++) {
+							var mob = Crafty(mobIDs[i]);
+							if (mob.charName == 'Snaps') {
+								mob.addComponent('Companion').Companion(this);
+							}
+						}
 					}
 				})
 				
@@ -492,11 +536,12 @@ function initCraftySurface() {
 	});
 
 	Crafty.c('DialogSource', {
-		DialogSource: function (type) {
+		DialogSource: function (type, name) {
 			this.requires('2D, ' + RENDERING_MODE + ', Collision, ' + type)
 				.attr({ z: 100 })
 				.collision()
 				
+			this.charName = name;
 			return this;
 		}
 	});
@@ -542,27 +587,50 @@ function initCraftySurface() {
 		}
 	});
 	
+	Crafty.c('Companion', {
+		
+		Companion: function (target) {
+				this.bind('EnterFrame', function(frameObj) {
+					var dx =  target.x - this.x;
+					var dy = target.y - this.y;
+					dx = dx ? (dx > 0 ? 1 : -1) : 0;
+					dy = dy ? (dy > 0 ? 1 : -1) : 0;
+					if (this.direction.x != dx || this.direction.y != dy) {
+						this.direction = { x: dx, y: dy };
+						this.trigger('NewDirection', this.direction);
+					}
+				})
+				
+			this.target = target;
+			return this;
+		}
+		
+	});
+	
+	
 	Crafty.c('AIMob', {
 		direction: { x: 0, y: 0 },
 		
-		AIMob: function (type) {
+		AIMob: function (type, name) {
 			this.requires('Mob, Delay')
 				.bind('EnterFrame', function(frameObj) {
 					var from = { x: this.x, y: this.y };
 					this.attr({ x: this.x + this.direction.x, y: this.y + this.direction.y });
 					this.trigger('Moved', from);
 				})
-				.Mob(type)
+				.Mob(type, name)
 			
 			this.walkRandomDirection();
 			
 			return this;
 		},
 		walkRandomDirection: function() {
-			this.direction = { x: 1 - Math.floor(Math.random()*3), y: 1 - Math.floor(Math.random()*3) };
-			this.trigger('NewDirection', this.direction);
-			var self = this;
-			this.delay(function() { self.walkRandomDirection(); }, 1500);
+			if (!this.target) {
+				this.direction = { x: 1 - Math.floor(Math.random()*3), y: 1 - Math.floor(Math.random()*3) };
+				this.trigger('NewDirection', this.direction);
+				var self = this;
+				this.delay(function() { self.walkRandomDirection(); }, 1500);
+			}
 		}
 	});
 	
@@ -800,6 +868,9 @@ function initCraftySpace() {
 							if (hits[0].obj.has('Ship')) {
 								hits[0].obj.takeDamage(damage);
 							}
+							else if (hits[0].obj.has('Mob')) {
+								hits[0].obj.takeDamage(damage);
+							}
 							this.destroy();
 							return;
 						}
@@ -946,14 +1017,18 @@ function initCraftyScenes() {
 				// objects
 				for (var j=0;j<g_game.map.layers[i].objects.length;j++) {
 					var obj = g_game.map.layers[i].objects[j];
-					//var el = Crafty.e(obj.properties.components)[obj.properties.components]('maptile_' + obj.gid)
-					//				.attr({ x: obj.x, y: obj.y });
 					var el = Crafty.e('2D, ' + RENDERING_MODE + ', maptile_' + obj.gid 
 									+ (obj.properties && obj.properties.components ? ',' + obj.properties.components : ''))
-								.attr({ x: obj.x, y: obj.y });
+								.attr({ x: obj.x, y: obj.y - TILE_SIZE });
 					if (obj.properties && obj.properties.entity) {
 						el.addComponent(obj.properties.entity);
-						el[obj.properties.entity]('maptile_' + obj.gid);
+						el[obj.properties.entity]('maptile_' + obj.gid, obj.properties.name);
+					}
+					if (obj.properties && obj.properties.components) {
+						var comps = obj.properties.components.split(',');
+						for (var c=0;c<comps.length;c++) {
+							el.addComponent(comps[c]);
+						}
 					}
 					
 				}
@@ -1006,8 +1081,6 @@ function initCraftyScenes() {
 		
 		//Crafty.e('AIMob').AIMob('cat').attr({ x: startX+100, y: startY });;
 		
-		Crafty.e('2D, Canvas, font_A').attr({ x: 200, y: 200, z: 1000 })
-		
 		g_game.$stage.bind('mousedown', function(evt) {
 			var pos = $(this).offset();
 			var craftyX = evt.offsetX || evt.pageX - pos.left;
@@ -1021,7 +1094,7 @@ function initCraftyScenes() {
 		
 	});
 
-	Crafty.scene("main", function () {
+	Crafty.scene('space', function () {
 		Crafty.background('url(./images/background.png)');
 
 
@@ -1094,9 +1167,9 @@ function initCraftyScenes() {
 		//.css({ "text-align": "center", "font-family": GAME_FONT, "font-size": "44px" });
 		//} catch (ex) {;}
 
-		Crafty.load(['./images/lofi_scifi_v2.png', './dialog/King.dlg.json', './images/lofi_font_big.png'], function () {
+		Crafty.load(['./images/lofi_scifi_v2.png', './dialog/King.dlg.json', './dialog/HomeGuard.dlg.json', './images/lofi_font_big.png'], function () {
 
-			Crafty.sprite(1, './images/lofi_scifi_v2.png', {
+			g_game.mainSpriteMap = {
 				ship: [2 * TILE_SIZE, 34 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				friendShip1: [22 * TILE_SIZE, 35 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				enemyShip1: [2 * TILE_SIZE, 43 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
@@ -1112,6 +1185,8 @@ function initCraftyScenes() {
 				fragment: [8 * TILE_SIZE, 77 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				shield: [88 * 3, 644 * 3, 16 * 3, 16 * 3],
 				exhaust: [163 * 3, 612 * 3, 1 * 3, 1 * 3],
+				skull: [28 * TILE_SIZE, 80 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				bone: [27 * TILE_SIZE, 80 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 
 				planet1: [8 * 3, 664 * 3, 24 * 3, 24 * 3],
 				planet2: [8 * 3 + 24 * 3, 664 * 3, 24 * 3, 24 * 3],
@@ -1121,33 +1196,22 @@ function initCraftyScenes() {
 				playerMan: [1* TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				alienBlob: [16* TILE_SIZE, 6 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				cat: [16* TILE_SIZE, 7 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				dog: [16* TILE_SIZE, 12 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				alienMan: [16* TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				king: [1* TILE_SIZE, 25 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
-				queen: [2* TILE_SIZE, 25 * TILE_SIZE, TILE_SIZE, TILE_SIZE]
+				queen: [2* TILE_SIZE, 25 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				homeGuard: [1* TILE_SIZE, 7 * TILE_SIZE, TILE_SIZE, TILE_SIZE]
 
-			});
+			};
+			
+			Crafty.sprite(1, './images/lofi_scifi_v2.png', g_game.mainSpriteMap);
 
-			/*var characters = [	'0123456789!@_',
-								'#"Ц()-=+,.:;де?\'',
-								'abcdefghijklmnop',
-								'qrstuvwxyzABCDEF',
-								'GHIJKLMNOPQRSTUV',
-								'WXYZ'
-							];
-			var charMap = {};
-			for (var j=0;j<characters.length;j++) {
-				for (var i=0;i<characters[j].length;i++) {
-					var chr = characters[j].charAt(i);
-					charMap['font_' + chr] = [ i*8*3, j*8*3, 8*3, 8*3 ];
-				}
-			}
-			Crafty.sprite(1, './images/lofi_font_big.png', charMap);*/
 			Crafty.sprite(24, './images/lofi_font_big.png', {
 					fontChar: [0, 0]
 			});
 			
 			layoutGUI();
-			//Crafty.scene("main");
+			//Crafty.scene('space');
 			loadMap('test1');
 
 

@@ -121,8 +121,10 @@ Crafty.c("WPMessageBox",
 							  });
         }
         
-		this.portrait.addComponent(this._text.content[this._txtIndex].image)
-		this.portrait.attr({ w: this.portrait.w*2, h: this.portrait.h*2 });
+		//this.portrait.addComponent(this._text.content[this._txtIndex].image)
+		var map = g_game.mainSpriteMap[this._text.content[this._txtIndex].image];
+		this.portrait.sprite(map[0], map[1], map[2], map[3]);
+		this.portrait.attr({ w: map[2]*2, h: map[3]*2 });
 		this.portrait.visible = true;
 		var textContent = this._breakLines(this._text.content[this._txtIndex++].text);
 		this._txt.write(textContent, null, 75, 40, this.charSlots);

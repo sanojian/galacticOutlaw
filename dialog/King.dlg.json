@@ -2,14 +2,31 @@
 	{
 		"speaker": "King Abner",
 		"image": "king",
-		"text": ["And here we are!",
-		         "This ends the presentation..."]
+		"text": ["Oh there you are deary.",
+		         "Your mother has a task for",
+				 "you."]
 	},
 
 	{
 		"speaker": "Queen Quinella",
 		"image": "queen",
-		"text": ["Thanks for watching!",
-		         "See you next time."]
+		"text": ["The garden is full of ",
+		         "spiders! Icky things."]
+	},
+	
+	{
+		"speaker": "Queen Quinella",
+		"image": "queen",
+		"text": ["Take Snaps for a walk",
+				 "and clear them out."]
+	},
+
+	{
+		"speaker": "Snaps",
+		"image": "dog",
+		"action": "startDogQuest",
+		"text": ["Woof!",
+				" "]
 	}
+	
 ]
