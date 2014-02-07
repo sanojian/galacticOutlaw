@@ -53,7 +53,14 @@ Crafty.c("WPMessageBox",
 		if (!this.currentlyWriting) {
 			this.currentlyWriting = true;
 
-			this._text     = text;
+			// find the relevant quest
+			if (text[g_game.quests.currentQuest]) {
+				this._text     = text[g_game.quests.currentQuest];
+			}
+			else {
+				this._text     = text.default;
+			}
+			
 			this._style    = style = this._processStyle(style);
 			this._txtIndex = 0;
 
@@ -121,11 +128,17 @@ Crafty.c("WPMessageBox",
 							  });
         }
         
-		//this.portrait.addComponent(this._text.content[this._txtIndex].image)
+		// show speaker
 		var map = g_game.mainSpriteMap[this._text.content[this._txtIndex].image];
 		this.portrait.sprite(map[0], map[1], map[2], map[3]);
 		this.portrait.attr({ w: map[2]*2, h: map[3]*2 });
 		this.portrait.visible = true;
+
+		// perform action
+		if (this._text.content[this._txtIndex].action) {
+			g_game.quests['start' + this._text.content[this._txtIndex].action]();
+		}
+
 		var textContent = this._breakLines(this._text.content[this._txtIndex++].text);
 		this._txt.write(textContent, null, 75, 40, this.charSlots);
         
@@ -479,50 +492,46 @@ Crafty.c("WPTypewriter",
 		this.finished = false;
 
 		keydiff = maxkeytime - minkeytime;
-		var y = 0;
-		var x = 0;
-		this.len = 0;
-		for(var i = 0 ; i < sentence.length; i++)
-		{
-			this.delay(function()
-			{
-                if(!this.finished)
-                {
-                    if(this.skipped)
-                    {
-                        //sentence = sentence.replace(/\n/g, '<br/>');
-                        this.len = sentence.length;
-                    }
-                    else
-                    {
-                        if( this.len < sentence.length && sentence.charAt(this.len) == '\n' )
-                        {
-                            //sentence = sentence.substr(0, this._l + 1) + "<br/>" + sentence.substr(this._l + 2, sentence.length);
-                            //this._l += 5;
-							y++;
-							x = 0;
-							this.len++;	// skip /n
-                        }
-                
-                        Crafty.audio.play(keysound);
-                    }
-
-					var chr = sentence.charAt(this.len) == ' ' ? '_' : sentence.charAt(this.len);
-					charSlots[y][x].setCharacter(chr);
-                    this.len++;
-					x++;
-                    
-                    if(this.len > sentence.length)
-                    {
-                        this.len = 1;
-                        this.finished = true;
-                        this.trigger("WPTypewriterFinished");
-				    }
-				}
-			}, i * maxkeytime - Math.random() * keydiff);
-		}
-
+		
+		this._writeNextLetter(sentence, 0, 0, 0, keysound, maxkeytime, minkeytime, charSlots);
+		
 		return this;
+	},
+	_writeNextLetter: function(sentence, x, y, len, keysound, maxkeytime, minkeytime, charSlots) {
+		if(!this.finished)
+		{
+			if( len < sentence.length && sentence.charAt(len) == '\n' )
+			{
+				y++;
+				x = 0;
+				len++;	// skip /n
+			}
+
+			if (!this.skipped) {
+				Crafty.audio.play(keysound);
+			}
+
+			var chr = sentence.charAt(len) == ' ' ? '_' : sentence.charAt(len);
+			charSlots[y][x].setCharacter(chr);
+			len++;
+			x++;
+			
+			if(len > sentence.length)
+			{
+				this.finished = true;
+				this.trigger("WPTypewriterFinished");
+			}
+			
+			if (this.skipped) {
+				this._writeNextLetter(sentence, x, y, len, keysound, maxkeytime, minkeytime, charSlots);
+			}
+			else {
+				this.delay(function() {
+					this._writeNextLetter(sentence, x, y, len, keysound, maxkeytime, minkeytime, charSlots);
+				}, maxkeytime - Math.random() * keydiff);
+			
+			}
+		}
 	}
 });
 

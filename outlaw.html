@@ -94,7 +94,43 @@ var g_game = {
 	parts: {},
 	sounds: {},
 	music: {},
-	curLevel: 0
+	curLevel: 0,
+	quests: {
+		currentQuest: undefined,
+		
+		dummyTest: function() { return false; },
+		
+		testDogQuestCompleted: function() {
+			var mobIDs = Crafty('faction2');
+			if (mobIDs.length) {
+				return false;
+			}
+			
+			var mobIDs = Crafty('AIMob');
+			for (var i=0;i<mobIDs.length;i++) {
+				var mob = Crafty(mobIDs[i]);
+				if (mob.charName == 'Snaps') {
+					mob.removeComponent('Companion', false);
+				}
+			}
+			g_game.quests.currentQuest = 'SpaceShipQuest';
+			
+			return true;
+		},
+		
+		startDogQuest: function() {
+			var mobIDs = Crafty('AIMob');
+			for (var i=0;i<mobIDs.length;i++) {
+				var mob = Crafty(mobIDs[i]);
+				if (mob.charName == 'Snaps') {
+					mob.addComponent('Companion').Companion(g_game.player);
+				}
+			}
+
+			g_game.quests.currentQuest = 'DogQuest';
+		}
+
+	}
 };
 
 var generateUid = function (separator) {
@@ -488,6 +524,11 @@ function initCraftySurface() {
 		takeDamage: function() {
 			this.destroy();
 			
+			// check if this ends quest
+			if (g_game.quests.currentQuest) {
+				g_game.quests['test' + g_game.quests.currentQuest + 'Completed']();
+			}
+			
 			// flying bones
 			for (var i=0;i<2 + Math.floor(Math.random()*2);i++) {
 				Crafty.e('2D, ' + RENDERING_MODE + ', ' + (i==0 ? 'skull' : 'bone'))
@@ -521,13 +562,6 @@ function initCraftySurface() {
 						g_game.cDialogBox.messageBox(Crafty.asset('./dialog/' + dlgChar.charName + '.dlg.json'), {font: {size: '14px', family: GAME_FONT }})
 						this.attr({ x: from.x, y: from.y });
 						
-						var mobIDs = Crafty('AIMob');
-						for (var i=0;i<mobIDs.length;i++) {
-							var mob = Crafty(mobIDs[i]);
-							if (mob.charName == 'Snaps') {
-								mob.addComponent('Companion').Companion(this);
-							}
-						}
 					}
 				})
 				
@@ -588,9 +622,11 @@ function initCraftySurface() {
 	});
 	
 	Crafty.c('Companion', {
+		IamCompanion: true,
 		
 		Companion: function (target) {
-				this.bind('EnterFrame', function(frameObj) {
+			this.bind('EnterFrame', function(frameObj) {
+				if (this.IamCompanion) {
 					var dx =  target.x - this.x;
 					var dy = target.y - this.y;
 					dx = dx ? (dx > 0 ? 1 : -1) : 0;
@@ -599,7 +635,8 @@ function initCraftySurface() {
 						this.direction = { x: dx, y: dy };
 						this.trigger('NewDirection', this.direction);
 					}
-				})
+				}
+			})
 				
 			this.target = target;
 			return this;

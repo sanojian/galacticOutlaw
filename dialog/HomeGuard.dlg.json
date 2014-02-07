@@ -1,8 +1,10 @@
-[
-	{
-		"speaker": "Home Guard",
-		"image": "homeGuard",
-		"text": ["Hello there.",
-		         "Keeping out of trouble?"]
-	}
-]
+{
+	"default": [
+		{
+			"speaker": "Home Guard",
+			"image": "homeGuard",
+			"text": ["Hello there.",
+					 "Keeping out of trouble?"]
+		}
+	]
+}
