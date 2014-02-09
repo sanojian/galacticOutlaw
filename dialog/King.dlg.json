@@ -12,7 +12,7 @@
 			"speaker": "Queen Quinella",
 			"image": "queen",
 			"text": ["The garden is full of ",
-					 "spiders! Icky things."]
+					 "slimy blobs! Icky things."]
 		},
 		
 		{
@@ -35,11 +35,11 @@
 			"speaker": "Queen Quinella",
 			"image": "queen",
 			"text": ["Have you squashed all",
-					 "of those horrible spiders",
+					 "of those horrible things",
 					 "yet?"]
 		}
 	],
-	"SpaceShipQuest": [
+	"DogQuest2": [
 		{
 			"speaker": "Queen Quinella",
 			"image": "queen",
@@ -55,10 +55,119 @@
 		{
 			"speaker": "King Abner",
 			"image": "king",
+			"action": "SpaceShipQuest",
 			"text": ["Why don't you take",
 					 "the rocket out for a",
 					 "spin?"]
+		},
+		{
+			"speaker": "Queen Quinella",
+			"image": "queen",
+			"text": ["While you are out,",
+					 "take this letter to our",
+					 "neighbors, the Squishians."]
+		},
+		{
+			"speaker": "Player Man",
+			"image": "playerMan",
+			"text": ["Sure, okay.",
+					 "What does it say?"]
+		},
+		{
+			"speaker": "Queen Quinella",
+			"image": "queen",
+			"text": ["It is asking them to",
+					 "stop being such jerks."]
+		},
+		{
+			"speaker": "King Abner",
+			"image": "king",
+			"text": ["Yes that would be a",
+					 "nice change. "]
+		},
+		{
+			"speaker": "Queen Quinella",
+			"image": "queen",
+			"text": ["We'll send some guards along",
+					 "with you.",
+					 "I'm sure you'll be fine."]
+		}
+
+	],
+	"SpaceShipQuest": [
+		{
+			"speaker": "Queen Quinella",
+			"image": "queen",
+			"text": ["Go have some fun in",
+					 "the rocketship, deary."]
+		}
+	],
+	"SpaceWarQuest": [
+		{
+			"speaker": "Queen Quinella",
+			"image": "king",
+			"text": ["Good news!",
+					 "The Squishians have agreed",
+					 "not to blow up our planet."]
+		},
+		{
+			"speaker": "Queen Quinella",
+			"image": "king",
+			"text": ["As long as we become their",
+					 "slaves and you marry the",
+					 "leader's son."]
+		},
+		{
+			"speaker": "Queen Quinella",
+			"image": "playerMan",
+			"text": ["Wait, what now?",
+					 " "]
+		},
+		{
+			"speaker": "Queen Quinella",
+			"image": "alienLeader",
+			"text": ["He is quite a catch,",
+					 "very slimy."]
+		},
+		{
+			"speaker": "Queen Quinella",
+			"image": "alienTentacle",
+			"text": ["**squelch**",
+					 " "]
+		},
+		{
+			"speaker": "Queen Quinella",
+			"image": "alienLeader",
+			"text": ["Also I took your dog as",
+					 "hostage."]
+		},
+		{
+			"speaker": "Queen Quinella",
+			"image": "playerMan",
+			"text": ["Scraps!?  But why?",
+					 " "]
+		},
+		{
+			"speaker": "Queen Quinella",
+			"image": "alienLeader",
+			"action": "AfterSpaceWarQuest",
+			"text": ["He was humping my leg.",
+					 "I thought he was your",
+					 "leader."]
+		}
+	],
+	"AfterSpaceWarQuest": [
+		{
+			"speaker": "Queen Quinella",
+			"image": "king",
+			"text": ["Ready for the wedding?",
+					 " "]
+		},
+		{
+			"speaker": "Queen Quinella",
+			"image": "queen",
+			"text": ["I am sure he is not",
+					 "that squishy, dear. "]
 		}
 	]
-
 }

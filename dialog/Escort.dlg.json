@@ -1,0 +1,11 @@
+{
+	"default": [
+		{
+			"speaker": "Home Guard",
+			"image": "homeGuard",
+			"text": ["I'll escort you.",
+					 "There shouldn't be",
+					 "any trouble."]
+		}
+	]
+}

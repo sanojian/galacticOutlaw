@@ -1,0 +1,10 @@
+{
+	"default": [
+		{
+			"speaker": "Home Guard",
+			"image": "alienTentacle",
+			"text": ["Move along there!",
+					 "Dang stinky ape..."]
+		}
+	]
+}

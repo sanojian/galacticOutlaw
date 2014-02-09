@@ -1,0 +1,101 @@
+{
+	"SpaceShipQuest": [
+		{
+			"speaker": "Alien Leader",
+			"image": "alienLeader",
+			"text": ["What do you want?",
+					 "Oh, a letter..."]
+		},
+		{
+			"speaker": "Alien Leader",
+			"image": "alienLeader",
+			"text": ["Let's see, err...",
+					 " "]
+		},
+		{
+			"speaker": "Alien Leader",
+			"image": "alienLeader",
+			"text": ["Guard!  Read this for me.",
+					 " "]
+		},
+		{
+			"speaker": "Alien Leader",
+			"image": "alienTentacle",
+			"text": ["Okay boss. It says:",
+					 "'Dear Slimeball,'"]
+		},
+		{
+			"speaker": "Alien Leader",
+			"image": "alienLeader",
+			"text": ["What?!",
+					 " "]
+		},
+		{
+			"speaker": "Alien Leader",
+			"image": "alienTentacle",
+			"text": ["'Please keep your big slimy",
+					 "blobs off our lawn.  Love, ",
+					 "The Humans'"]
+		},
+		{
+			"speaker": "Alien Leader",
+			"image": "alienLeader",
+			"text": ["This is an OUTRAGE!",
+					 " "]
+		},
+		{
+			"speaker": "Alien Leader",
+			"image": "alienLeader",
+			"text": ["Our slimy blobs are",
+					 "not that big!"]
+		},
+		{
+			"speaker": "Alien Leader",
+			"image": "alienLeader",
+			"text": ["Besides, they have a",
+					 "glandular problem."]
+		},
+		{
+			"speaker": "Alien Leader",
+			"image": "alienLeader",
+			"action": "SpaceWarQuest",
+			"text": ["We won't stand for this!",
+					 " "]
+		}
+	],
+	"SpaceWarQuest": [
+		{
+			"speaker": "Alien Leader",
+			"image": "alienLeader",
+			"text": ["I have been insulted.",
+					 "There will be consequences!"]
+		}
+	],
+	"AfterSpaceWarQuest": [
+		{
+			"speaker": "Alien Leader",
+			"image": "alienLeader",
+			"text": ["We will all be one happy",
+					 "family soon."]
+		},
+		{
+			"speaker": "Alien Leader",
+			"image": "alienLeader",
+			"text": ["We can only hope nothing",
+					 "happens to your dear",
+					 "grandparents after the wedding."]
+		},
+		{
+			"speaker": "Alien Leader",
+			"image": "alienTentacle",
+			"text": ["**squirp** **squirp**",
+					 " "]
+		},
+		{
+			"speaker": "Alien Leader",
+			"image": "alienLeader",
+			"text": ["Then this planet would",
+					 "become ours."]
+		}				
+	]	
+}

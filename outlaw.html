@@ -59,7 +59,7 @@
 		
 		.icon.icon-weapon {background-position: -216px -1824px}
 		.icon.icon-shield {background-position: -48px -1800px}
-		.icon.icon-engine {background-position: -48px -1848px}
+		.icon.icon-engine {background-position: -624px -1920px}
 		.icon.part { margin: 12px }
 			
 	</style>
@@ -100,6 +100,80 @@ var g_game = {
 		
 		dummyTest: function() { return false; },
 		
+		getSpaceWarQuestShips: function() {
+			return [
+				{
+					x: 800,
+					y: 800,
+					sprite: 'enemyShip1',
+					faction: 'faction2',
+					enemyFaction: 'faction1',
+					follows: 'planet0'
+				},
+				{
+					x: 1600,
+					y: 400,
+					sprite: 'friendShip1',
+					faction: 'faction1',
+					enemyFaction: 'faction2',
+					follows: 'PlayerShip'
+				},
+				{
+					x: 2100,
+					y: 300,
+					sprite: 'enemyShip1',
+					faction: 'faction2',
+					enemyFaction: 'faction1',
+					follows: 'planet1'
+				},
+				{
+					x: 1900,
+					y: 200,
+					sprite: 'enemyShip1',
+					faction: 'faction2',
+					enemyFaction: 'faction1',
+					follows: 'planet1'
+				}				
+			];
+		},
+
+		getSpaceShipQuestShips: function() {
+			return [
+				{
+					x: 400,
+					y: 400,
+					sprite: 'friendShip1',
+					faction: 'faction1',
+					enemyFaction: 'factionX',
+					follows: 'PlayerShip'
+				},
+				{
+					x: 2100,
+					y: 400,
+					sprite: 'enemyShip1',
+					faction: 'faction2',
+					enemyFaction: 'factionX',
+					follows: 'planet1'
+				}
+				
+			];
+		},
+
+		startAfterSpaceWarQuest: function() {
+			g_game.quests.currentQuest = 'AfterSpaceWarQuest';
+		},
+
+		
+		startSpaceWarQuest: function() {
+			g_game.quests.currentQuest = 'SpaceWarQuest';
+		},
+
+		startSpaceShipQuest: function() {
+			Crafty.e('Zone')
+				.Zone('ship', 'space', false)
+				.attr({ x: 8 * TILE_SIZE, y: 8.5 * TILE_SIZE, z: 90 });
+		},
+		
 		testDogQuestCompleted: function() {
 			var mobIDs = Crafty('faction2');
 			if (mobIDs.length) {
@@ -113,7 +187,7 @@ var g_game = {
 					mob.removeComponent('Companion', false);
 				}
 			}
-			g_game.quests.currentQuest = 'SpaceShipQuest';
+			g_game.quests.currentQuest = 'DogQuest2';
 			
 			return true;
 		},
@@ -123,7 +197,7 @@ var g_game = {
 			for (var i=0;i<mobIDs.length;i++) {
 				var mob = Crafty(mobIDs[i]);
 				if (mob.charName == 'Snaps') {
-					mob.addComponent('Companion').Companion(g_game.player);
+					mob.addComponent('Companion').Companion(g_game.player, 'faction2');
 				}
 			}
 
@@ -472,7 +546,56 @@ function getParameterByName(name) {
 	return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
+function playDialog(charName) {
+	//Crafty.pause(true);
+	g_game.cDialogBox.attr({ x: 12 - Crafty.viewport.x, y: 12 - Crafty.viewport.y });
+	g_game.cDialogBox.messageBox(Crafty.asset('./dialog/' + charName + '.dlg.json'));
+}
+
+function initDialogBox() {
+	g_game.cDialogBox = Crafty.e("2D, Canvas, WPMessageBox, Keyboard")
+			 .attr({ w: VIEW_WIDTH-24, h: 96, z: 10000})
+			 .bind("KeyDown", function(e)
+			 {
+				  if(this.isDown('SPACE'))
+				  {
+					  this.next();
+				  }
+			 });
+	var characters = [	'0123456789!@_',
+						'#"Ц()-=+,.:;де?\'',
+						'abcdefghijklmnop',
+						'qrstuvwxyzABCDEF',
+						'GHIJKLMNOPQRSTUV',
+						'WXYZ'
+					];
+			 
+	g_game.cDialogBox.WPMessageBox(characters, TILE_SIZE)
+
+}
+
 function initCraftySurface() {
+
+
+	Crafty.c('Zone', {
+		Zone: function (type, destination, bMap) {
+			this.requires('2D, ' + RENDERING_MODE + ', Collision, ' + type)
+				.collision()
+				.bind('EnterFrame', function(frameObj) {
+					if (this.hit('PlayerMan')) {
+						if (bMap) {
+							loadMap(destination);
+						}
+						else {
+							Crafty.scene(destination);
+						}
+					}
+				})
+				
+			
+			return this;
+		}
+	});
 
 	Crafty.c('Mob', {
 		Mob: function (type, name) {
@@ -526,7 +649,9 @@ function initCraftySurface() {
 			
 			// check if this ends quest
 			if (g_game.quests.currentQuest) {
-				g_game.quests['test' + g_game.quests.currentQuest + 'Completed']();
+				if (g_game.quests['test' + g_game.quests.currentQuest + 'Completed']) {
+					g_game.quests['test' + g_game.quests.currentQuest + 'Completed']();
+				}
 			}
 			
 			// flying bones
@@ -558,8 +683,7 @@ function initCraftySurface() {
 					var dlgChars = this.hit('DialogSource');
 					if (dlgChars) {
 						var dlgChar = dlgChars[0].obj;
-						g_game.cDialogBox.attr({ x: 12 - Crafty.viewport.x, y: 12 - Crafty.viewport.y });
-						g_game.cDialogBox.messageBox(Crafty.asset('./dialog/' + dlgChar.charName + '.dlg.json'), {font: {size: '14px', family: GAME_FONT }})
+						playDialog(dlgChar.charName);
 						this.attr({ x: from.x, y: from.y });
 						
 					}
@@ -622,19 +746,31 @@ function initCraftySurface() {
 	});
 	
 	Crafty.c('Companion', {
-		IamCompanion: true,
 		
-		Companion: function (target) {
+		Companion: function (target, enemy) {
 			this.bind('EnterFrame', function(frameObj) {
-				if (this.IamCompanion) {
-					var dx =  target.x - this.x;
-					var dy = target.y - this.y;
-					dx = dx ? (dx > 0 ? 1 : -1) : 0;
-					dy = dy ? (dy > 0 ? 1 : -1) : 0;
-					if (this.direction.x != dx || this.direction.y != dy) {
-						this.direction = { x: dx, y: dy };
-						this.trigger('NewDirection', this.direction);
+				var newTarget = undefined;
+				var enemies = Crafty(enemy);
+				var dist = 10000;
+				for (var i=0;i<enemies.length;i++) {
+					var newDist = Math.sqrt(Math.pow(this.x - Crafty(enemies[i]).x, 2) + Math.pow(this.y - Crafty(enemies[i]).y, 2));
+					if (newDist < 100 && newDist < dist) {
+						if (newDist < TILE_SIZE*1.5) {
+							Crafty(enemies[i]).takeDamage();
+						}
+						newTarget = Crafty(enemies[i]);
 					}
+				}
+				
+				newTarget = newTarget ? newTarget : target;
+				
+				var dx =  newTarget.x - this.x;
+				var dy = newTarget.y - this.y;
+				dx = dx ? (dx > 0 ? 1 : -1) : 0;
+				dy = dy ? (dy > 0 ? 1 : -1) : 0;
+				if (this.direction.x != dx || this.direction.y != dy) {
+					this.direction = { x: dx, y: dy };
+					this.trigger('NewDirection', this.direction);
 				}
 			})
 				
@@ -842,7 +978,9 @@ function initCraftySpace() {
 					
 					var planets = this.hit('Planet');
 					if (planets) {
-						loadMap('test1');
+						g_game.zoneFromLoc = { x: planets[0].obj.x, y: planets[0].obj.y + planets[0].obj.h/2 };
+
+						loadMap(planets[0].obj.planetMap);
 					}
 					
 					if (frameObj.frame % 10 == 0) {
@@ -873,10 +1011,13 @@ function initCraftySpace() {
 
 	Crafty.c('Planet', {
 
-		Planet: function (x, y, type) {
+		Planet: function (x, y, type, map) {
 			this.requires('2D, ' + RENDERING_MODE + ', Collision, ' + type)
 				.attr({	x: x, y: y,	z: 60 })
-				.collision([this.w/2-8, this.h/2-8], [this.w/2+8, this.h/2-8], [this.w/2+8, this.h/2+8], [this.w/2-8, this.h/2+8])
+				.collision([this.w/2-this.w/4, this.h/2-this.w/4], [this.w/2+this.w/4, this.h/2-this.w/4], [this.w/2+this.w/4, this.h/2+this.w/4], [this.w/2-this.w/4, this.h/2+this.w/4])
+				
+			this.planetMap = map;
+			
 			return this;
 		}
 	});
@@ -1044,7 +1185,7 @@ function initCraftyScenes() {
 	Crafty.scene("planetSurface", function () {
 		Crafty.background('url(./images/background.png)');
 
-		$('#divGUI').css('visibility', 'hidden');
+		$('#divGUI').css('visibility', 'visible');
 		g_game.$stage = $('#cr-stage');
 		var startX = 300;
 		var startY = 220;
@@ -1056,7 +1197,7 @@ function initCraftyScenes() {
 					var obj = g_game.map.layers[i].objects[j];
 					var el = Crafty.e('2D, ' + RENDERING_MODE + ', maptile_' + obj.gid 
 									+ (obj.properties && obj.properties.components ? ',' + obj.properties.components : ''))
-								.attr({ x: obj.x, y: obj.y - TILE_SIZE });
+								.attr({ x: obj.x, y: obj.y - TILE_SIZE, z: 10 });
 					if (obj.properties && obj.properties.entity) {
 						el.addComponent(obj.properties.entity);
 						el[obj.properties.entity]('maptile_' + obj.gid, obj.properties.name);
@@ -1095,24 +1236,7 @@ function initCraftyScenes() {
 		Crafty.viewport.follow(g_game.player, g_game.player.w / 2, g_game.player.h / 2);
 		
 		//g_game.cDialogBox = Crafty.e('Dialog').Dialog();
-		g_game.cDialogBox = Crafty.e("2D, Canvas, WPMessageBox, Keyboard")
-                 .attr({ w: VIEW_WIDTH-24, h: 96, z: 10000})
-                 .bind("KeyDown", function(e)
-                 {
-                      if(this.isDown('SPACE'))
-                      {
-                          this.next();
-                      }
-                 });
-		var characters = [	'0123456789!@_',
-							'#"Ц()-=+,.:;де?\'',
-							'abcdefghijklmnop',
-							'qrstuvwxyzABCDEF',
-							'GHIJKLMNOPQRSTUV',
-							'WXYZ'
-						];
-				 
-		g_game.cDialogBox.WPMessageBox(characters, TILE_SIZE)
+		initDialogBox();
 		//Crafty.e('AIMob').AIMob('alienMan').attr({ x: startX-50, y: startY-50 });;
 		//Crafty.e('AIMob').AIMob('alienBlob').attr({ x: startX-100, y: startY-50 });;
 		
@@ -1144,25 +1268,26 @@ function initCraftyScenes() {
 
 		$('#divGUI').css('visibility', 'visible');
 		g_game.$stage = $('#cr-stage');
-		var startX = 500;
-		var startY = 500;
+		//var startX = 500;
+		//var startY = 500;
 
+		initDialogBox();
 
-		g_game.player = Crafty.e('PlayerShip').PlayerShip(startX, startY);
+		g_game.player = Crafty.e('PlayerShip').PlayerShip(g_game.zoneFromLoc.x + 100, g_game.zoneFromLoc.y);
 		Crafty.viewport.clampToEntities = false;
 		Crafty.viewport.follow(g_game.player, g_game.player.w / 2, g_game.player.h / 2);
 
 		g_game.planets = [];
-		g_game.planets.push(Crafty.e('Planet').Planet(startX + 100, startY + 100, 'planet1' ));
-		g_game.planets.push(Crafty.e('Planet').Planet(startX - 400, startY + 900, 'planet2' ));
-		g_game.planets.push(Crafty.e('Planet').Planet(startX + 1200, startY - 300, 'planet3' ));
+		g_game.planets.push(Crafty.e('Planet, planet' + g_game.planets.length).Planet(600, 600, 'planetImg1', g_game.quests.currentQuest == 'SpaceWarQuest' ? 'test3' : 'test1' ));
+		//g_game.planets.push(Crafty.e('Planet').Planet(startX - 400, startY + 900, 'planet2' ));
+		g_game.planets.push(Crafty.e('Planet, planet' + g_game.planets.length).Planet(1700, 200, 'planetImg3', 'test2' ));
 
-		Crafty.e('AIShip').AIShip(startX - 100, startY - 100, 'friendShip1', 'faction1', 'faction2', g_game.planets[0]);
-		Crafty.e('AIShip').AIShip(startX + 1200, startY - 300, 'friendShip1', 'faction1', 'faction2', g_game.planets[2]);
-
-		Crafty.e('AIShip').AIShip(startX + 200, startY + 10, 'enemyShip' + Math.floor(1 + Math.random()*6), 'faction2', 'faction1', g_game.planets[0]);
-		Crafty.e('AIShip').AIShip(startX + 400, startY + 100, 'enemyShip' + Math.floor(1 + Math.random()*6), 'faction2', 'faction1', g_game.planets[0]);
-		Crafty.e('AIShip').AIShip(startX + 300, startY + 200, 'motherShip', 'faction2', 'faction1', g_game.planets[0]);
+		// ships
+		var ships = g_game.quests['get' + g_game.quests.currentQuest + 'Ships']();
+		for (var i=0;i<ships.length;i++) {
+			var follow = Crafty(ships[i].follows);
+			Crafty.e('AIShip').AIShip(ships[i].x, ships[i].y, ships[i].sprite, ships[i].faction, ships[i].enemyFaction, follow);
+		}
 		
 		// some inventory
 		var newPart = new ShipPart('weapon', 11);
@@ -1181,6 +1306,8 @@ function initCraftyScenes() {
 		var newPart = new ShipPart('engine', 3, 100);
 		g_game.parts[newPart.guid] = newPart;
 		g_game.shipSlots[4].addPart(newPart);
+		
+		playDialog('Escort');
 		
 	});
 
@@ -1204,11 +1331,17 @@ function initCraftyScenes() {
 		//.css({ "text-align": "center", "font-family": GAME_FONT, "font-size": "44px" });
 		//} catch (ex) {;}
 
-		Crafty.load(['./images/lofi_scifi_v2.png', './dialog/King.dlg.json', './dialog/HomeGuard.dlg.json', './images/lofi_font_big.png'], function () {
+		Crafty.load([	'./images/lofi_scifi_v2.png', 
+						'./dialog/King.dlg.json', 
+						'./dialog/AlienGuard.dlg.json', 
+						'./dialog/AlienLeader.dlg.json', 
+						'./dialog/HomeGuard.dlg.json', 
+						'./dialog/Escort.dlg.json', 
+						'./images/lofi_font_big.png'], function () {
 
 			g_game.mainSpriteMap = {
 				ship: [2 * TILE_SIZE, 34 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
-				friendShip1: [22 * TILE_SIZE, 35 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				friendShip1: [2 * TILE_SIZE, 35 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				enemyShip1: [2 * TILE_SIZE, 43 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				enemyShip2: [2 * TILE_SIZE, 44 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				enemyShip3: [2 * TILE_SIZE, 45 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
@@ -1225,19 +1358,22 @@ function initCraftyScenes() {
 				skull: [28 * TILE_SIZE, 80 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				bone: [27 * TILE_SIZE, 80 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 
-				planet1: [8 * 3, 664 * 3, 24 * 3, 24 * 3],
-				planet2: [8 * 3 + 24 * 3, 664 * 3, 24 * 3, 24 * 3],
-				planet3: [0, 664 * 3 + 24 * 3, 40 * 3, 40 * 3],
+				planetImg1: [8 * 3, 664 * 3, 24 * 3, 24 * 3],
+				planetImg2: [8 * 3 + 24 * 3, 664 * 3, 24 * 3, 24 * 3],
+				planetImg3: [0, 664 * 3 + 24 * 3, 40 * 3, 40 * 3],
 				loot:	[8 * 3, 632*3, 8*3, 8*3],
 				
-				playerMan: [1* TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				playerMan: [1* TILE_SIZE, 24 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				alienBlob: [16* TILE_SIZE, 6 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				cat: [16* TILE_SIZE, 7 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				dog: [16* TILE_SIZE, 12 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
-				alienMan: [16* TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				alienMan: [16* TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				alienTentacle: [16* TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				alienLeader: [16* TILE_SIZE, 4 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				king: [1* TILE_SIZE, 25 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				queen: [2* TILE_SIZE, 25 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
-				homeGuard: [1* TILE_SIZE, 7 * TILE_SIZE, TILE_SIZE, TILE_SIZE]
+				homeGuard: [1* TILE_SIZE, 7 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+				spaceShip: [1* TILE_SIZE, 49 * TILE_SIZE, TILE_SIZE*2, TILE_SIZE*2],
 
 			};
 			
@@ -1248,6 +1384,10 @@ function initCraftyScenes() {
 			});
 			
 			layoutGUI();
+
+			//g_game.quests.currentQuest = 'SpaceShipQuest';
+			//g_game.quests.currentQuest = 'SpaceWarQuest';
+			g_game.zoneFromLoc = { x: 600, y: 600 };
 			//Crafty.scene('space');
 			loadMap('test1');
 
