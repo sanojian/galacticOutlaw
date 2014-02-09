@@ -1,5 +1,5 @@
 {
-	"SpaceShipQuest": [
+	"SpaceShip": [
 		{
 			"speaker": "Alien Leader",
 			"image": "alienLeader",
@@ -58,12 +58,12 @@
 		{
 			"speaker": "Alien Leader",
 			"image": "alienLeader",
-			"action": "SpaceWarQuest",
+			"quest": "SpaceWar",
 			"text": ["We won't stand for this!",
 					 " "]
 		}
 	],
-	"SpaceWarQuest": [
+	"SpaceWar": [
 		{
 			"speaker": "Alien Leader",
 			"image": "alienLeader",
@@ -71,7 +71,7 @@
 					 "There will be consequences!"]
 		}
 	],
-	"AfterSpaceWarQuest": [
+	"AfterSpaceWar": [
 		{
 			"speaker": "Alien Leader",
 			"image": "alienLeader",
@@ -88,7 +88,7 @@
 		{
 			"speaker": "Alien Leader",
 			"image": "alienTentacle",
-			"text": ["**squirp** **squirp**",
+			"text": ["#squirp# #squirp#",
 					 " "]
 		},
 		{

@@ -1,0 +1,44 @@
+body, html { margin:0; padding: 0; overflow:hidden; font-family:Arial; font-size:20px }
+#cr-stage { border:2px solid black; margin:5px auto; color:white }
+
+div.shipSlot {
+	background-image: url("../images/shipSlot.png");
+	width: 120px;
+	height: 48px;
+	display: inline-block;
+	margin: 3px 12px;
+}
+div.powerBar {
+	background-color: #1B9916;
+	position: relative;
+	left: 6px;
+	top: 15px;
+	width: 0px;
+	height: 18px;
+}
+#divInventory {
+	width: 144px;
+	height: 144px;
+	background-image: url("../images/shipInventory.png");
+	padding: 0;
+}
+div.shipPart {
+	width: 48px;
+	height: 48px;
+	background-image: url("../images/partBackground.png");
+	display: inline-block;
+	cursor: pointer;
+	position: absolute;
+	z-index: 6000;
+}
+
+.icon {
+	width:24px;
+	height:24px;
+	background:url(../images/lofi_scifi_v2.png) no-repeat;
+}
+
+.icon.icon-weapon {background-position: -216px -1824px}
+.icon.icon-shield {background-position: -48px -1800px}
+.icon.icon-engine {background-position: -624px -1920px}
+.icon.part { margin: 12px }

@@ -135,11 +135,9 @@ Crafty.c("WPMessageBox",
 		this.portrait.visible = true;
 
 		// perform action
-		if (this._text.content[this._txtIndex].action) {
-			// start quest if there is a start function
-			if (g_game.quests['start' + this._text.content[this._txtIndex].action]) {
-				g_game.quests['start' + this._text.content[this._txtIndex].action]();
-			}
+		if (this._text.content[this._txtIndex].quest) {
+			// start quest
+			g_game.quests[this._text.content[this._txtIndex].quest].startQuest();
 		}
 
 		var textContent = this._breakLines(this._text.content[this._txtIndex++].text);

@@ -25,12 +25,12 @@
 		{
 			"speaker": "Snaps",
 			"image": "dog",
-			"action": "DogQuest",
+			"quest": "DogWalker",
 			"text": ["Woof!",
 					" "]
 		}
 	],
-	"DogQuest": [
+	"DogWalker": [
 		{
 			"speaker": "Queen Quinella",
 			"image": "queen",
@@ -39,7 +39,7 @@
 					 "yet?"]
 		}
 	],
-	"DogQuest2": [
+	"AfterDogWalker": [
 		{
 			"speaker": "Queen Quinella",
 			"image": "queen",
@@ -55,7 +55,7 @@
 		{
 			"speaker": "King Abner",
 			"image": "king",
-			"action": "SpaceShipQuest",
+			"quest": "SpaceShip",
 			"text": ["Why don't you take",
 					 "the rocket out for a",
 					 "spin?"]
@@ -94,7 +94,7 @@
 		}
 
 	],
-	"SpaceShipQuest": [
+	"SpaceShip": [
 		{
 			"speaker": "Queen Quinella",
 			"image": "queen",
@@ -102,7 +102,7 @@
 					 "the rocketship, deary."]
 		}
 	],
-	"SpaceWarQuest": [
+	"SpaceWar": [
 		{
 			"speaker": "Queen Quinella",
 			"image": "king",
@@ -132,7 +132,7 @@
 		{
 			"speaker": "Queen Quinella",
 			"image": "alienTentacle",
-			"text": ["**squelch**",
+			"text": ["#squelch#",
 					 " "]
 		},
 		{
@@ -150,13 +150,13 @@
 		{
 			"speaker": "Queen Quinella",
 			"image": "alienLeader",
-			"action": "AfterSpaceWarQuest",
+			"quest": "AfterSpaceWar",
 			"text": ["He was humping my leg.",
 					 "I thought he was your",
 					 "leader."]
 		}
 	],
-	"AfterSpaceWarQuest": [
+	"AfterSpaceWar": [
 		{
 			"speaker": "Queen Quinella",
 			"image": "king",
