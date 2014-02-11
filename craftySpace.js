@@ -364,9 +364,10 @@ function initCraftySpace() {
 		Crafty.viewport.follow(g_game.player, g_game.player.w / 2, g_game.player.h / 2);
 
 		g_game.planets = [];
-		g_game.planets.push(Crafty.e('Planet, planet' + g_game.planets.length).Planet(600, 600, 'planetImg1', g_game.quests.currentQuest == 'SpaceWar' ? 'test3' : 'test1' ));
+		g_game.planets.push(Crafty.e('Planet, planet' + g_game.planets.length).Planet(600, 600, 'planetBig5', g_game.quests.currentQuest == 'SpaceWar' ? 'test3' : 'test1' ));
+		g_game.planets.push(Crafty.e('Planet, planet' + g_game.planets.length).Planet(700, 500, 'planetMoon1', 'moon' ));
 		//g_game.planets.push(Crafty.e('Planet').Planet(startX - 400, startY + 900, 'planet2' ));
-		g_game.planets.push(Crafty.e('Planet, planet' + g_game.planets.length).Planet(1700, 200, 'planetImg3', 'test2' ));
+		g_game.planets.push(Crafty.e('Planet, planet' + g_game.planets.length).Planet(1700, 200, 'planetBig6', 'test2' ));
 
 		// ships
 		var ships = g_game.quests[g_game.quests.currentQuest].getShips();

@@ -468,9 +468,18 @@ function initCraftyScenes() {
 				skull: [28 * TILE_SIZE, 80 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				bone: [27 * TILE_SIZE, 80 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 
-				planetImg1: [8 * 3, 664 * 3, 24 * 3, 24 * 3],
-				planetImg2: [8 * 3 + 24 * 3, 664 * 3, 24 * 3, 24 * 3],
-				planetImg3: [0, 664 * 3 + 24 * 3, 40 * 3, 40 * 3],
+				planetMoon1: [1 * TILE_SIZE, 83 * TILE_SIZE, 3 * TILE_SIZE, 3 * TILE_SIZE],
+                planetMoon2: [4 * TILE_SIZE, 83 * TILE_SIZE, 3 * TILE_SIZE, 3 * TILE_SIZE],
+                planetMoon3: [7 * TILE_SIZE, 83 * TILE_SIZE, 3 * TILE_SIZE, 3 * TILE_SIZE],
+                planetMoon4: [10 * TILE_SIZE, 83 * TILE_SIZE, 3 * TILE_SIZE, 3 * TILE_SIZE],
+                planetMoon5: [13 * TILE_SIZE, 83 * TILE_SIZE, 3 * TILE_SIZE, 3 * TILE_SIZE],
+                planetMoon6: [16 * TILE_SIZE, 83 * TILE_SIZE, 3 * TILE_SIZE, 3 * TILE_SIZE],
+                planetBig1: [0, 86 * TILE_SIZE, 5 * TILE_SIZE, 5 * TILE_SIZE],
+				planetBig2: [5 * TILE_SIZE, 86 * TILE_SIZE, 5 * TILE_SIZE, 5 * TILE_SIZE],
+                planetBig3: [10 * TILE_SIZE, 86 * TILE_SIZE, 5 * TILE_SIZE, 5 * TILE_SIZE],
+                planetBig4: [15 * TILE_SIZE, 86 * TILE_SIZE, 5 * TILE_SIZE, 5 * TILE_SIZE],
+                planetBig5: [20 * TILE_SIZE, 86 * TILE_SIZE, 5 * TILE_SIZE, 5 * TILE_SIZE],
+                planetBig6: [25 * TILE_SIZE, 86 * TILE_SIZE, 5 * TILE_SIZE, 5 * TILE_SIZE],
 				loot:	[8 * 3, 632*3, 8*3, 8*3],
 				
 				playerMan: [1* TILE_SIZE, 24 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
@@ -495,11 +504,11 @@ function initCraftyScenes() {
 			
 			layoutGUI();
 
-			//g_game.quests.currentQuest = 'SpaceShipQuest';
-			//g_game.quests.currentQuest = 'SpaceWarQuest';
+			g_game.quests.currentQuest = 'SpaceShip';
+			//g_game.quests.currentQuest = 'SpaceWar';
 			g_game.zoneFromLoc = { x: 600, y: 600 };
-			//Crafty.scene('space');
-			loadMap('test1');
+			Crafty.scene('space');
+			//loadMap('test1');
 
 
 		});
