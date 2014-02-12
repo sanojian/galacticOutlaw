@@ -96,6 +96,24 @@ function initCraftySurface() {
 		}
 	});
 
+	Crafty.c('BlobSpawner', {
+		BlobSpawner: function (type, name) {
+			this.requires('Mob')
+				.bind('EnterFrame', function(frameObj) {
+					if (frameObj.frame % 100 == 0) {
+						var mobs = Crafty('Mob');
+						if (mobs.length < 20) {
+							Crafty.e('AIMob').AIMob('alienBlob').attr({ x: this.x, y: this.y, z: this.z });
+						}
+
+					}
+				})
+				.Mob(type, name)
+
+			return this;
+		}
+	});
+
 	Crafty.c('PlayerMan', {
 		PlayerMan: function (type) {
 			this.requires('Mob, Fourway')

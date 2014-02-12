@@ -2,18 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="53e9aaa0-91bd-4d3d-8b96-2046fd872620" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/codeStyleSettings.xml" afterPath="$PROJECT_DIR$/.idea/codeStyleSettings.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/craftySpace.js" afterPath="$PROJECT_DIR$/craftySpace.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/outlaw.html" afterPath="$PROJECT_DIR$/outlaw.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/craftySurface.js" afterPath="$PROJECT_DIR$/craftySurface.js" />
     </list>
     <ignored path="galacticOutlaw.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/Dummy.txt" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392148679767" ignored="false" />
+    <file path="/Dummy.txt" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392229101228" ignored="false" />
     <file path="/quests.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1391977947417" ignored="false" />
     <file path="/a.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1391977531405" ignored="false" />
     <file path="/wpmessagebox.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1391978193024" ignored="false" />
-    <file path="/craftySurface.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1391978266504" ignored="false" />
+    <file path="/craftySurface.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392239100021" ignored="false" />
     <file path="/King.dlg.json" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1391978598597" ignored="false" />
     <file path="/AlienLeader.dlg.json" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1391978354056" ignored="false" />
     <file path="/outlaw.html" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392150060615" ignored="false" />
@@ -36,10 +33,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="craftySurface.js" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="craftySurface.js" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/craftySurface.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="74" column="28" selection-start="2333" selection-end="2338" vertical-scroll-proportion="0.0">
+            <state line="102" column="38" selection-start="3356" selection-end="3356" vertical-scroll-proportion="0.8459716">
               <folding />
             </state>
           </provider>
@@ -72,10 +69,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="outlaw.html" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="outlaw.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/outlaw.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="470" column="31" selection-start="13359" selection-end="13359" vertical-scroll-proportion="0.6534296">
+            <state line="470" column="31" selection-start="13359" selection-end="13359" vertical-scroll-proportion="-14.384615">
               <folding />
             </state>
           </provider>
@@ -145,12 +142,12 @@
     <option name="changedFiles">
       <list>
         <option value="$PROJECT_DIR$/includes/wpmessagebox.js" />
-        <option value="$PROJECT_DIR$/craftySurface.js" />
         <option value="$PROJECT_DIR$/dialog/AlienLeader.dlg.json" />
         <option value="$PROJECT_DIR$/dialog/King.dlg.json" />
         <option value="$PROJECT_DIR$/quests.js" />
         <option value="$PROJECT_DIR$/craftySpace.js" />
         <option value="$PROJECT_DIR$/outlaw.html" />
+        <option value="$PROJECT_DIR$/craftySurface.js" />
       </list>
     </option>
   </component>
@@ -242,8 +239,8 @@
     <property name="options.lastSelected" value="editor" />
     <property name="last_opened_file_path" value="$USER_HOME$/WebstormProjects" />
     <property name="FullScreen" value="false" />
-    <property name="options.searchVisible" value="true" />
     <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="options.searchVisible" value="true" />
   </component>
   <component name="RunManager">
     <list size="0" />
@@ -384,7 +381,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/craftySurface.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="74" column="28" selection-start="2333" selection-end="2338" vertical-scroll-proportion="0.0">
+        <state line="102" column="38" selection-start="3356" selection-end="3356" vertical-scroll-proportion="0.8459716">
           <folding />
         </state>
       </provider>
@@ -397,13 +394,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/dialog/Escort.dlg.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dialog/AlienGuard.dlg.json">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
           <folding />
@@ -447,7 +437,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/outlaw.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="470" column="31" selection-start="13359" selection-end="13359" vertical-scroll-proportion="0.6534296">
+        <state line="470" column="31" selection-start="13359" selection-end="13359" vertical-scroll-proportion="-14.384615">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dialog/AlienGuard.dlg.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
