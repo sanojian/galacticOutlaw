@@ -1,5 +1,5 @@
 g_game.quests = {
-	currentQuest: undefined,
+	currentQuest: "Starting",
 	
 	dummyTest: function() { return false; },
 
@@ -40,6 +40,7 @@ g_game.quests = {
 				}
 			}
 			g_game.quests.currentQuest = 'AfterDogWalker';
+			playDialog('Snaps');
 
 			return true;
 		},
@@ -60,12 +61,36 @@ g_game.quests = {
 		}
 	},
 
-	SpaceShip: {
+	MoonBase: {
 		startQuest: function() {
-			g_game.quests.currentQuest = 'SpaceShip';
+			g_game.quests.currentQuest = 'MoonBase';
 			Crafty.e('Zone')
 				.Zone('ship', 'space', false)
 				.attr({ x: 9.5 * TILE_SIZE, y: 8.5 * TILE_SIZE, z: 90 });
+		},
+		testCompleted: function() {
+			return false;
+		},
+		getShips: function() {
+			return [];
+		}
+	},
+
+	AfterMoonBase: {
+		startQuest: function() {
+			g_game.quests.currentQuest = 'AfterMoonBase';
+		},
+		testCompleted: function() {
+			return false;
+		},
+		getShips: function() {
+			return [];
+		}
+	},
+
+	SpaceShip: {
+		startQuest: function() {
+			g_game.quests.currentQuest = 'SpaceShip';
 		},
 		testCompleted: function() {
 			return false;

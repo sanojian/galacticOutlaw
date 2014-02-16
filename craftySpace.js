@@ -16,10 +16,12 @@ function initCraftySpace() {
 					if (speed > this.maxSpeed) {
 						this.velocity = this.velocity.scale(this.maxSpeed / speed);
 					}
+					var from = { x: this.x, y: this.y };
 					this.attr({
 						x: this.x + this.velocity.x,
 						y: this.y + this.velocity.y
 					});
+					this.trigger('Moved', from);
 					if (this.shield && frameObj.frame % 10 == 0) {
 						this.shield.alpha = 1 * this.shieldPart.power / 100;
 					}
@@ -150,6 +152,12 @@ function initCraftySpace() {
 						if (frameObj.frame % 10 == 0) {
 							g_game.exhaustEffects.getNextEffect().show(this.x + this.w / 2, this.y + this.h / 2);
 						}
+						if (g_game.sounds.engine.isPaused()) {
+							g_game.sounds.engine.play();
+						}
+					}
+					else if (!g_game.sounds.engine.isPaused()) {
+						g_game.sounds.engine.pause();
 					}
 					if (this.isDown(Crafty.keys.LEFT_ARROW) || this.isDown(Crafty.keys.A)) {
 						this.turn(-4);
@@ -180,6 +188,11 @@ function initCraftySpace() {
 
 					g_game.$stage.css('background-position', '' + Math.floor(-this.x / 4) + 'px ' + Math.floor(-this.y / 4) + 'px');
 					updateMiniMap();
+				})
+				.bind('Moved', function(from) {
+					if (g_game.cDialogBox.currentlyWriting) {
+						positionDialogBox();
+					}
 				})
 
 			return this;
@@ -268,7 +281,7 @@ function initCraftySpace() {
 						y: this.y + this.velocity.y
 					});
 					if (this.hit('PlayerShip')) {
-						var newPart = new ShipPart('weapon', 11);
+						var newPart = new ShipPart('weapon', 'weapon', 11);
 						g_game.parts[newPart.guid] = newPart;
 						g_game.shipInventory.addPart(newPart);
 						this.destroy();
@@ -346,7 +359,6 @@ function initCraftySpace() {
 	Crafty.scene('space', function () {
 		Crafty.background('url(./images/background.png)');
 
-
 		for (var i = 0; i < 10; i++) {
 			g_game.collideEffects.objArray.push(Crafty.e('Fragment').Fragment());
 		}
@@ -356,6 +368,7 @@ function initCraftySpace() {
 
 		$('#divGUI').css('visibility', 'visible');
 		g_game.$stage = $('#cr-stage');
+		g_game.$stage.unbind('mousedown');
 
 		initDialogBox();
 
@@ -364,10 +377,10 @@ function initCraftySpace() {
 		Crafty.viewport.follow(g_game.player, g_game.player.w / 2, g_game.player.h / 2);
 
 		g_game.planets = [];
-		g_game.planets.push(Crafty.e('Planet, planet' + g_game.planets.length).Planet(600, 600, 'planetBig5', g_game.quests.currentQuest == 'SpaceWar' ? 'test3' : 'test1' ));
+		g_game.planets.push(Crafty.e('Planet, planet' + g_game.planets.length).Planet(600, 600, 'planetBig5', 'homePlanet' ));
 		g_game.planets.push(Crafty.e('Planet, planet' + g_game.planets.length).Planet(700, 500, 'planetMoon1', 'moon' ));
 		//g_game.planets.push(Crafty.e('Planet').Planet(startX - 400, startY + 900, 'planet2' ));
-		g_game.planets.push(Crafty.e('Planet, planet' + g_game.planets.length).Planet(1700, 200, 'planetBig6', 'test2' ));
+		g_game.planets.push(Crafty.e('Planet, planet' + g_game.planets.length).Planet(1700, 200, 'planetBig6', 'alienPlanet' ));
 
 		// ships
 		var ships = g_game.quests[g_game.quests.currentQuest].getShips();
@@ -377,25 +390,32 @@ function initCraftySpace() {
 		}
 		
 		// some inventory
-		var newPart = new ShipPart('weapon', 11);
-		g_game.parts[newPart.guid] = newPart;
-		g_game.shipInventory.addPart(newPart);
-		var newPart = new ShipPart('shield', 3);
+		/*var newPart = new ShipPart('weapon', 'weapon', 11);
 		g_game.parts[newPart.guid] = newPart;
 		g_game.shipInventory.addPart(newPart);
 
-		var newPart = new ShipPart('weapon', 11, 0);
+		var newPart = new PlayerPart('weapon', 'pistol', 11);
 		g_game.parts[newPart.guid] = newPart;
-		g_game.shipSlots[2].addPart(newPart);
-		var newPart = new ShipPart('shield', 3, 0);
+		g_game.shipInventory.addPart(newPart);
+
+		var newPart = new ShipPart('weapon', 'weapon', 11, 0);
+		g_game.parts[newPart.guid] = newPart;
+		g_game.shipSlots[2].addPart(newPart);*/
+		var newPart = new ShipPart('shield', 'shield', 3, 0);
 		g_game.parts[newPart.guid] = newPart;
 		g_game.shipSlots[3].addPart(newPart);
-		var newPart = new ShipPart('engine', 3, 100);
+		var newPart = new ShipPart('engine', 'engine', 3, 100);
 		g_game.parts[newPart.guid] = newPart;
 		g_game.shipSlots[4].addPart(newPart);
-		
-		playDialog('Escort');
-		
+
+
+		playSong('DST-IceStar');
+		//playDialog('Escort');
+
+		if (g_game.quests.currentQuest == "AfterSpaceWar") {
+			playDialog('Player')
+		}
+
 	});
 	
 }

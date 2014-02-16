@@ -69,6 +69,7 @@ function initCraftySurface() {
 			return this;
 		},
 		takeDamage: function() {
+			g_game.sounds.die.play();
 			this.destroy();
 			
 			// check if this ends quest
@@ -127,8 +128,33 @@ function initCraftySurface() {
 						this.attr({ x: from.x, y: from.y });
 						
 					}
+					if (g_game.cDialogBox.currentlyWriting) {
+						positionDialogBox();
+					}
 				})
 				
+			return this;
+		}
+	});
+
+	Crafty.c('ShootingPlayerMan', {
+		ShootingPlayerMan: function (type) {
+			this.requires('PlayerMan')
+				.PlayerMan(type);
+
+
+			g_game.$stage.bind('mousedown', function(evt) {
+				var pos = $(this).offset();
+				var craftyX = evt.offsetX || evt.pageX - pos.left;
+				var craftyY = evt.offsetY || evt.pageY - pos.top;
+
+				var dx = craftyX - g_game.player.x - Crafty.viewport.x;
+				var dy = craftyY - g_game.player.y - Crafty.viewport.y;
+				var direction = new Crafty.math.Vector2D(dx, dy).scaleToMagnitude(1);
+				g_game.sounds.shoot.play();
+				Crafty.e('Bullet').Bullet(g_game.player.x, g_game.player.y, direction, g_game.player[0], 2);
+			});
+
 			return this;
 		}
 	});
@@ -195,7 +221,8 @@ function initCraftySurface() {
 				for (var i=0;i<enemies.length;i++) {
 					var newDist = Math.sqrt(Math.pow(this.x - Crafty(enemies[i]).x, 2) + Math.pow(this.y - Crafty(enemies[i]).y, 2));
 					if (newDist < 100 && newDist < dist) {
-						if (newDist < TILE_SIZE*1.5) {
+						if (newDist < TILE_SIZE*1.25) {
+							this.attr({ x: Crafty(enemies[i]).x, y: Crafty(enemies[i]).y });
 							Crafty(enemies[i]).takeDamage();
 						}
 						newTarget = Crafty(enemies[i]);
@@ -250,13 +277,24 @@ function initCraftySurface() {
 	Crafty.scene("planetSurface", function () {
 		Crafty.background('url(./images/background.png)');
 
-		$('#divGUI').css('visibility', 'visible');
-		g_game.$stage = $('#cr-stage');
-		var startX = 300;
-		var startY = 220;
 
+		$('#divGUI').css('visibility', 'hidden');
+		g_game.$stage = $('#cr-stage');
+		g_game.$stage.unbind('mousedown');
+
+		var npcLayerName = 'NPC_default';
+		// find object layer for the current quest
 		for (var i=0;i<g_game.map.layers.length;i++) {
 			if (g_game.map.layers[i].type == 'objectgroup') {
+				if (g_game.map.layers[i].name == 'NPC_' + g_game.quests.currentQuest) {
+					npcLayerName = g_game.map.layers[i].name;
+				}
+			}
+		}
+
+
+		for (var i=0;i<g_game.map.layers.length;i++) {
+			if (g_game.map.layers[i].type == 'objectgroup' && g_game.map.layers[i].name == npcLayerName) {
 				// objects
 				for (var j=0;j<g_game.map.layers[i].objects.length;j++) {
 					var obj = g_game.map.layers[i].objects[j];
@@ -276,7 +314,7 @@ function initCraftySurface() {
 					
 				}
 			}
-			else {
+			else if (g_game.map.layers[i].type == 'tilelayer') {
 				// tiles
 				for (var y=0;y<g_game.map.layers[i].height;y++) {
 					for (var x=0;x<g_game.map.layers[i].width;x++) {
@@ -298,18 +336,7 @@ function initCraftySurface() {
 		Crafty.viewport.follow(g_game.player, g_game.player.w / 2, g_game.player.h / 2);
 		
 		initDialogBox();
-		
-		g_game.$stage.bind('mousedown', function(evt) {
-			var pos = $(this).offset();
-			var craftyX = evt.offsetX || evt.pageX - pos.left;
-			var craftyY = evt.offsetY || evt.pageY - pos.top;
-			
-			var dx = craftyX - g_game.player.x - Crafty.viewport.x;
-			var dy = craftyY - g_game.player.y - Crafty.viewport.y;
-			var direction = new Crafty.math.Vector2D(dx, dy).scaleToMagnitude(1);
-			Crafty.e('Bullet').Bullet(g_game.player.x, g_game.player.y, direction, g_game.player[0], 2);
-		});
-		
+
 	});
 	
 }

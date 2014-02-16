@@ -38,7 +38,21 @@ var generateUid = function (separator) {
 	return (S4() + S4() + delim + S4() + delim + S4() + delim + S4() + delim + S4() + S4() + S4());
 };
 
-function ShipPart(type, regen, pow) {
+
+function playSong(newSong) {
+    if (g_game.songTitle != newSong) {
+        g_game.songTitle = newSong;
+        if (g_game.song) {
+            g_game.song.stop();
+        }
+        g_game.song = new buzz.sound( "./audio/music/" + newSong, {
+            formats: [ 'ogg', 'mp3' ]
+        });
+        g_game.song.setVolume(60).play().loop();
+    }
+}
+
+function ShipPart(type, icon, regen, pow) {
 	this.guid = generateUid();
 	this.type = type;
 	this.regen = regen;
@@ -78,10 +92,56 @@ function ShipPart(type, regen, pow) {
 		this.power = Math.min(100, Math.max(0, this.power + amt));
 	};
 
-	var icon = type;
-	$('#divGUI').append('<div class="shipPart" data-guid="' + this.guid + '"><div class="icon icon-' + icon + ' part" title="' + type + '"/></div>');
+	//var icon = type;
+	$('#divGUI').append('<div class="partBackground shipPart" data-guid="' + this.guid + '"><div class="icon icon-' + icon + ' part" title="' + type + '"/></div>');
 
 	this.$image = $('div.shipPart[data-guid=' + this.guid + ']');
+};
+
+function PlayerPart(type, icon, regen, pow) {
+    this.guid = generateUid();
+    this.type = type;
+    this.regen = regen;
+    this.power = pow || 0;
+    this.readyToUse = true;
+
+    this.getInfo = function () {
+        return {};
+    };
+
+    this.tick = function () {
+        if (this.type == 'engine') {
+            this.changePower(this.regen);
+        }
+        else {
+            var powLeft = Math.min(this.regen, g_game.player.shipConfiguration.engine[0].power);
+            var curPow = this.power;
+            this.changePower(powLeft);
+            var change = this.power - curPow;
+            g_game.player.shipConfiguration.engine[0].changePower(-change);
+        }
+    };
+
+    this.fire = function(x, y, direction, id, dmg) {
+        if (this.readyToUse)
+            this.readyToUse = false;
+        this.changePower(-20);
+        var self = this;
+        setTimeout(function() {
+            self.readyToUse = true;
+        }, 1000);
+        Crafty.e('Bullet').Bullet(x, y, direction, id, dmg);
+
+    };
+
+    this.changePower = function (amt) {
+        this.power = Math.min(100, Math.max(0, this.power + amt));
+    };
+
+    //var icon = type;
+    $('#divGUI').append('<div class="partBackground playerManPart" data-guid="' + this.guid + '"><div class="icon icon-' + icon + ' part" title="' + type + '"/></div>');
+
+    this.$image = $('div.playerManPart[data-guid=' + this.guid + ']');
 };
 
 function Inventory() {
@@ -183,8 +243,8 @@ window.addEventListener("load", function (event) {
 	initCraftySurface();
 	initCraftyScenes();
 
-	$('#divGUI').on('mousedown', 'div.shipPart', function (e) {
-		$('div.shipPart').css('z-index', 6000);
+	$('#divGUI').on('mousedown', 'div.partBackground', function (e) {
+		$('div.partBackground').css('z-index', 6000);
 		$(this).css('z-index', 9000);
 		g_game.draggedPart = g_game.parts[$(e.currentTarget).attr('data-guid')];
 		g_game.shipInventory.removePart(g_game.draggedPart);
@@ -192,7 +252,7 @@ window.addEventListener("load", function (event) {
 			g_game.shipSlots[i].removePart(g_game.draggedPart);
 		}
 	});
-	$('#divGUI').on('mousemove', 'div.shipPart', function (e) {
+	$('#divGUI').on('mousemove', 'div.partBackground', function (e) {
 		if (g_game.draggedPart && g_game.draggedPart.guid == $(e.currentTarget).attr('data-guid')) {
 			$(e.currentTarget).css({
 				top: e.pageY - $(e.currentTarget).height() / 2,
@@ -200,7 +260,7 @@ window.addEventListener("load", function (event) {
 			});
 		}
 	});
-	$('#divGUI').on('mouseup', 'div.shipPart', function (e) {
+	$('#divGUI').on('mouseup', 'div.partBackground', function (e) {
 		var posDragged = $(e.currentTarget).offset();
 		var cX = posDragged.left + $(e.currentTarget).width() / 2;
 		var cY = posDragged.top + $(e.currentTarget).height() / 2;
@@ -365,9 +425,13 @@ function getParameterByName(name) {
 	return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
+function positionDialogBox() {
+    g_game.cDialogBox.attr({ x: 12 - Crafty.viewport.x, y: 12 - Crafty.viewport.y });
+}
+
 function playDialog(charName) {
 	//Crafty.pause(true);
-	g_game.cDialogBox.attr({ x: 12 - Crafty.viewport.x, y: 12 - Crafty.viewport.y });
+	positionDialogBox();
 	g_game.cDialogBox.messageBox(Crafty.asset('./dialog/' + charName + '.dlg.json'));
 }
 
@@ -412,8 +476,10 @@ function loadMap(strMap) {
 		}
 		
 		g_game.map = data;
+        g_game.currentMap = strMap;
 		
 		Crafty.scene("planetSurface"); //when everything is loaded, run the main scene
+        playSong(data.properties.song);
 		
 	});
 
@@ -446,8 +512,11 @@ function initCraftyScenes() {
 						'./dialog/AlienGuard.dlg.json', 
 						'./dialog/AlienLeader.dlg.json', 
 						'./dialog/HomeGuard.dlg.json', 
-						'./dialog/Escort.dlg.json', 
-						'./images/lofi_font_big.png'], function () {
+						'./dialog/Escort.dlg.json',
+                        './dialog/Snaps.dlg.json',
+                        './dialog/MoonBase.dlg.json',
+                        './dialog/Player.dlg.json',
+                        './images/lofi_font_big.png'], function () {
 
 			g_game.mainSpriteMap = {
 				ship: [2 * TILE_SIZE, 34 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
@@ -489,6 +558,7 @@ function initCraftyScenes() {
 				alienMan: [16* TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				alienTentacle: [16* TILE_SIZE, 5 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				alienLeader: [16* TILE_SIZE, 4 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+                programmer: [1 * TILE_SIZE, 19 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				king: [1* TILE_SIZE, 25 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				queen: [2* TILE_SIZE, 25 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				homeGuard: [1* TILE_SIZE, 7 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
@@ -501,14 +571,25 @@ function initCraftyScenes() {
 			Crafty.sprite(24, './images/lofi_font_big.png', {
 					fontChar: [0, 0]
 			});
-			
+
+            g_game.sounds.shoot = new buzz.sound( "./audio/sfx/shoot", {
+                formats: [ "wav" ]
+            });
+            g_game.sounds.die = new buzz.sound( "./audio/sfx/die", {
+                formats: [ "wav" ]
+            });
+            g_game.sounds.engine = new buzz.sound( "./audio/sfx/engine", {
+                formats: [ "wav" ]
+            });
+            g_game.sounds.engine.setVolume(20);
+
 			layoutGUI();
 
-			g_game.quests.currentQuest = 'SpaceShip';
+			//g_game.quests.currentQuest = 'AfterSpaceWar';
 			//g_game.quests.currentQuest = 'SpaceWar';
 			g_game.zoneFromLoc = { x: 600, y: 600 };
-			Crafty.scene('space');
-			//loadMap('test1');
+			//Crafty.scene('space');
+			loadMap('homePlanet');
 
 
 		});
@@ -520,13 +601,14 @@ function initCraftyScenes() {
 	</script>
 </head>
 <body style="background-color: #444;" unselectable="on" onselectstart="return false;" >
-	<div id="divGUI" style="width: 100%; height: 100%; visiblity: hidden;">
-		<canvas id="canvasMiniMap" style="position: absolute;z-index: 5000; opacity: 0.6;"></canvas>
-		<div id="divShipParts" style="position: absolute;z-index: 5000;"></div>
-		<!--div id="divOverlay" style="background-image: url(./images/meshx3.png);background-repeat:repeat;position: absolute;z-index: 8000"></div--> 
+	<div id="divGUI">
+		<canvas id="canvasMiniMap"></canvas>
+		<div id="divShipParts" class="playerParts"></div>
+        <div id="divPlayerManParts" class="playerParts"></div>
+		<!--div id="divOverlay" style="background-image: url(./images/meshx3.png);background-repeat:repeat;position: absolute;z-index: 8000"></div-->
 		<div id="divControls" style="position: absolute;z-index: 5000;">
 			<img src="./images/arrows.png" />
 		</div>
-		<div id="divInventory" style="position: absolute;z-index: 5000;"></div>
+		<div id="divInventory"></div>
 	</div>        
 </body>

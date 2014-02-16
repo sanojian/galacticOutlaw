@@ -2,18 +2,33 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="53e9aaa0-91bd-4d3d-8b96-2046fd872620" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/dialog/Player.dlg.json" />
+      <change type="DELETED" beforePath="C:\Users\jonas\Documents\GitHub\galacticOutlaw\images\partBackground.png" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dialog/AlienLeader.dlg.json" afterPath="$PROJECT_DIR$/dialog/AlienLeader.dlg.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dialog/King.dlg.json" afterPath="$PROJECT_DIR$/dialog/King.dlg.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/craftySpace.js" afterPath="$PROJECT_DIR$/craftySpace.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/craftySurface.js" afterPath="$PROJECT_DIR$/craftySurface.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/maps/moon.json" afterPath="$PROJECT_DIR$/maps/moon.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/outlaw.html" afterPath="$PROJECT_DIR$/outlaw.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/quests.js" afterPath="$PROJECT_DIR$/quests.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/css/styles.css" afterPath="$PROJECT_DIR$/css/styles.css" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="galacticOutlaw.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/Dummy.txt" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392229101228" ignored="false" />
-    <file path="/quests.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1391977947417" ignored="false" />
+    <file path="/Dummy.txt" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392539285285" ignored="false" />
+    <file path="/quests.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392540721099" ignored="false" />
     <file path="/a.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1391977531405" ignored="false" />
     <file path="/wpmessagebox.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1391978193024" ignored="false" />
-    <file path="/craftySurface.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392239100021" ignored="false" />
-    <file path="/King.dlg.json" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1391978598597" ignored="false" />
-    <file path="/AlienLeader.dlg.json" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1391978354056" ignored="false" />
-    <file path="/outlaw.html" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392150060615" ignored="false" />
+    <file path="/craftySurface.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392544447079" ignored="false" />
+    <file path="/King.dlg.json" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392542648752" ignored="false" />
+    <file path="/AlienLeader.dlg.json" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392490638940" ignored="false" />
+    <file path="/outlaw.html" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392567315296" ignored="false" />
+    <file path="/craftySpace.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392567476225" ignored="false" />
+    <file path="/styles.css" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392459498012" ignored="false" />
+    <file path="/Snaps.dlg.json" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392543017029" ignored="false" />
+    <file path="/MoonBase.dlg.json" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392561922239" ignored="false" />
+    <file path="/Player.dlg.json" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392567549559" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,55 +48,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="craftySurface.js" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="craftySurface.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/craftySurface.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="102" column="38" selection-start="3356" selection-end="3356" vertical-scroll-proportion="0.8459716">
+            <state line="280" column="46" selection-start="8031" selection-end="8031" vertical-scroll-proportion="-12.76">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="quests.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/quests.js">
+      <file leaf-file-name="King.dlg.json" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/dialog/King.dlg.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="67" column="30" selection-start="1389" selection-end="1389" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="craftySpace.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/craftySpace.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="367" column="116" selection-start="10460" selection-end="10460" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="wpmessagebox.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/includes/wpmessagebox.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="55" column="38" selection-start="1783" selection-end="1788" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="outlaw.html" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/outlaw.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="470" column="31" selection-start="13359" selection-end="13359" vertical-scroll-proportion="-14.384615">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="defines.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/defines.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+            <state line="202" column="18" selection-start="4004" selection-end="4017" vertical-scroll-proportion="-18.884615">
               <folding />
             </state>
           </provider>
@@ -90,32 +69,68 @@
       <file leaf-file-name="HomeGuard.dlg.json" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dialog/HomeGuard.dlg.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="-0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Escort.dlg.json" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/dialog/Escort.dlg.json">
+      <file leaf-file-name="Player.dlg.json" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/dialog/Player.dlg.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+            <state line="9" column="18" selection-start="144" selection-end="157" vertical-scroll-proportion="-5.8846154">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AlienLeader.dlg.json" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/dialog/AlienLeader.dlg.json">
+      <file leaf-file-name="MoonBase.dlg.json" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/dialog/MoonBase.dlg.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="90" column="39" selection-start="1854" selection-end="1854" vertical-scroll-proportion="0.0">
+            <state line="21" column="21" selection-start="418" selection-end="418" vertical-scroll-proportion="-13.730769">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AlienGuard.dlg.json" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/dialog/AlienGuard.dlg.json">
+      <file leaf-file-name="quests.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/quests.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="71" column="0" selection-start="1491" selection-end="1491" vertical-scroll-proportion="-9.52">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="craftySpace.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/craftySpace.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="415" column="30" selection-start="12188" selection-end="12188" vertical-scroll-proportion="-27.84">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="outlaw.html" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/outlaw.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="590" column="14" selection-start="18136" selection-end="18136" vertical-scroll-proportion="0.74689823">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="styles.css" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/css/styles.css">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="65" column="53" selection-start="1416" selection-end="1416" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="defines.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/defines.js">
           <provider selected="true" editor-type-id="text-editor">
             <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
               <folding />
@@ -142,12 +157,16 @@
     <option name="changedFiles">
       <list>
         <option value="$PROJECT_DIR$/includes/wpmessagebox.js" />
+        <option value="$PROJECT_DIR$/css/styles.css" />
         <option value="$PROJECT_DIR$/dialog/AlienLeader.dlg.json" />
+        <option value="$PROJECT_DIR$/dialog/Snaps.dlg.json" />
+        <option value="$PROJECT_DIR$/craftySurface.js" />
         <option value="$PROJECT_DIR$/dialog/King.dlg.json" />
+        <option value="$PROJECT_DIR$/dialog/MoonBase.dlg.json" />
         <option value="$PROJECT_DIR$/quests.js" />
         <option value="$PROJECT_DIR$/craftySpace.js" />
+        <option value="$PROJECT_DIR$/dialog/Player.dlg.json" />
         <option value="$PROJECT_DIR$/outlaw.html" />
-        <option value="$PROJECT_DIR$/craftySurface.js" />
       </list>
     </option>
   </component>
@@ -182,6 +201,7 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -228,9 +248,22 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="galacticOutlaw" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="galacticOutlaw" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="css" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -241,6 +274,11 @@
     <property name="FullScreen" value="false" />
     <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\jonas\Documents\GitHub\galacticOutlaw\dialog" />
+    </key>
   </component>
   <component name="RunManager">
     <list size="0" />
@@ -256,7 +294,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="10" y="0" width="1900" height="1040" extended-state="0" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -337,20 +375,6 @@
     <breakpoint-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/dialog/King.dlg.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="41" column="19" selection-start="713" selection-end="727" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dialog/HomeGuard.dlg.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/dialog/Escort.dlg.json">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
@@ -358,9 +382,23 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/includes/wpmessagebox.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="53" column="33" selection-start="1733" selection-end="1749" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/dialog/AlienLeader.dlg.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="90" column="39" selection-start="1854" selection-end="1854" vertical-scroll-proportion="0.0">
+        <state line="7" column="27" selection-start="158" selection-end="158" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/includes/crafty.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="10287" column="36" selection-start="334531" selection-end="334544" vertical-scroll-proportion="-26.56">
           <folding />
         </state>
       </provider>
@@ -372,51 +410,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/includes/wpmessagebox.js">
+    <entry file="file://$PROJECT_DIR$/dialog/Snaps.dlg.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="55" column="38" selection-start="1783" selection-end="1788" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/craftySurface.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="102" column="38" selection-start="3356" selection-end="3356" vertical-scroll-proportion="0.8459716">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dialog/HomeGuard.dlg.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dialog/Escort.dlg.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dialog/AlienLeader.dlg.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="90" column="39" selection-start="1854" selection-end="1854" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dialog/King.dlg.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="41" column="19" selection-start="713" selection-end="727" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/quests.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="67" column="30" selection-start="1389" selection-end="1389" vertical-scroll-proportion="0.0">
+        <state line="24" column="29" selection-start="369" selection-end="369" vertical-scroll-proportion="-15.692307">
           <folding />
         </state>
       </provider>
@@ -428,23 +424,65 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/craftySurface.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="280" column="46" selection-start="8031" selection-end="8031" vertical-scroll-proportion="-12.76">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/css/styles.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="65" column="53" selection-start="1416" selection-end="1416" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dialog/MoonBase.dlg.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="21" column="21" selection-start="418" selection-end="418" vertical-scroll-proportion="-13.730769">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/quests.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="71" column="0" selection-start="1491" selection-end="1491" vertical-scroll-proportion="-9.52">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dialog/King.dlg.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="202" column="18" selection-start="4004" selection-end="4017" vertical-scroll-proportion="-18.884615">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/craftySpace.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="367" column="116" selection-start="10460" selection-end="10460" vertical-scroll-proportion="0.0">
+        <state line="415" column="30" selection-start="12188" selection-end="12188" vertical-scroll-proportion="-27.84">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dialog/HomeGuard.dlg.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dialog/Player.dlg.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="9" column="18" selection-start="144" selection-end="157" vertical-scroll-proportion="-5.8846154">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/outlaw.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="470" column="31" selection-start="13359" selection-end="13359" vertical-scroll-proportion="-14.384615">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dialog/AlienGuard.dlg.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+        <state line="590" column="14" selection-start="18136" selection-end="18136" vertical-scroll-proportion="0.74689823">
           <folding />
         </state>
       </provider>

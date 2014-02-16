@@ -1,0 +1,30 @@
+{
+	"default": [
+		{
+			"speaker": "Snaps",
+			"image": "dog",
+			"text": ["Woof!",
+					 " "]
+		},
+		{
+			"speaker": "Player",
+			"image": "playerMan",
+			"text": ["I am not sure what",
+					"I expected."]
+		}
+	],
+	"AfterDogWalker": [
+		{
+			"speaker": "Snaps",
+			"image": "dog",
+			"text": ["Woof woof!",
+				" "]
+		},
+		{
+			"speaker": "Player",
+			"image": "playerMan",
+			"text": ["Looks like we got them",
+					"all. Nice work, boy."]
+		}
+	]
+}

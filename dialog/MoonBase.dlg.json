@@ -1,0 +1,25 @@
+{
+	"default": [
+		{
+			"speaker": "Home Guard",
+			"image": "playerMan",
+			"text": ["This base is completely",
+					 "destroyed by ick."]
+		}
+	],
+	"MoonBase": [
+		{
+			"speaker": "Home Guard",
+			"image": "playerMan",
+			"quest": "AfterMoonBase",
+			"text": ["This base is completely",
+				"destroyed by ick."]
+		},
+		{
+			"speaker": "Home Guard",
+			"image": "playerMan",
+			"text": ["I had better report",
+				"this."]
+		}
+	]
+}

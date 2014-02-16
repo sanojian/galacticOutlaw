@@ -1,4 +1,13 @@
 {
+	"default": [
+		{
+			"speaker": "Alien Leader",
+			"image": "alienLeader",
+			"text": ["What are you doing",
+				"here? Go climb a tree or",
+				"something."]
+		}
+	],
 	"SpaceShip": [
 		{
 			"speaker": "Alien Leader",

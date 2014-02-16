@@ -3,31 +3,42 @@
 		{
 			"speaker": "King Abner",
 			"image": "king",
-			"text": ["Oh there you are deary.",
-					 "Your grandmother has a task",
-					 "for you."]
+			"text": ["You are looking well",
+				"dear."]
 		},
-
+		{
+			"speaker": "Queen Quinella",
+			"image": "queen",
+			"text": ["Haven't you got ",
+				"something to do?"]
+		}
+	],
+	"Starting": [
+		{
+			"speaker": "King Abner",
+			"image": "king",
+			"text": ["Oh there you are deary.",
+				"Your grandmother has a task",
+				"for you."]
+		},
 		{
 			"speaker": "Queen Quinella",
 			"image": "queen",
 			"text": ["The garden is full of ",
-					 "slimy blobs! Icky things."]
+				"slimy blobs! Icky things."]
 		},
-		
 		{
 			"speaker": "Queen Quinella",
 			"image": "queen",
 			"text": ["Take Snaps for a walk",
-					 "and clear them out."]
+				"and clear them out."]
 		},
-
 		{
 			"speaker": "Snaps",
 			"image": "dog",
 			"quest": "DogWalker",
 			"text": ["Woof!",
-					" "]
+				" "]
 		}
 	],
 	"DogWalker": [
@@ -43,47 +54,79 @@
 		{
 			"speaker": "Queen Quinella",
 			"image": "queen",
-			"text": ["Great job.  Now I can",
+			"text": ["Wonderful job!  Now I can",
 					 "enjoy the garden again."]
 		},
 		{
 			"speaker": "King Abner",
 			"image": "king",
-			"text": ["You've earned a treat!",
-					 " "]
+			"text": ["Yes jolly well done.",
+					"Now, one more thing..."]
+		},
+		{
+			"speaker": "King Abner",
+			"image": "king",
+			"text": ["It seems our moonbase",
+					"has stopped answering the",
+					"phone."]
+		},
+		{
+			"speaker": "Queen Quinella",
+			"image": "queen",
+			"text": ["They are probably asleep",
+					"at the wheel again,",
+					"the slackers."]
+		},
+		{
+			"speaker": "King Abner",
+			"image": "king",
+			"quest": "MoonBase",
+			"text": ["Yes anyway, take the",
+					"family ship up there and",
+					"sort them out, would you?"]
+		}
+	],
+
+	"AfterMoonBase": [
+
+		{
+			"speaker": "King Abner",
+			"image": "king",
+			"text": ["Gone?  The base is gone?",
+					 "Erm, well now..."]
+		},
+		{
+			"speaker": "Queen Quinella",
+			"image": "queen",
+			"text": ["That would explain why",
+					"they were not answering",
+					"the phone."]
+		},
+		{
+			"speaker": "King Abner",
+			"image": "king",
+			"text": ["Quite right, my dear.",
+					"Well, what to do? "]
+		},
+		{
+			"speaker": "Player Man",
+			"image": "playerMan",
+			"text": ["We should go ask our",
+					 "neighbors, the Squishians."]
 		},
 		{
 			"speaker": "King Abner",
 			"image": "king",
 			"quest": "SpaceShip",
-			"text": ["Why don't you take",
-					 "the rocket out for a",
-					 "spin?"]
+			"text": ["Capital idea!  Yes, go",
+					 "and do that thing you said. "]
 		},
 		{
 			"speaker": "Queen Quinella",
 			"image": "queen",
-			"text": ["While you are out,",
-					 "take this letter to our",
-					 "neighbors, the Squishians."]
-		},
-		{
-			"speaker": "Player Man",
-			"image": "playerMan",
-			"text": ["Sure, okay.",
-					 "What does it say?"]
-		},
-		{
-			"speaker": "Queen Quinella",
-			"image": "queen",
-			"text": ["It is asking them to",
-					 "stop being such jerks."]
-		},
-		{
-			"speaker": "King Abner",
-			"image": "king",
-			"text": ["Yes that would be a",
-					 "nice change. "]
+			"text": ["I will write a diplomatic",
+					"letter.  Please deliver ",
+					"it to the Squishians."]
 		},
 		{
 			"speaker": "Queen Quinella",
@@ -98,8 +141,9 @@
 		{
 			"speaker": "Queen Quinella",
 			"image": "queen",
-			"text": ["Go have some fun in",
-					 "the rocketship, deary."]
+			"text": ["Go and talk to our",
+					"neighbors on the next",
+					"planet, dear."]
 		}
 	],
 	"SpaceWar": [

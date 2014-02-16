@@ -1,0 +1,33 @@
+{
+	"default": [
+		{
+			"speaker": "Home Guard",
+			"image": "homeGuard",
+			"text": ["Hello there.",
+					 "Keeping out of trouble?"]
+		}
+	],
+	"AfterSpaceWar": [
+		{
+			"speaker": "Developer",
+			"image": "programmer",
+			"text": ["That is all there is for",
+				"now.  From here you would flee",
+				"this solar system."]
+		},
+		{
+			"speaker": "Developer",
+			"image": "programmer",
+			"text": ["And find other stars,",
+				"planets, and alien cultures."]
+		},
+		{
+			"speaker": "Developer",
+			"image": "programmer",
+			"text": ["Feel free to explore around,",
+				"but for now there is not much",
+				"more to see."]
+		}
+
+	]
+}
