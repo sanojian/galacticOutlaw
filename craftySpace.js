@@ -103,7 +103,7 @@ function initCraftySpace() {
 							angleDiff = (angleDiff + Math.PI) % (Math.PI * 2) - Math.PI;
 							// fire?
 							if (Math.abs(angleDiff) < Math.PI / 4 && frameObj.frame % 100 == 0) {
-								Crafty.e('Bullet').Bullet(this.x, this.y, this.direction, this[0], 2);
+								Crafty.e('Bullet').Bullet(this.x, this.y, this.direction, this[0], g_game.defines.partDefs.weapon.blaster);
 							}
 						}
 					}
@@ -201,7 +201,7 @@ function initCraftySpace() {
 			this.shipConfiguration = {
 				weapon: [],
 				shield: [],
-				engine: []
+				battery: []
 			}
 			for (var i = 0; i < g_game.shipSlots.length; i++) {
 				if (g_game.shipSlots[i].part) {
@@ -228,8 +228,8 @@ function initCraftySpace() {
 		range: 1000,
 		speed: 10,
 
-		Bullet: function (x, y, dir, sourceId, damage) {
-			this.requires('2D, ' + RENDERING_MODE + ', Collision, bullet')
+		Bullet: function (x, y, dir, sourceId, def) {
+			this.requires('2D, ' + RENDERING_MODE + ', Collision, ' + def.sprite)
 				.attr({
 					x: x,
 					y: y,
@@ -246,11 +246,12 @@ function initCraftySpace() {
 					if (hits) {
 						if (hits[0].obj[0] != sourceId) {
 							if (hits[0].obj.has('Ship')) {
-								hits[0].obj.takeDamage(damage);
+								hits[0].obj.takeDamage(def.damage);
 							}
 							else if (hits[0].obj.has('Mob')) {
-								hits[0].obj.takeDamage(damage);
+								hits[0].obj.takeDamage(def.damage);
 							}
+							g_game.sounds[def.sound_hit].play();
 							this.destroy();
 							return;
 						}
@@ -263,6 +264,7 @@ function initCraftySpace() {
 			this.velocity = new Crafty.math.Vector2D(dir.x * this.speed, dir.y * this.speed);
 			this.travelled = 0;
 
+			g_game.sounds[def.sound_shoot].play();
 			return this;
 		}
 	});
@@ -396,15 +398,15 @@ function initCraftySpace() {
 
 		var newPart = new PlayerPart('weapon', 'pistol', 11);
 		g_game.parts[newPart.guid] = newPart;
-		g_game.shipInventory.addPart(newPart);
+		g_game.shipInventory.addPart(newPart);*/
 
-		var newPart = new ShipPart('weapon', 'weapon', 11, 0);
+		var newPart = new ShipPart('weapon', g_game.defines.partDefs.weapon.pelletGun);
 		g_game.parts[newPart.guid] = newPart;
-		g_game.shipSlots[2].addPart(newPart);*/
-		var newPart = new ShipPart('shield', 'shield', 3, 0);
+		g_game.shipSlots[2].addPart(newPart);
+		var newPart = new ShipPart('shield', g_game.defines.partDefs.shield.shield1);
 		g_game.parts[newPart.guid] = newPart;
 		g_game.shipSlots[3].addPart(newPart);
-		var newPart = new ShipPart('engine', 'engine', 3, 100);
+		var newPart = new ShipPart('battery', g_game.defines.partDefs.battery.battery1);
 		g_game.parts[newPart.guid] = newPart;
 		g_game.shipSlots[4].addPart(newPart);
 

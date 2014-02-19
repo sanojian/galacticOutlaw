@@ -24,5 +24,6 @@ var g_game = {
 	parts: {},
 	sounds: {},
 	music: {},
-	curLevel: 0
+	curLevel: 0,
+	defines: {}
 };

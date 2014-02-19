@@ -151,8 +151,8 @@ function initCraftySurface() {
 				var dx = craftyX - g_game.player.x - Crafty.viewport.x;
 				var dy = craftyY - g_game.player.y - Crafty.viewport.y;
 				var direction = new Crafty.math.Vector2D(dx, dy).scaleToMagnitude(1);
-				g_game.sounds.shoot.play();
-				Crafty.e('Bullet').Bullet(g_game.player.x, g_game.player.y, direction, g_game.player[0], 2);
+				//g_game.sounds.shoot.play();
+				Crafty.e('Bullet').Bullet(g_game.player.x, g_game.player.y, direction, g_game.player[0], g_game.defines.partDefs.weapon.blaster);
 			});
 
 			return this;

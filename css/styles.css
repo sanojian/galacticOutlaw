@@ -60,8 +60,9 @@ div.playerParts {
 	background:url(../images/lofi_scifi_v2.png) no-repeat;
 }
 
+.icon.icon-pelletGun {background-position: -168px -1824px}
 .icon.icon-weapon {background-position: -216px -1824px}
 .icon.icon-shield {background-position: -48px -1800px}
-.icon.icon-engine {background-position: -624px -1920px}
+.icon.icon-battery {background-position: -624px -1920px}
 .icon.icon-pistol {background-position:  -216px -1800px}
 .icon.part { margin: 12px }

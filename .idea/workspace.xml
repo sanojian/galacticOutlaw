@@ -2,33 +2,33 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="53e9aaa0-91bd-4d3d-8b96-2046fd872620" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/dialog/Player.dlg.json" />
-      <change type="DELETED" beforePath="C:\Users\jonas\Documents\GitHub\galacticOutlaw\images\partBackground.png" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dialog/AlienLeader.dlg.json" afterPath="$PROJECT_DIR$/dialog/AlienLeader.dlg.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dialog/King.dlg.json" afterPath="$PROJECT_DIR$/dialog/King.dlg.json" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/js/inventory.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/js/defines/parts.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/craftySpace.js" afterPath="$PROJECT_DIR$/craftySpace.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/craftySurface.js" afterPath="$PROJECT_DIR$/craftySurface.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/maps/moon.json" afterPath="$PROJECT_DIR$/maps/moon.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/defines.js" afterPath="$PROJECT_DIR$/defines.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/outlaw.html" afterPath="$PROJECT_DIR$/outlaw.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/quests.js" afterPath="$PROJECT_DIR$/quests.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/css/styles.css" afterPath="$PROJECT_DIR$/css/styles.css" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="galacticOutlaw.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/Dummy.txt" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392539285285" ignored="false" />
+    <file path="/Dummy.txt" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392790947354" ignored="false" />
     <file path="/quests.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392540721099" ignored="false" />
     <file path="/a.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1391977531405" ignored="false" />
     <file path="/wpmessagebox.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1391978193024" ignored="false" />
-    <file path="/craftySurface.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392544447079" ignored="false" />
+    <file path="/craftySurface.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392801337590" ignored="false" />
     <file path="/King.dlg.json" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392542648752" ignored="false" />
     <file path="/AlienLeader.dlg.json" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392490638940" ignored="false" />
-    <file path="/outlaw.html" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392567315296" ignored="false" />
-    <file path="/craftySpace.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392567476225" ignored="false" />
-    <file path="/styles.css" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392459498012" ignored="false" />
+    <file path="/outlaw.html" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392801043584" ignored="false" />
+    <file path="/craftySpace.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392802735462" ignored="false" />
+    <file path="/styles.css" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392799887774" ignored="false" />
     <file path="/Snaps.dlg.json" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392543017029" ignored="false" />
     <file path="/MoonBase.dlg.json" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392561922239" ignored="false" />
     <file path="/Player.dlg.json" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392567549559" ignored="false" />
+    <file path="/inventory.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392802104358" ignored="false" />
+    <file path="/parts.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392802643283" ignored="false" />
+    <file path="/defines.js" changelist="53e9aaa0-91bd-4d3d-8b96-2046fd872620" time="1392799257898" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,46 +48,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="craftySurface.js" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="craftySurface.js" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/craftySurface.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="280" column="46" selection-start="8031" selection-end="8031" vertical-scroll-proportion="-12.76">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="King.dlg.json" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/dialog/King.dlg.json">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="202" column="18" selection-start="4004" selection-end="4017" vertical-scroll-proportion="-18.884615">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="HomeGuard.dlg.json" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/dialog/HomeGuard.dlg.json">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="-0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Player.dlg.json" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/dialog/Player.dlg.json">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="9" column="18" selection-start="144" selection-end="157" vertical-scroll-proportion="-5.8846154">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MoonBase.dlg.json" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/dialog/MoonBase.dlg.json">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="21" column="21" selection-start="418" selection-end="418" vertical-scroll-proportion="-13.730769">
+            <state line="153" column="18" selection-start="4611" selection-end="4611" vertical-scroll-proportion="0.58064514">
               <folding />
             </state>
           </provider>
@@ -96,7 +60,7 @@
       <file leaf-file-name="quests.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/quests.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="71" column="0" selection-start="1491" selection-end="1491" vertical-scroll-proportion="-9.52">
+            <state line="71" column="0" selection-start="1491" selection-end="1491" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -105,16 +69,25 @@
       <file leaf-file-name="craftySpace.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/craftySpace.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="415" column="30" selection-start="12188" selection-end="12188" vertical-scroll-proportion="-27.84">
+            <state line="253" column="55" selection-start="7696" selection-end="7696" vertical-scroll-proportion="-17.16">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="outlaw.html" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="outlaw.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/outlaw.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="590" column="14" selection-start="18136" selection-end="18136" vertical-scroll-proportion="0.74689823">
+            <state line="399" column="25" selection-start="13210" selection-end="13223" vertical-scroll-proportion="-16.846153">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="inventory.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/js/inventory.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="36" column="0" selection-start="888" selection-end="888" vertical-scroll-proportion="-24.48">
               <folding />
             </state>
           </provider>
@@ -123,7 +96,7 @@
       <file leaf-file-name="styles.css" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/css/styles.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="65" column="53" selection-start="1416" selection-end="1416" vertical-scroll-proportion="0.0">
+            <state line="62" column="47" selection-start="1243" selection-end="1243" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -132,7 +105,16 @@
       <file leaf-file-name="defines.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/defines.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+            <state line="27" column="15" selection-start="767" selection-end="767" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="parts.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/js/defines/parts.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="20" column="28" selection-start="350" selection-end="350" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -157,16 +139,19 @@
     <option name="changedFiles">
       <list>
         <option value="$PROJECT_DIR$/includes/wpmessagebox.js" />
-        <option value="$PROJECT_DIR$/css/styles.css" />
         <option value="$PROJECT_DIR$/dialog/AlienLeader.dlg.json" />
         <option value="$PROJECT_DIR$/dialog/Snaps.dlg.json" />
-        <option value="$PROJECT_DIR$/craftySurface.js" />
         <option value="$PROJECT_DIR$/dialog/King.dlg.json" />
         <option value="$PROJECT_DIR$/dialog/MoonBase.dlg.json" />
         <option value="$PROJECT_DIR$/quests.js" />
-        <option value="$PROJECT_DIR$/craftySpace.js" />
         <option value="$PROJECT_DIR$/dialog/Player.dlg.json" />
+        <option value="$PROJECT_DIR$/defines.js" />
+        <option value="$PROJECT_DIR$/css/styles.css" />
         <option value="$PROJECT_DIR$/outlaw.html" />
+        <option value="$PROJECT_DIR$/js/inventory.js" />
+        <option value="$PROJECT_DIR$/js/defines/parts.js" />
+        <option value="$PROJECT_DIR$/craftySpace.js" />
+        <option value="$PROJECT_DIR$/craftySurface.js" />
       </list>
     </option>
   </component>
@@ -201,7 +186,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -217,6 +201,38 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="galacticOutlaw" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="galacticOutlaw" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="galacticOutlaw" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="js" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="galacticOutlaw" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="galacticOutlaw" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="js" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="defines" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -264,6 +280,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -281,9 +298,34 @@
     </key>
   </component>
   <component name="RunManager">
+    <configuration default="true" type="DartUnitRunConfigurationType" factoryName="DartUnit">
+      <option name="VMOptions" />
+      <option name="arguments" />
+      <option name="filePath" />
+      <option name="scope" value="ALL" />
+      <option name="testName" />
+      <method />
+    </configuration>
     <list size="0" />
   </component>
   <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="SvnConfiguration" maxAnnotateRevisions="500" myUseAcceleration="nothing" myAutoUpdateAfterCommit="false" cleanupOnStartRun="false" SSL_PROTOCOLS="all">
+    <option name="USER" value="" />
+    <option name="PASSWORD" value="" />
+    <option name="mySSHConnectionTimeout" value="30000" />
+    <option name="mySSHReadTimeout" value="30000" />
+    <option name="LAST_MERGED_REVISION" />
+    <option name="MERGE_DRY_RUN" value="false" />
+    <option name="MERGE_DIFF_USE_ANCESTRY" value="true" />
+    <option name="UPDATE_LOCK_ON_DEMAND" value="false" />
+    <option name="IGNORE_SPACES_IN_MERGE" value="false" />
+    <option name="CHECK_NESTED_FOR_QUICK_MERGE" value="false" />
+    <option name="IGNORE_SPACES_IN_ANNOTATE" value="true" />
+    <option name="SHOW_MERGE_SOURCES_IN_ANNOTATE" value="true" />
+    <option name="FORCE_UPDATE" value="false" />
+    <option name="IGNORE_EXTERNALS" value="false" />
+    <myIsUseDefaultProxy>false</myIsUseDefaultProxy>
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="53e9aaa0-91bd-4d3d-8b96-2046fd872620" name="Default" comment="" />
@@ -294,12 +336,12 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="10" y="0" width="1900" height="1040" extended-state="0" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
-      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Changes" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3291714" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24986567" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24986567" sideWeight="0.6708286" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -375,20 +417,6 @@
     <breakpoint-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/dialog/Escort.dlg.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/includes/wpmessagebox.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="53" column="33" selection-start="1733" selection-end="1749" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/dialog/AlienLeader.dlg.json">
       <provider selected="true" editor-type-id="text-editor">
         <state line="7" column="27" selection-start="158" selection-end="158" vertical-scroll-proportion="0.0">
@@ -417,51 +445,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/defines.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/craftySurface.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="280" column="46" selection-start="8031" selection-end="8031" vertical-scroll-proportion="-12.76">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/css/styles.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="65" column="53" selection-start="1416" selection-end="1416" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/dialog/MoonBase.dlg.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="21" selection-start="418" selection-end="418" vertical-scroll-proportion="-13.730769">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/quests.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="71" column="0" selection-start="1491" selection-end="1491" vertical-scroll-proportion="-9.52">
+        <state line="21" column="21" selection-start="418" selection-end="418" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/dialog/King.dlg.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="202" column="18" selection-start="4004" selection-end="4017" vertical-scroll-proportion="-18.884615">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/craftySpace.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="415" column="30" selection-start="12188" selection-end="12188" vertical-scroll-proportion="-27.84">
+        <state line="202" column="18" selection-start="4004" selection-end="4017" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -475,14 +468,63 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dialog/Player.dlg.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="9" column="18" selection-start="144" selection-end="157" vertical-scroll-proportion="-5.8846154">
+        <state line="9" column="18" selection-start="144" selection-end="157" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/quests.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="71" column="0" selection-start="1491" selection-end="1491" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/defines.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="27" column="15" selection-start="767" selection-end="767" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/css/styles.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="62" column="47" selection-start="1243" selection-end="1243" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/inventory.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="36" column="0" selection-start="888" selection-end="888" vertical-scroll-proportion="-24.48">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/outlaw.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="590" column="14" selection-start="18136" selection-end="18136" vertical-scroll-proportion="0.74689823">
+        <state line="399" column="25" selection-start="13210" selection-end="13223" vertical-scroll-proportion="-16.846153">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/defines/parts.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="20" column="28" selection-start="350" selection-end="350" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/craftySpace.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="253" column="55" selection-start="7696" selection-end="7696" vertical-scroll-proportion="-17.16">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/craftySurface.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="153" column="18" selection-start="4611" selection-end="4611" vertical-scroll-proportion="0.58064514">
           <folding />
         </state>
       </provider>
