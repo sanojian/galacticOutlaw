@@ -1,0 +1,17 @@
+{
+  "name": "galacticOutlaw",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {},
+  "devDependencies": {
+    "grunt": "^1.0.4",
+    "grunt-contrib-clean": "*",
+    "grunt-contrib-concat": "*",
+    "grunt-contrib-copy": "*",
+    "grunt-contrib-jshint": "*",
+    "grunt-contrib-watch": "*",
+    "grunt-develop": "*",
+    "grunt-http-server": "*",
+    "matchdep": "*"
+  }
+}

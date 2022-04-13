@@ -273,14 +273,33 @@ function initCraftySurface() {
 			}
 		}
 	});
-	
+
+	Crafty.scene("splash", function () {
+		Crafty.background('url(./images/background.png)');
+
+		$('#divGUI').css('visibility', 'hidden');
+
+		Crafty.e('2D, DOM, Text')
+			.attr({ x: 120, y: 150, w: 700 })
+			.textFont({ size: "32pt", weight: 'bold', family: GAME_FONT })
+			.text('Galactic Outlaw');
+
+		Crafty.e('2D, DOM, Text')
+			.attr({ x: 120, y: 500, w: 700 })
+			.textFont({ size: "24pt", weight: 'bold', family: GAME_FONT })
+			.text('Click to continue...');
+
+		g_game.$stage = $('#cr-stage');
+		g_game.$stage.bind('mousedown', function () {
+			g_game.$stage.unbind('mousedown');
+			loadMap('homePlanet');
+		});
+	});
+
 	Crafty.scene("planetSurface", function () {
 		Crafty.background('url(./images/background.png)');
 
 
-		$('#divGUI').css('visibility', 'hidden');
-		g_game.$stage = $('#cr-stage');
-		g_game.$stage.unbind('mousedown');
 
 		var npcLayerName = 'NPC_default';
 		// find object layer for the current quest

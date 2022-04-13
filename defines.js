@@ -1,5 +1,5 @@
 var RENDERING_MODE = 'Canvas';
-var GAME_FONT = '"Press Start 2P", cursive';
+var GAME_FONT = 'Press Start 2P';
 var TILE_SIZE = 8*3;
 var VIEW_WIDTH = 960 - 144; 
 var VIEW_HEIGHT = 640; 
